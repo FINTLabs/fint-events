@@ -11,9 +11,12 @@ project.ext {
     schemagenModelDir = 'src/main/java/no/fint/events/model'
 }
 
+group 'no.fint'
+version '0.0.2-SNAPSHOT'
+
 jar {
     baseName = 'fint-events'
-    version = '0.0.1-SNAPSHOT'
+    version = version
 }
 
 sourceCompatibility = 1.8
