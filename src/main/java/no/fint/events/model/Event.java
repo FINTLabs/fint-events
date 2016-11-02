@@ -1,6 +1,7 @@
 package no.fint.events.model;
 
 import javax.xml.bind.annotation.*;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -9,7 +10,7 @@ import java.util.UUID;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "Event")
-public class Event<T> {
+public class Event<T> implements Serializable {
     @XmlElement(required = true)
     private String corrId;
 
