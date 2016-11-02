@@ -5,6 +5,8 @@
 Event model is written as a Java-class and available as XSD-file (generated from code).
 
 
+---
+
 
 ## Dynamic RabbitMQ Spring Boot
 
