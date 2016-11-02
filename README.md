@@ -1,5 +1,7 @@
 # FINT events
 
+[![Build Status](https://travis-ci.org/FINTprosjektet/fint-events.svg?branch=master)](https://travis-ci.org/FINTprosjektet/fint-events)
+
 ## Event model
 
 Event model is written as a Java-class and available as XSD-file (generated from code).
