@@ -41,14 +41,6 @@ public class Event<T> implements Serializable {
         this.data = new ArrayList<>();
     }
 
-    public String getSource() {
-        return source;
-    }
-
-    public void setSource(String source) {
-        this.source = source;
-    }
-
     public Event(String orgId, String source, String verb, Status status) {
         this.orgId = orgId;
         this.source = source;
@@ -58,14 +50,6 @@ public class Event<T> implements Serializable {
         this.status = status;
         this.time = new Date();
         this.data = new ArrayList<>();
-    }
-
-    public String getOrgId() {
-        return orgId;
-    }
-
-    public void setOrgId(String orgId) {
-        this.orgId = orgId;
     }
 
     public String getCorrId() {
@@ -92,20 +76,36 @@ public class Event<T> implements Serializable {
         this.status = status;
     }
 
-    public String getClient() {
-        return client;
-    }
-
-    public void setClient(String client) {
-        this.client = client;
-    }
-
     public Date getTime() {
         return time;
     }
 
     public void setTime(Date time) {
         this.time = time;
+    }
+
+    public String getOrgId() {
+        return orgId;
+    }
+
+    public void setOrgId(String orgId) {
+        this.orgId = orgId;
+    }
+
+    public String getSource() {
+        return source;
+    }
+
+    public void setSource(String source) {
+        this.source = source;
+    }
+
+    public String getClient() {
+        return client;
+    }
+
+    public void setClient(String client) {
+        this.client = client;
     }
 
     public List<T> getData() {
@@ -116,10 +116,6 @@ public class Event<T> implements Serializable {
         this.data = data;
     }
 
-    public void addData(T data) {
-        this.data.add(data);
-    }
-
     @Override
     public String toString() {
         return "Event{" +
@@ -128,6 +124,8 @@ public class Event<T> implements Serializable {
                 ", status=" + status +
                 ", time=" + time +
                 ", orgId='" + orgId + '\'' +
+                ", source='" + source + '\'' +
+                ", client='" + client + '\'' +
                 ", data=" + data +
                 '}';
     }

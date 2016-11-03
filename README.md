@@ -4,7 +4,12 @@
 
 ## Event model
 
-Event model is written as a Java-class and available as XSD-file (generated from code).
+Event model is written as a Java-class and available as XSD-file (generated from code).  
+  
+To generate xsd 
+```
+./gradlew schemagen
+```
 
 ---------
 
