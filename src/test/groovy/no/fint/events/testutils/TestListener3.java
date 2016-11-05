@@ -1,4 +1,4 @@
-package no.fint.events.queue.testutils;
+package no.fint.events.testutils;
 
 public class TestListener3 {
 

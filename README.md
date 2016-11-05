@@ -2,17 +2,6 @@
 
 [![Build Status](https://travis-ci.org/FINTprosjektet/fint-events.svg?branch=master)](https://travis-ci.org/FINTprosjektet/fint-events)
 
-## Event model
-
-Event model is written as a Java-class and available as XSD-file (generated from code).  
-  
-To generate xsd: `./gradlew schemagen`
-
-
----------
-
-## Dynamic RabbitMQ Spring Boot
-
 Making it easy to dynamically create new queues and listeners for RabbitMQ.
 
 ## Installation
@@ -26,15 +15,15 @@ repositories {
     }
 }
 
-compile('no.fint:dynamic-rabbitmq-spring-boot:0.0.3')
+compile('no.fint:fint-events:0.0.2')
 ```
 
 ## Usage
 
-Add `@EnableDynamicRabbit` to the main class
+Add `@EnableFintEvents` to the main class
 
 ```
-@EnableDynamicRabbit
+@EnableFintEvents
 @SpringBootApplication
 public class Application {
     public static void main(String[] args) {
@@ -53,18 +42,18 @@ public class Receiver {
 
 ```
 
-`@Autowire` in the DynamicQueues class, and connect the exchange, queue and receiver
+`@Autowire` in the `Events` class, and connect the exchange, queue and receiver
 
 ```
 @Service
 public class MyService {
 
     @Autowired
-    private DynamicQueues dynamicQueues;
+    private Events events;
 
     @PostConstruct
     public void init() {
-        dynamicQueues.registerListener("my-exchange", "my-queue", Receiver.class);
+        events.registerListener("my-exchange", "my-queue", Receiver.class);
     }
 }
 ```
@@ -92,6 +81,15 @@ Configuration options that can be added to `application.yml`
 | spring.rabbitmq.listener.retry.max-interval | Maximum interval between attempts. | 10000 |
 | spring.rabbitmq.listener.retry.multiplier | A multiplier to apply to the previous delivery retry interval. | 1.0 |
 
+---------
+
+## Event model
+
+Event model is written as a Java-class and available as XSD-file (generated from code).  
+  
+To generate xsd: `./gradlew schemagen`
+
+---------
 
 ## Upload
 

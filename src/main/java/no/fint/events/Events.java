@@ -1,11 +1,11 @@
-package no.fint.events.queue;
+package no.fint.events;
 
 import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 
-public class DynamicQueues {
+public class Events {
 
     @Autowired
     private AmqpAdmin amqpAdmin;
@@ -14,7 +14,7 @@ public class DynamicQueues {
     private ConnectionFactory connectionFactory;
 
     @Autowired
-    private DynamicQueuesRegistry dynamicQueuesRegistry;
+    private EventsRegistry eventsRegistry;
 
     public void registerListener(String exchange, String queue, Class<?> listener) {
         registerListener(new TopicExchange(exchange), new Queue(queue), listener);
@@ -24,7 +24,7 @@ public class DynamicQueues {
         amqpAdmin.declareQueue(queue);
         amqpAdmin.declareExchange(exchange);
         amqpAdmin.declareBinding(getBinding(exchange, queue));
-        dynamicQueuesRegistry.add(queue.getName(), listener);
+        eventsRegistry.add(queue.getName(), listener);
     }
 
     public void removeListener(String exchange, String queue) {
@@ -33,7 +33,7 @@ public class DynamicQueues {
 
     public void removeListener(TopicExchange exchange, Queue queue) {
         amqpAdmin.removeBinding(getBinding(exchange, queue));
-        dynamicQueuesRegistry.shutdown(queue.getName());
+        eventsRegistry.shutdown(queue.getName());
     }
 
     private Binding getBinding(TopicExchange exchange, Queue queue) {

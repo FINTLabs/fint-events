@@ -1,4 +1,4 @@
-package no.fint.events.queue;
+package no.fint.events;
 
 import org.springframework.context.annotation.Import;
 
@@ -9,6 +9,6 @@ import java.lang.annotation.Target;
 
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-@Import(DynamicQueuesConfig.class)
-public @interface EnableDynamicRabbit {
+@Import(EventsConfig.class)
+public @interface EnableFintEvents {
 }

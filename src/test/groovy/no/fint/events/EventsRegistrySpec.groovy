@@ -1,9 +1,9 @@
-package no.fint.events.queue
+package no.fint.events
 
-import no.fint.events.queue.testutils.TestApplication
-import no.fint.events.queue.testutils.TestListener
-import no.fint.events.queue.testutils.TestListener2
-import no.fint.events.queue.testutils.TestListener3
+import no.fint.events.testutils.TestApplication
+import no.fint.events.testutils.TestListener
+import no.fint.events.testutils.TestListener2
+import no.fint.events.testutils.TestListener3
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ContextConfiguration
@@ -11,10 +11,10 @@ import spock.lang.Specification
 
 @ContextConfiguration
 @SpringBootTest(classes = TestApplication)
-class DynamicQueuesRegistrySpec extends Specification {
+class EventsRegistrySpec extends Specification {
 
     @Autowired
-    private DynamicQueuesRegistry dynamicQueuesRegistry
+    private EventsRegistry eventsRegistry
 
     def "Add and remove listener"() {
         given:
@@ -22,9 +22,9 @@ class DynamicQueuesRegistrySpec extends Specification {
         def listener = TestListener
 
         when:
-        dynamicQueuesRegistry.add(queue, listener)
-        def containsListener = dynamicQueuesRegistry.containsListener(queue)
-        dynamicQueuesRegistry.shutdown()
+        eventsRegistry.add(queue, listener)
+        def containsListener = eventsRegistry.containsListener(queue)
+        eventsRegistry.shutdown()
 
         then:
         containsListener
@@ -32,7 +32,7 @@ class DynamicQueuesRegistrySpec extends Specification {
 
     def "Get message listener method"() {
         when:
-        def method = dynamicQueuesRegistry.getMessageListenerMethod(TestListener)
+        def method = eventsRegistry.getMessageListenerMethod(TestListener)
 
         then:
         method.isPresent()
@@ -41,7 +41,7 @@ class DynamicQueuesRegistrySpec extends Specification {
 
     def "Get public method"() {
         when:
-        def method = dynamicQueuesRegistry.getPublicMethod(TestListener2)
+        def method = eventsRegistry.getPublicMethod(TestListener2)
 
         then:
         method.isPresent()
@@ -50,7 +50,7 @@ class DynamicQueuesRegistrySpec extends Specification {
 
     def "No method returned when no listener method is found"() {
         when:
-        def method = dynamicQueuesRegistry.getPublicMethod(TestListener3)
+        def method = eventsRegistry.getPublicMethod(TestListener3)
 
         then:
         !method.isPresent()

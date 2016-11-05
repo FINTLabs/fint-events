@@ -1,4 +1,4 @@
-package no.fint.events.queue;
+package no.fint.events;
 
 import lombok.extern.slf4j.Slf4j;
 import org.aopalliance.aop.Advice;
@@ -24,13 +24,13 @@ import java.util.Map;
 import java.util.Optional;
 
 @Slf4j
-public class DynamicQueuesRegistry implements ApplicationContextAware {
+public class EventsRegistry implements ApplicationContextAware {
 
     @Autowired
     private ConnectionFactory connectionFactory;
 
     @Autowired
-    private DynamicQueuesProps dynamicQueuesProps;
+    private EventsProps eventsProps;
 
     private ConfigurableListableBeanFactory beanFactory;
 
@@ -47,7 +47,7 @@ public class DynamicQueuesRegistry implements ApplicationContextAware {
             listenerContainer.addQueueNames(queue);
             try {
                 if (method.isPresent()) {
-                    listenerContainer.setMessageListener(new DynamicQueuesMessageListener(listener.newInstance(), method.get().getName()));
+                    listenerContainer.setMessageListener(new EventsMessageListener(listener.newInstance(), method.get().getName()));
                 } else {
                     log.info("No method in the listener found with Message as input parameter, using the standard MessageListenerAdapter");
                     Optional<Method> publicMethod = getPublicMethod(listener);
@@ -69,8 +69,8 @@ public class DynamicQueuesRegistry implements ApplicationContextAware {
 
     private void addContainerProperties(SimpleMessageListenerContainer listenerContainer) {
         RetryOperationsInterceptor retryInterceptor = RetryInterceptorBuilder.stateless()
-                .maxAttempts(dynamicQueuesProps.getRetryMaxAttempts())
-                .backOffOptions(dynamicQueuesProps.getRetryInitialInterval(), dynamicQueuesProps.getRetryMultiplier(), dynamicQueuesProps.getRetryMaxInterval())
+                .maxAttempts(eventsProps.getRetryMaxAttempts())
+                .backOffOptions(eventsProps.getRetryInitialInterval(), eventsProps.getRetryMultiplier(), eventsProps.getRetryMaxInterval())
                 .recoverer(new RepublishMessageRecoverer(new RabbitTemplate(connectionFactory), "deadletter.exchange", "deadletter.queue"))
                 .build();
         listenerContainer.setAdviceChain(new Advice[]{retryInterceptor});

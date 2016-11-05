@@ -1,4 +1,4 @@
-package no.fint.events.queue;
+package no.fint.events;
 
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 
 @Getter
 @Component
-public class DynamicQueuesProps {
+public class EventsProps {
 
     @Value("${spring.rabbitmq.listener.retry.initial-interval:1000}")
     private int retryInitialInterval;

@@ -1,4 +1,4 @@
-package no.fint.events.queue.testutils;
+package no.fint.events.testutils;
 
 import org.springframework.amqp.core.Message;
 

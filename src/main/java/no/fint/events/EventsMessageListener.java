@@ -1,13 +1,13 @@
-package no.fint.events.queue;
+package no.fint.events;
 
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.listener.adapter.MessageListenerAdapter;
 import org.springframework.amqp.rabbit.listener.exception.ListenerExecutionFailedException;
 import org.springframework.util.MethodInvoker;
 
-public class DynamicQueuesMessageListener extends MessageListenerAdapter {
+public class EventsMessageListener extends MessageListenerAdapter {
 
-    public DynamicQueuesMessageListener(Object target, String method) {
+    public EventsMessageListener(Object target, String method) {
         super(target, method);
     }
 
