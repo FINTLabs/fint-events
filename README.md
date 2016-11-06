@@ -94,7 +94,8 @@ public void init() {
 
 ## Configuration
 
-Configuration options that can be added to `application.yml`
+Configuration options that can be added to `application.yml`  
+Spring Boot - Common application properties: http://docs.spring.io/spring-boot/docs/current/reference/html/common-application-properties.html
 
 ### Rabbitmq config
 | Key | Description | Default value |
