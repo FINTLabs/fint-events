@@ -69,12 +69,12 @@ spring:
   virtual-host:
 ```
 
-## Using organizations
+## Organizations
 
 The class `FintEvents` is created as a helper-class to use organizations.
 Each organization will generate the default queues on startup (which can be configured in `application.yml`).  
 
-A registered listener will be sent messages to all the configured organizations.
+A registered listener will receive messages that are sent to the configured organizations.
 Then the listener class can figure out who the organization is by looking at the Message object received.  
 
 It is possible to register listeners for: input, output and error.
@@ -97,7 +97,7 @@ Configuration options that can be added to `application.yml`
 
 | Key | Description | Default value |
 |-----|-------------|---------------|
-| fint.events.orgs | The organizations that are included when generating the default queues. Each organization in the list will generate the exchange (with the org name) and input, output and error queues.  | hfk.no, vaf.no, rogfk.no |
+| fint.events.orgs | The organizations that are included when generating the default queues. Each organization in the list will generate the exchange (with the org name) and input, output and error queues.  | |
 | fint.events.default-input-queue | The format of the default input queue. | %s.input |
 | fint.events.default-output-queue | The format of the default output queue. | %s.output |
 | fint.events.default-error-queue | The format of the default error queue. | %s.error |
