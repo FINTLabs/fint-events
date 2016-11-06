@@ -10,7 +10,7 @@ import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.ContextConfiguration
 import spock.lang.Specification
 
-@ActiveProfiles("test")
+@ActiveProfiles("norabbitmq")
 @ContextConfiguration
 @SpringBootTest(classes = TestApplication)
 class EventsRegistrySpec extends Specification {

@@ -2,7 +2,6 @@ package no.fint.events;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
 
 @Configuration
 public class EventsConfig {
@@ -17,7 +16,6 @@ public class EventsConfig {
         return new Events();
     }
 
-    @Profile("!test")
     @Bean
     public FintEvents fintEvents() {
         return new FintEvents();

@@ -69,6 +69,27 @@ spring:
   virtual-host:
 ```
 
+## Using organizations
+
+The class `FintEvents` is created as a helper-class to use organizations.
+Each organization will generate the default queues on startup (which can be configured in `application.yml`).  
+
+A registered listener will be sent messages to all the configured organizations.
+Then the listener class can figure out who the organization is by looking at the Message object received.  
+
+It is possible to register listeners for: input, output and error.
+
+```
+
+@Autowired
+private FintEvents events;
+
+@PostConstruct
+public void init() {
+    events.registerInputListener(MessageSubscriber.class);
+}
+
+```
 
 ## Configuration
 
@@ -76,6 +97,10 @@ Configuration options that can be added to `application.yml`
 
 | Key | Description | Default value |
 |-----|-------------|---------------|
+| fint.events.orgs | The organizations that are included when generating the default queues. Each organization in the list will generate the exchange (with the org name) and input, output and error queues.  | hfk.no, vaf.no, rogfk.no |
+| fint.events.default-input-queue | The format of the default input queue. | %s.input |
+| fint.events.default-output-queue | The format of the default output queue. | %s.output |
+| fint.events.default-error-queue | The format of the default error queue. | %s.error |
 | spring.rabbitmq.listener.retry.initial-interval | Interval between the first and second attempt to deliver a message. | 1000 |
 | spring.rabbitmq.listener.retry.max-attempts | Maximum number of attempts to deliver a message. | 3 |
 | spring.rabbitmq.listener.retry.max-interval | Maximum interval between attempts. | 10000 |

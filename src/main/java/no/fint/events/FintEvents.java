@@ -7,6 +7,7 @@ import org.springframework.amqp.rabbit.config.RetryInterceptorBuilder;
 import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
 import org.springframework.amqp.rabbit.retry.RepublishMessageRecoverer;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.retry.interceptor.RetryOperationsInterceptor;
 
 import javax.annotation.PostConstruct;
@@ -19,6 +20,9 @@ import java.util.stream.Collectors;
 public class FintEvents {
 
     @Autowired
+    private Environment environment;
+
+    @Autowired
     private Events events;
 
     @Autowired
@@ -29,11 +33,13 @@ public class FintEvents {
     @PostConstruct
     public void init() {
         organizations = getDefaultQueues();
-        organizations.forEach(organization -> events.addQueue(
-                organization.getExchange(),
-                organization.getInputQueue(),
-                organization.getOutputQueue(),
-                organization.getErrorQueue()));
+        if(environment.acceptsProfiles("!norabbitmq")) {
+            organizations.forEach(organization -> events.addQueue(
+                    organization.getExchange(),
+                    organization.getInputQueue(),
+                    organization.getOutputQueue(),
+                    organization.getErrorQueue()));
+        }
     }
 
     List<Organization> getDefaultQueues() {
