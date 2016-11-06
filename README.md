@@ -4,6 +4,16 @@
 
 Making it easy to dynamically create new queues and listeners for RabbitMQ.
 
+* [Installation](#installation)
+* [Usage](#usage)
+* [Organizations](#organizations)
+* [Configuration](#configuration)
+ * [Rabbitmq config](#rabbitmq-config)
+ * [Listener config](#listener-config)
+ * [FINT events config](#fint-events-config)
+* [Event model](#event-model)
+* [Upload](#upload)
+
 ## Installation
 
 build.gradle
