@@ -13,7 +13,7 @@ project.ext {
 }
 
 group 'no.fint'
-version '0.0.3-SNAPSHOT'
+version '0.0.3'
 
 jar {
     baseName = 'fint-events'
