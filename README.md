@@ -66,6 +66,7 @@ spring:
   host:
   username:
   password:
+  port:
   virtual-host:
 ```
 
@@ -95,12 +96,27 @@ public void init() {
 
 Configuration options that can be added to `application.yml`
 
+### Rabbitmq config
+| Key | Description | Default value |
+|-----|-------------|---------------|
+| spring.rabbitmq.host | RabbitMQ host. | localhost |
+| spring.rabbitmq.username | Login user to authenticate to the broker. | |
+| spring.rabbitmq.password | Login to authenticate against the broker. | |
+| spring.rabbitmq.port | RabbitMQ port. | 5672 |
+| spring.rabbitmq.virtual-host | Virtual host to use when connecting to the broker. | |
+
+### FINT events config
 | Key | Description | Default value |
 |-----|-------------|---------------|
 | fint.events.orgs | The organizations that are included when generating the default queues. Each organization will generate the exchange (with the org name) and input, output and error queues. | |
 | fint.events.default-input-queue | The format of the default input queue. | %s.input |
 | fint.events.default-output-queue | The format of the default output queue. | %s.output |
 | fint.events.default-error-queue | The format of the default error queue. | %s.error |
+
+
+### Listener config
+| Key | Description | Default value |
+|-----|-------------|---------------|
 | spring.rabbitmq.listener.retry.initial-interval | Interval between the first and second attempt to deliver a message. | 1000 |
 | spring.rabbitmq.listener.retry.max-attempts | Maximum number of attempts to deliver a message. | 3 |
 | spring.rabbitmq.listener.retry.max-interval | Maximum interval between attempts. | 10000 |
