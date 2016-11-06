@@ -77,7 +77,7 @@ Each organization will generate the default queues on startup (which can be conf
 A registered listener will receive messages that are sent to the configured organizations.
 Then the listener class can figure out who the organization is by looking at the Message object received.  
 
-It is possible to register listeners for: input, output and error.
+It is possible to register listeners for: _input_, _output_ and _error_.
 
 ```
 
