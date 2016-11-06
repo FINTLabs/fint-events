@@ -15,4 +15,9 @@ public class EventsConfig {
     public Events eventsQueues() {
         return new Events();
     }
+
+    @Bean
+    public FintEvents fintEvents() {
+        return new FintEvents();
+    }
 }

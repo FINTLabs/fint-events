@@ -1,21 +1,16 @@
 package no.fint.events;
 
 import lombok.extern.slf4j.Slf4j;
-import org.aopalliance.aop.Advice;
 import org.springframework.amqp.core.Message;
-import org.springframework.amqp.rabbit.config.RetryInterceptorBuilder;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
 import org.springframework.amqp.rabbit.listener.adapter.MessageListenerAdapter;
-import org.springframework.amqp.rabbit.retry.RepublishMessageRecoverer;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.retry.interceptor.RetryOperationsInterceptor;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -29,9 +24,6 @@ public class EventsRegistry implements ApplicationContextAware {
     @Autowired
     private ConnectionFactory connectionFactory;
 
-    @Autowired
-    private EventsProps eventsProps;
-
     private ConfigurableListableBeanFactory beanFactory;
 
     @Override
@@ -39,7 +31,7 @@ public class EventsRegistry implements ApplicationContextAware {
         beanFactory = ((ConfigurableApplicationContext) applicationContext).getBeanFactory();
     }
 
-    void add(String queue, Class<?> listener) {
+    Optional<SimpleMessageListenerContainer> add(String queue, Class<?> listener) {
         if (!containsListener(queue)) {
             Optional<Method> method = getMessageListenerMethod(listener);
             SimpleMessageListenerContainer listenerContainer = new SimpleMessageListenerContainer(connectionFactory);
@@ -58,22 +50,16 @@ public class EventsRegistry implements ApplicationContextAware {
                     }
                 }
 
-                addContainerProperties(listenerContainer);
                 beanFactory.registerSingleton(queue, listenerContainer);
                 log.info("Registered {} to listen on queue {}", listener.getSimpleName(), queue);
+
+                return Optional.of(listenerContainer);
             } catch (InstantiationException | IllegalAccessException e) {
                 log.error("Unable to create new instance of " + listener.getName(), e);
             }
         }
-    }
 
-    private void addContainerProperties(SimpleMessageListenerContainer listenerContainer) {
-        RetryOperationsInterceptor retryInterceptor = RetryInterceptorBuilder.stateless()
-                .maxAttempts(eventsProps.getRetryMaxAttempts())
-                .backOffOptions(eventsProps.getRetryInitialInterval(), eventsProps.getRetryMultiplier(), eventsProps.getRetryMaxInterval())
-                .recoverer(new RepublishMessageRecoverer(new RabbitTemplate(connectionFactory), "deadletter.exchange", "deadletter.queue"))
-                .build();
-        listenerContainer.setAdviceChain(new Advice[]{retryInterceptor});
+        return Optional.empty();
     }
 
     Optional<Method> getMessageListenerMethod(Class<?> listener) {

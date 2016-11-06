@@ -3,7 +3,10 @@ package no.fint.events;
 import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.Optional;
 
 public class Events {
 
@@ -16,15 +19,21 @@ public class Events {
     @Autowired
     private EventsRegistry eventsRegistry;
 
-    public void registerListener(String exchange, String queue, Class<?> listener) {
-        registerListener(new TopicExchange(exchange), new Queue(queue), listener);
+    public Optional<SimpleMessageListenerContainer> registerListener(String exchange, String queue, Class<?> listener) {
+        return registerListener(new TopicExchange(exchange), new Queue(queue), listener);
     }
 
-    public void registerListener(TopicExchange exchange, Queue queue, Class<?> listener) {
-        amqpAdmin.declareQueue(queue);
+    public Optional<SimpleMessageListenerContainer> registerListener(TopicExchange exchange, Queue queue, Class<?> listener) {
+        addQueue(exchange, queue);
+        return eventsRegistry.add(queue.getName(), listener);
+    }
+
+    void addQueue(TopicExchange exchange, Queue... queues) {
         amqpAdmin.declareExchange(exchange);
-        amqpAdmin.declareBinding(getBinding(exchange, queue));
-        eventsRegistry.add(queue.getName(), listener);
+        for (Queue queue : queues) {
+            amqpAdmin.declareQueue(queue);
+            amqpAdmin.declareBinding(getBinding(exchange, queue));
+        }
     }
 
     public void removeListener(String exchange, String queue) {
@@ -49,5 +58,9 @@ public class Events {
 
     public RabbitTemplate rabbitTemplate(Queue queue) {
         return rabbitTemplate(queue.getName());
+    }
+
+    public RabbitTemplate rabbitTemplate() {
+        return new RabbitTemplate(connectionFactory);
     }
 }
