@@ -97,7 +97,7 @@ Configuration options that can be added to `application.yml`
 
 | Key | Description | Default value |
 |-----|-------------|---------------|
-| fint.events.orgs | The organizations that are included when generating the default queues. Each organization in the list will generate the exchange (with the org name) and input, output and error queues.  | |
+| fint.events.orgs | The organizations that are included when generating the default queues. Each organization will generate the exchange (with the org name) and input, output and error queues. | |
 | fint.events.default-input-queue | The format of the default input queue. | %s.input |
 | fint.events.default-output-queue | The format of the default output queue. | %s.output |
 | fint.events.default-error-queue | The format of the default error queue. | %s.error |
