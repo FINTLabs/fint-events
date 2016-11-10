@@ -11,7 +11,6 @@ Making it easy to dynamically create new queues and listeners for RabbitMQ.
  * [Rabbitmq config](#rabbitmq-config)
  * [Listener config](#listener-config)
  * [FINT events config](#fint-events-config)
-* [Event model](#event-model)
 * [Upload](#upload)
 
 ## Installation
@@ -131,14 +130,6 @@ Spring Boot - Common application properties: http://docs.spring.io/spring-boot/d
 | fint.events.default-input-queue | The format of the default input queue. | %s.input |
 | fint.events.default-output-queue | The format of the default output queue. | %s.output |
 | fint.events.default-error-queue | The format of the default error queue. | %s.error |
-
----------
-
-## Event model
-
-Event model is written as a Java-class and available as XSD-file (generated from code).  
-  
-To generate xsd: `./gradlew schemagen`
 
 ---------
 
