@@ -33,13 +33,21 @@ public class FintEvents {
     @PostConstruct
     public void init() {
         organizations = getDefaultQueues();
-        if(environment.acceptsProfiles("!norabbitmq")) {
-            organizations.forEach(organization -> events.addQueue(
+        if (environment.acceptsProfiles("!norabbitmq")) {
+            organizations.forEach(organization -> events.addQueues(
                     organization.getExchange(),
                     organization.getInputQueue(),
                     organization.getOutputQueue(),
                     organization.getErrorQueue()));
         }
+    }
+
+    public void deleteDefaultQueues() {
+        getDefaultQueues().forEach(organization -> events.deleteQueues(
+                organization.getExchange(),
+                organization.getInputQueue(),
+                organization.getOutputQueue(),
+                organization.getErrorQueue()));
     }
 
     List<Organization> getDefaultQueues() {

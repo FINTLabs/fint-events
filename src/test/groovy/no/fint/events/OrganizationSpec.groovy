@@ -16,4 +16,20 @@ class OrganizationSpec extends Specification {
         then:
         queue.getName() == "hfk.no.input"
     }
+
+    def "Get output queue by type"() {
+        when:
+        def queue = organization.getQueue(EventType.OUTPUT)
+
+        then:
+        queue.getName() == "hfk.no.output"
+    }
+
+    def "Get error queue by type"() {
+        when:
+        def queue = organization.getQueue(EventType.ERROR)
+
+        then:
+        queue.getName() == "hfk.no.error"
+    }
 }
