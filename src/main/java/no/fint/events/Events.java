@@ -1,5 +1,6 @@
 package no.fint.events;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -9,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.util.Arrays;
 import java.util.Optional;
 
+@Slf4j
 public class Events {
 
     @Autowired
@@ -39,9 +41,15 @@ public class Events {
 
     void deleteQueues(TopicExchange exchange, Queue... queues) {
         Arrays.stream(queues).forEach(queue -> {
-            amqpAdmin.deleteQueue(queue.getName());
+            boolean deleted = amqpAdmin.deleteQueue(queue.getName());
+            if (deleted) {
+                log.info("Deleted queue {}", queue.getName());
+            }
         });
-        amqpAdmin.declareExchange(exchange);
+        boolean deleted = amqpAdmin.deleteExchange(exchange.getName());
+        if (deleted) {
+            log.info("Deleted exchange {}", exchange.getName());
+        }
     }
 
     public void removeListener(String exchange, String queue) {
