@@ -5,19 +5,10 @@ plugins {
 apply plugin: 'java'
 apply plugin: 'groovy'
 apply plugin: 'maven'
-apply plugin: 'com.jfrog.bintray'
-
-project.ext {
-    schemagenXsd = 'event.xsd'
-    schemagenModelDir = 'src/main/java/no/fint/events/model'
-}
-
-group 'no.fint'
-version '0.0.4-SNAPSHOT'
 
 jar {
     baseName = 'fint-events'
-    version = version
+    version = '0.0.4-SNAPSHOT'
 }
 
 sourceCompatibility = 1.8
@@ -30,14 +21,13 @@ repositories {
 dependencies {
     compile('org.projectlombok:lombok:1.16.10')
 
-    compile('org.springframework.boot:spring-boot-starter-amqp:1.4.1.RELEASE')
+    compile('org.springframework.boot:spring-boot-starter-amqp:1.4.2.RELEASE')
 
-    testCompile('org.springframework.boot:spring-boot-starter-web:1.4.1.RELEASE')
-    testCompile('org.springframework.boot:spring-boot-starter-test:1.4.1.RELEASE')
+    testCompile('org.springframework.boot:spring-boot-starter-web:1.4.2.RELEASE')
+    testCompile('org.springframework.boot:spring-boot-starter-test:1.4.2.RELEASE')
     testCompile('org.spockframework:spock-spring:1.0-groovy-2.4')
 }
 
-apply from: 'https://raw.githubusercontent.com/FINTprosjektet/fint-buildscripts/master/schemagen.gradle'
 if (project.hasProperty('bintrayUser') && project.hasProperty('bintrayKey')) {
     apply from: 'https://raw.githubusercontent.com/FINTprosjektet/fint-buildscripts/master/bintray.gradle'
 }
