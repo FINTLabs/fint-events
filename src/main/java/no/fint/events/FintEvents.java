@@ -1,9 +1,12 @@
 package no.fint.events;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.aopalliance.aop.Advice;
+import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.rabbit.config.RetryInterceptorBuilder;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
 import org.springframework.amqp.rabbit.retry.RepublishMessageRecoverer;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +14,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.retry.interceptor.RetryOperationsInterceptor;
 
 import javax.annotation.PostConstruct;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -27,6 +31,9 @@ public class FintEvents {
 
     @Autowired
     private EventsProps eventsProps;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     private List<Organization> organizations;
 
@@ -92,6 +99,68 @@ public class FintEvents {
                 .recoverer(new RepublishMessageRecoverer(events.rabbitTemplate(), org.getExchangeName(), org.getErrorQueueName()))
                 .build();
         listenerContainer.setAdviceChain(new Advice[]{retryInterceptor});
+    }
+
+    public Message readErrorMessage(String orgId) {
+        return readOrganizationMessage(EventType.ERROR, orgId);
+    }
+
+    public <T> T readErrorJson(String orgId, Class<T> responseType) {
+        return readOrganizationJson(EventType.ERROR, orgId, responseType);
+    }
+
+    public Message readOutputMessage(String orgId) {
+        return readOrganizationMessage(EventType.OUTPUT, orgId);
+    }
+
+    public <T> T readOutputJson(String orgId, Class<T> responseType) {
+        return readOrganizationJson(EventType.OUTPUT, orgId, responseType);
+    }
+
+    public Message readInputMessage(String orgId) {
+        return readOrganizationMessage(EventType.INPUT, orgId);
+    }
+
+    public <T> T readInputJson(String orgId, Class<T> responseType) {
+        return readOrganizationJson(EventType.INPUT, orgId, responseType);
+    }
+
+    private <T> T readOrganizationJson(EventType type, String orgId, Class<T> responseType) {
+        Optional<Organization> organization = getOrganization(orgId);
+        if (organization.isPresent()) {
+            Queue queue = organization.get().getQueue(type);
+            return readJson(queue.getName(), responseType);
+        } else {
+            throw new IllegalArgumentException("No organization with id " + orgId);
+        }
+    }
+
+    private Message readOrganizationMessage(EventType type, String orgId) {
+        Optional<Organization> organization = getOrganization(orgId);
+        if (organization.isPresent()) {
+            Queue queue = organization.get().getQueue(type);
+            return readMessage(queue.getName());
+        } else {
+            throw new IllegalArgumentException("No organization with id " + orgId);
+        }
+    }
+
+    private Optional<Organization> getOrganization(String orgId) {
+        return organizations.stream().filter(org -> org.getName().equals(orgId)).findAny();
+    }
+
+    public <T> T readJson(String queue, Class<T> responseType) {
+        try {
+            Message message = readMessage(queue);
+            return objectMapper.readValue(message.getBody(), responseType);
+        } catch (IOException e) {
+            throw new IllegalArgumentException("Unable to create object from json message", e);
+        }
+    }
+
+    public Message readMessage(String queue) {
+        RabbitTemplate rabbitTemplate = events.rabbitTemplate(queue);
+        return rabbitTemplate.receive();
     }
 
 }

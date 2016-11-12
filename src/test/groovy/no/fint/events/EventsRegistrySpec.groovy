@@ -5,11 +5,9 @@ import org.springframework.beans.factory.NoSuchBeanDefinitionException
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ActiveProfiles
-import org.springframework.test.context.ContextConfiguration
 import spock.lang.Specification
 
 @ActiveProfiles("norabbitmq")
-@ContextConfiguration
 @SpringBootTest(classes = TestApplication)
 class EventsRegistrySpec extends Specification {
 

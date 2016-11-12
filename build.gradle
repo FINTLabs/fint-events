@@ -21,11 +21,11 @@ repositories {
 dependencies {
     compile('org.projectlombok:lombok:1.16.10')
 
+    compile('org.springframework.boot:spring-boot-starter-web:1.4.2.RELEASE')
     compile('org.springframework.boot:spring-boot-starter-amqp:1.4.2.RELEASE')
 
     testCompile('cglib:cglib-nodep:3.2.4')
-    testCompile('org.spockframework:spock-spring:1.0-groovy-2.4')
-    testCompile('org.springframework.boot:spring-boot-starter-web:1.4.2.RELEASE')
+    testCompile('org.spockframework:spock-spring:1.1-groovy-2.4-rc-3')
     testCompile('org.springframework.boot:spring-boot-starter-test:1.4.2.RELEASE')
 }
 
