@@ -18,7 +18,13 @@ class FintEventsSpec extends Specification {
             rabbitTemplate(_ as String) >> rabbitTemplate
         }
 
-        fintEvents = new FintEvents(objectMapper: objectMapper, events: events)
+        EventsProps eventsProps = Mock(EventsProps) {
+            getDefaultInputQueue() >> "input"
+            getDefaultOutputQueue() >> "output"
+            getDefaultErrorQueue() >> "error"
+        }
+
+        fintEvents = new FintEvents(objectMapper: objectMapper, events: events, eventsProps: eventsProps, organizations: [])
     }
 
     def "Create object from json message"() {
@@ -40,5 +46,33 @@ class FintEventsSpec extends Specification {
 
         then:
         !response.isPresent()
+    }
+
+    def "Add and remove organization"() {
+        given:
+        def orgId = "test.org"
+
+        when:
+        fintEvents.addOrganization(orgId)
+        def containsOrgAfterAdd = fintEvents.containsOrganization(orgId)
+        fintEvents.removeOrganization(orgId)
+        def containsOrgAfterRemove = fintEvents.containsOrganization(orgId)
+
+        then:
+        containsOrgAfterAdd
+        !containsOrgAfterRemove
+    }
+
+    def "Get registered orgIds"() {
+        given:
+        def orgId = "test.org"
+
+        when:
+        fintEvents.addOrganization(orgId)
+        def orgIds = fintEvents.getRegisteredOrgIds()
+
+        then:
+        orgIds.size() == 1
+        orgIds[0] == orgId
     }
 }

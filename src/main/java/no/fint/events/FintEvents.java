@@ -51,6 +51,51 @@ public class FintEvents {
         }
     }
 
+    public void addOrganization(String orgId) {
+        Organization organization = new Organization(
+                orgId,
+                eventsProps.getDefaultInputQueue(),
+                eventsProps.getDefaultOutputQueue(),
+                eventsProps.getDefaultErrorQueue()
+        );
+
+        organizations.add(organization);
+        events.addQueues(
+                organization.getExchange(),
+                organization.getInputQueue(),
+                organization.getOutputQueue(),
+                organization.getErrorQueue()
+        );
+    }
+
+    public void removeOrganization(String orgId) {
+        Optional<Organization> organization = getOrganization(orgId);
+        if (organization.isPresent()) {
+            Organization org = organization.get();
+            events.deleteQueues(
+                    org.getExchange(),
+                    org.getInputQueue(),
+                    org.getOutputQueue(),
+                    org.getErrorQueue()
+            );
+
+            Optional<Integer> index = getOrganizationIndex(orgId);
+            if (index.isPresent()) {
+                organizations.remove(index.get().intValue());
+            }
+        } else {
+            log.error("Organization {} not found", orgId);
+        }
+    }
+
+    public List<String> getRegisteredOrgIds() {
+        return organizations.stream().map(Organization::getName).collect(Collectors.toList());
+    }
+
+    public boolean containsOrganization(String orgId) {
+        return getOrganization(orgId).isPresent();
+    }
+
     public void deleteDefaultQueues() {
         getDefaultQueues().forEach(organization -> events.deleteQueues(
                 organization.getExchange(),
@@ -60,7 +105,7 @@ public class FintEvents {
     }
 
     List<Organization> getDefaultQueues() {
-        return Arrays.stream(eventsProps.getOrganisations()).map(org -> new Organization(
+        return Arrays.stream(eventsProps.getOrganizations()).map(org -> new Organization(
                 org,
                 eventsProps.getDefaultInputQueue(),
                 eventsProps.getDefaultOutputQueue(),
@@ -147,6 +192,16 @@ public class FintEvents {
 
     private Optional<Organization> getOrganization(String orgId) {
         return organizations.stream().filter(org -> org.getName().equals(orgId)).findAny();
+    }
+
+    private Optional<Integer> getOrganizationIndex(String orgId) {
+        for (int i = 0; i < organizations.size(); i++) {
+            Organization o = organizations.get(i);
+            if (o.getName().equals(orgId)) {
+                return Optional.of(i);
+            }
+        }
+        return Optional.empty();
     }
 
     public <T> Optional<T> readJson(String queue, Class<T> responseType) {

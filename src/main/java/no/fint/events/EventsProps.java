@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 public class EventsProps {
 
     @Value("${fint.events.orgs:}")
-    private String[] organisations;
+    private String[] organizations;
 
     @Value("${fint.events.default-input-queue:%s.input}")
     private String defaultInputQueue;
