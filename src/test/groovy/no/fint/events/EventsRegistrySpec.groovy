@@ -1,9 +1,6 @@
 package no.fint.events
 
-import no.fint.events.testutils.TestApplication
-import no.fint.events.testutils.TestListener
-import no.fint.events.testutils.TestListener2
-import no.fint.events.testutils.TestListener3
+import no.fint.events.testutils.*
 import org.springframework.beans.factory.NoSuchBeanDefinitionException
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -22,10 +19,22 @@ class EventsRegistrySpec extends Specification {
     def "Add and remove listener"() {
         given:
         def queue = "test-queue"
-        def listener = TestListener
 
         when:
-        eventsRegistry.add(queue, listener)
+        eventsRegistry.add(queue, TestListener)
+        def containsListener = eventsRegistry.containsListener(queue)
+        eventsRegistry.shutdown()
+
+        then:
+        containsListener
+    }
+
+    def "Add and remove listener with header and body arguments"() {
+        given:
+        def queue = "test-queue2"
+
+        when:
+        eventsRegistry.add(queue, TestListener4)
         def containsListener = eventsRegistry.containsListener(queue)
         eventsRegistry.shutdown()
 
@@ -40,6 +49,15 @@ class EventsRegistrySpec extends Specification {
         then:
         method.isPresent()
         method.get().getName() == "test"
+    }
+
+    def "Get header and body listener method"() {
+        when:
+        def method = eventsRegistry.getHeaderAndBodyListenerMethod(TestListener)
+
+        then:
+        method.isPresent()
+        method.get().getName() == "test3"
     }
 
     def "Get public method"() {

@@ -41,7 +41,11 @@ public class Application {
 }
 ```
 
-Create a receiver class
+Create a receiver class. The method receiving the message accepts the following arguments:  
+- Message
+- Map<String, Object> header, byte[] body
+- byte[] body
+
 ```
 @Component
 public class Receiver {

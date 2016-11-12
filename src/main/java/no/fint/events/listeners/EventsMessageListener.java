@@ -1,4 +1,4 @@
-package no.fint.events;
+package no.fint.events.listeners;
 
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.listener.adapter.MessageListenerAdapter;
@@ -23,6 +23,5 @@ public class EventsMessageListener extends MessageListenerAdapter {
         } catch (Exception ex) {
             throw new ListenerExecutionFailedException("Failed to invoke target method " + methodName, ex);
         }
-
     }
 }

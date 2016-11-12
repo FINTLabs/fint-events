@@ -1,6 +1,8 @@
 package no.fint.events;
 
 import lombok.extern.slf4j.Slf4j;
+import no.fint.events.listeners.EventsHeaderAndBodyListener;
+import no.fint.events.listeners.EventsMessageListener;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
@@ -33,18 +35,23 @@ public class EventsRegistry implements ApplicationContextAware {
 
     Optional<SimpleMessageListenerContainer> add(String queue, Class<?> listener) {
         if (!containsListener(queue)) {
-            Optional<Method> method = getMessageListenerMethod(listener);
             SimpleMessageListenerContainer listenerContainer = new SimpleMessageListenerContainer(connectionFactory);
-
             listenerContainer.addQueueNames(queue);
             Object bean = beanFactory.getBean(listener);
-            
-            if (method.isPresent()) {
-                listenerContainer.setMessageListener(new EventsMessageListener(bean, method.get().getName()));
+
+            Optional<Method> messageListener = getMessageListenerMethod(listener);
+            Optional<Method> headerAndBodyListener = getHeaderAndBodyListenerMethod(listener);
+            if (messageListener.isPresent()) {
+                listenerContainer.setMessageListener(new EventsMessageListener(bean, messageListener.get().getName()));
+                log.info("Registering listener method: {}", messageListener.get().getName());
+            } else if (headerAndBodyListener.isPresent()) {
+                listenerContainer.setMessageListener(new EventsHeaderAndBodyListener(bean, headerAndBodyListener.get().getName()));
+                log.info("Registering listener method: {}", headerAndBodyListener.get().getName());
             } else {
                 log.info("No method in the listener found with Message as input parameter, using the standard MessageListenerAdapter");
                 Optional<Method> publicMethod = getPublicMethod(listener);
                 if (publicMethod.isPresent()) {
+                    log.info("Registering listener method: {}", publicMethod.get().getName());
                     listenerContainer.setMessageListener(new MessageListenerAdapter(bean, publicMethod.get().getName()));
                 } else {
                     throw new IllegalStateException("Unable to find any listener methods, " + listener);
@@ -63,8 +70,19 @@ public class EventsRegistry implements ApplicationContextAware {
     Optional<Method> getMessageListenerMethod(Class<?> listener) {
         Method[] methods = listener.getDeclaredMethods();
         return Arrays.stream(methods)
-                .filter(method -> (Modifier.isPublic(method.getModifiers()) && method.getParameterCount() == 1))
+                .filter(method -> (Modifier.isPublic(method.getModifiers())))
+                .filter(method -> method.getParameterCount() == 1)
                 .filter(method -> method.getParameterTypes()[0] == Message.class)
+                .findAny();
+    }
+
+    Optional<Method> getHeaderAndBodyListenerMethod(Class<?> listener) {
+        Method[] methods = listener.getDeclaredMethods();
+        return Arrays.stream(methods)
+                .filter(method -> (Modifier.isPublic(method.getModifiers())))
+                .filter(method -> method.getParameterCount() == 2)
+                .filter(method -> method.getParameterTypes()[0] == Map.class)
+                .filter(method -> method.getParameterTypes()[1] == byte[].class)
                 .findAny();
     }
 
