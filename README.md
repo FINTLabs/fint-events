@@ -43,6 +43,7 @@ public class Application {
 
 Create a receiver class
 ```
+@Component
 public class Receiver {
     public void receive(Message message) {
         ...

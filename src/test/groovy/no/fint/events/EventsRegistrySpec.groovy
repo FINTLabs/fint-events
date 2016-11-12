@@ -4,6 +4,7 @@ import no.fint.events.testutils.TestApplication
 import no.fint.events.testutils.TestListener
 import no.fint.events.testutils.TestListener2
 import no.fint.events.testutils.TestListener3
+import org.springframework.beans.factory.NoSuchBeanDefinitionException
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ActiveProfiles
@@ -56,5 +57,13 @@ class EventsRegistrySpec extends Specification {
 
         then:
         !method.isPresent()
+    }
+
+    def "Exception when trying to register non-spring bean"() {
+        when:
+        eventsRegistry.add("test-queue123", String.class)
+
+        then:
+        thrown(NoSuchBeanDefinitionException)
     }
 }

@@ -4,23 +4,23 @@ import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.core.TopicExchange;
 
 class Organization {
-    private final String organization;
+    private final String name;
 
     private String exchange;
     private String inputQueue;
     private String outputQueue;
     private String errorQueue;
 
-    public Organization(String organization, String defaultInputQueue, String defaultOutputQueue, String defaultErrorQueue) {
-        this.organization = organization;
-        this.exchange = organization;
-        this.inputQueue = String.format(defaultInputQueue, organization);
-        this.outputQueue = String.format(defaultOutputQueue, organization);
-        this.errorQueue = String.format(defaultErrorQueue, organization);
+    public Organization(String name, String defaultInputQueue, String defaultOutputQueue, String defaultErrorQueue) {
+        this.name = name;
+        this.exchange = name;
+        this.inputQueue = String.format(defaultInputQueue, name);
+        this.outputQueue = String.format(defaultOutputQueue, name);
+        this.errorQueue = String.format(defaultErrorQueue, name);
     }
 
-    public String getOrganization() {
-        return organization;
+    public String getName() {
+        return name;
     }
 
     public String getExchangeName() {

@@ -34,11 +34,13 @@ public class FintEvents {
     public void init() {
         organizations = getDefaultQueues();
         if (environment.acceptsProfiles("!norabbitmq")) {
-            organizations.forEach(organization -> events.addQueues(
-                    organization.getExchange(),
-                    organization.getInputQueue(),
-                    organization.getOutputQueue(),
-                    organization.getErrorQueue()));
+            organizations.forEach(organization -> {
+                log.info("Setting up queue for: {}", organization.getName());
+                events.addQueues(organization.getExchange(),
+                        organization.getInputQueue(),
+                        organization.getOutputQueue(),
+                        organization.getErrorQueue());
+            });
         }
     }
 
@@ -78,7 +80,7 @@ public class FintEvents {
             if (listenerContainer.isPresent()) {
                 addRetry(org, listenerContainer.get());
             } else {
-                log.error("Unable to register retry interceptor for {}", org.getOrganization());
+                log.error("Unable to register retry interceptor for {}", org.getName());
             }
         });
     }

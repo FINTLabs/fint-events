@@ -37,26 +37,24 @@ public class EventsRegistry implements ApplicationContextAware {
             SimpleMessageListenerContainer listenerContainer = new SimpleMessageListenerContainer(connectionFactory);
 
             listenerContainer.addQueueNames(queue);
-            try {
-                if (method.isPresent()) {
-                    listenerContainer.setMessageListener(new EventsMessageListener(listener.newInstance(), method.get().getName()));
+            Object bean = beanFactory.getBean(listener);
+            
+            if (method.isPresent()) {
+                listenerContainer.setMessageListener(new EventsMessageListener(bean, method.get().getName()));
+            } else {
+                log.info("No method in the listener found with Message as input parameter, using the standard MessageListenerAdapter");
+                Optional<Method> publicMethod = getPublicMethod(listener);
+                if (publicMethod.isPresent()) {
+                    listenerContainer.setMessageListener(new MessageListenerAdapter(bean, publicMethod.get().getName()));
                 } else {
-                    log.info("No method in the listener found with Message as input parameter, using the standard MessageListenerAdapter");
-                    Optional<Method> publicMethod = getPublicMethod(listener);
-                    if (publicMethod.isPresent()) {
-                        listenerContainer.setMessageListener(new MessageListenerAdapter(listener.newInstance(), publicMethod.get().getName()));
-                    } else {
-                        throw new IllegalStateException("Unable to find any listener methods, " + listener);
-                    }
+                    throw new IllegalStateException("Unable to find any listener methods, " + listener);
                 }
-
-                beanFactory.registerSingleton(queue, listenerContainer);
-                log.info("Registered {} to listen on queue {}", listener.getSimpleName(), queue);
-
-                return Optional.of(listenerContainer);
-            } catch (InstantiationException | IllegalAccessException e) {
-                log.error("Unable to create new instance of " + listener.getName(), e);
             }
+
+            beanFactory.registerSingleton(queue, listenerContainer);
+            log.info("Registered {} to listen on queue {}", listener.getSimpleName(), queue);
+
+            return Optional.of(listenerContainer);
         }
 
         return Optional.empty();
