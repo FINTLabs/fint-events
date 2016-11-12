@@ -101,31 +101,31 @@ public class FintEvents {
         listenerContainer.setAdviceChain(new Advice[]{retryInterceptor});
     }
 
-    public Message readErrorMessage(String orgId) {
+    public Optional<Message> readErrorMessage(String orgId) {
         return readOrganizationMessage(EventType.ERROR, orgId);
     }
 
-    public <T> T readErrorJson(String orgId, Class<T> responseType) {
+    public <T> Optional<T> readErrorJson(String orgId, Class<T> responseType) {
         return readOrganizationJson(EventType.ERROR, orgId, responseType);
     }
 
-    public Message readOutputMessage(String orgId) {
+    public Optional<Message> readOutputMessage(String orgId) {
         return readOrganizationMessage(EventType.OUTPUT, orgId);
     }
 
-    public <T> T readOutputJson(String orgId, Class<T> responseType) {
+    public <T> Optional<T> readOutputJson(String orgId, Class<T> responseType) {
         return readOrganizationJson(EventType.OUTPUT, orgId, responseType);
     }
 
-    public Message readInputMessage(String orgId) {
+    public Optional<Message> readInputMessage(String orgId) {
         return readOrganizationMessage(EventType.INPUT, orgId);
     }
 
-    public <T> T readInputJson(String orgId, Class<T> responseType) {
+    public <T> Optional<T> readInputJson(String orgId, Class<T> responseType) {
         return readOrganizationJson(EventType.INPUT, orgId, responseType);
     }
 
-    private <T> T readOrganizationJson(EventType type, String orgId, Class<T> responseType) {
+    private <T> Optional<T> readOrganizationJson(EventType type, String orgId, Class<T> responseType) {
         Optional<Organization> organization = getOrganization(orgId);
         if (organization.isPresent()) {
             Queue queue = organization.get().getQueue(type);
@@ -135,11 +135,11 @@ public class FintEvents {
         }
     }
 
-    private Message readOrganizationMessage(EventType type, String orgId) {
+    private Optional<Message> readOrganizationMessage(EventType type, String orgId) {
         Optional<Organization> organization = getOrganization(orgId);
         if (organization.isPresent()) {
             Queue queue = organization.get().getQueue(type);
-            return readMessage(queue.getName());
+            return Optional.ofNullable(readMessage(queue.getName()));
         } else {
             throw new IllegalArgumentException("No organization with id " + orgId);
         }
@@ -149,10 +149,14 @@ public class FintEvents {
         return organizations.stream().filter(org -> org.getName().equals(orgId)).findAny();
     }
 
-    public <T> T readJson(String queue, Class<T> responseType) {
+    public <T> Optional<T> readJson(String queue, Class<T> responseType) {
         try {
             Message message = readMessage(queue);
-            return objectMapper.readValue(message.getBody(), responseType);
+            if (message == null) {
+                return Optional.empty();
+            } else {
+                return Optional.ofNullable(objectMapper.readValue(message.getBody(), responseType));
+            }
         } catch (IOException e) {
             throw new IllegalArgumentException("Unable to create object from json message", e);
         }

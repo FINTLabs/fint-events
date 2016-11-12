@@ -31,6 +31,14 @@ class FintEventsSpec extends Specification {
 
         then:
         1 * rabbitTemplate.receive() >> new Message(json.bytes, null)
-        response.value == "my-value"
+        response.get().value == "my-value"
+    }
+
+    def "Return empty optional object if no message is available"() {
+        when:
+        def response = fintEvents.readJson("my-queue", TestDto)
+
+        then:
+        !response.isPresent()
     }
 }
