@@ -11,11 +11,11 @@ public class EventsProps {
     @Value("${fint.events.orgs:}")
     private String[] organizations;
 
-    @Value("${fint.events.default-input-queue:%s.input}")
-    private String defaultInputQueue;
+    @Value("${fint.events.default-downstream-queue:%s.downstream}")
+    private String defaultDownstreamQueue;
 
-    @Value("${fint.events.default-output-queue:%s.output}")
-    private String defaultOutputQueue;
+    @Value("${fint.events.default-upstream-queue:%s.upstream}")
+    private String defaultUpstreamQueue;
 
     @Value("${fint.events.default-error-queue:%s.error}")
     private String defaultErrorQueue;

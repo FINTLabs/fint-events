@@ -11,7 +11,7 @@ class OrganizationSpec extends Specification {
 
     def "Get input queue by type"() {
         when:
-        def queue = organization.getQueue(EventType.INPUT)
+        def queue = organization.getQueue(EventType.DOWNSTREAM)
 
         then:
         queue.getName() == "hfk.no.input"
@@ -19,7 +19,7 @@ class OrganizationSpec extends Specification {
 
     def "Get output queue by type"() {
         when:
-        def queue = organization.getQueue(EventType.OUTPUT)
+        def queue = organization.getQueue(EventType.UPSTREAM)
 
         then:
         queue.getName() == "hfk.no.output"

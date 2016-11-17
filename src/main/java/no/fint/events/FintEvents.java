@@ -44,8 +44,8 @@ public class FintEvents {
             organizations.forEach(organization -> {
                 log.info("Setting up queue for: {}", organization.getName());
                 events.addQueues(organization.getExchange(),
-                        organization.getInputQueue(),
-                        organization.getOutputQueue(),
+                        organization.getDownstreamQueue(),
+                        organization.getUpstreamQueue(),
                         organization.getErrorQueue());
             });
         }
@@ -54,16 +54,16 @@ public class FintEvents {
     public void addOrganization(String orgId) {
         Organization organization = new Organization(
                 orgId,
-                eventsProps.getDefaultInputQueue(),
-                eventsProps.getDefaultOutputQueue(),
+                eventsProps.getDefaultDownstreamQueue(),
+                eventsProps.getDefaultUpstreamQueue(),
                 eventsProps.getDefaultErrorQueue()
         );
 
         organizations.add(organization);
         events.addQueues(
                 organization.getExchange(),
-                organization.getInputQueue(),
-                organization.getOutputQueue(),
+                organization.getDownstreamQueue(),
+                organization.getUpstreamQueue(),
                 organization.getErrorQueue()
         );
     }
@@ -74,8 +74,8 @@ public class FintEvents {
             Organization org = organization.get();
             events.deleteQueues(
                     org.getExchange(),
-                    org.getInputQueue(),
-                    org.getOutputQueue(),
+                    org.getDownstreamQueue(),
+                    org.getUpstreamQueue(),
                     org.getErrorQueue()
             );
 
@@ -99,26 +99,26 @@ public class FintEvents {
     public void deleteDefaultQueues() {
         getDefaultQueues().forEach(organization -> events.deleteQueues(
                 organization.getExchange(),
-                organization.getInputQueue(),
-                organization.getOutputQueue(),
+                organization.getDownstreamQueue(),
+                organization.getUpstreamQueue(),
                 organization.getErrorQueue()));
     }
 
     List<Organization> getDefaultQueues() {
         return Arrays.stream(eventsProps.getOrganizations()).map(org -> new Organization(
                 org,
-                eventsProps.getDefaultInputQueue(),
-                eventsProps.getDefaultOutputQueue(),
+                eventsProps.getDefaultDownstreamQueue(),
+                eventsProps.getDefaultUpstreamQueue(),
                 eventsProps.getDefaultErrorQueue()))
                 .collect(Collectors.toList());
     }
 
-    public void registerInputListener(Class<?> listener) {
-        registerListener(listener, EventType.INPUT);
+    public void registerDownstreamListener(Class<?> listener) {
+        registerListener(listener, EventType.DOWNSTREAM);
     }
 
-    public void registerOutputListener(Class<?> listener) {
-        registerListener(listener, EventType.OUTPUT);
+    public void registerUpstreamListener(Class<?> listener) {
+        registerListener(listener, EventType.UPSTREAM);
     }
 
     public void registerErrorListener(Class<?> listener) {
@@ -154,20 +154,20 @@ public class FintEvents {
         return readOrganizationJson(EventType.ERROR, orgId, responseType);
     }
 
-    public Optional<Message> readOutputMessage(String orgId) {
-        return readOrganizationMessage(EventType.OUTPUT, orgId);
+    public Optional<Message> readUpstreamMessage(String orgId) {
+        return readOrganizationMessage(EventType.UPSTREAM, orgId);
     }
 
-    public <T> Optional<T> readOutputJson(String orgId, Class<T> responseType) {
-        return readOrganizationJson(EventType.OUTPUT, orgId, responseType);
+    public <T> Optional<T> readUpstreamJson(String orgId, Class<T> responseType) {
+        return readOrganizationJson(EventType.UPSTREAM, orgId, responseType);
     }
 
-    public Optional<Message> readInputMessage(String orgId) {
-        return readOrganizationMessage(EventType.INPUT, orgId);
+    public Optional<Message> readDownstreamMessage(String orgId) {
+        return readOrganizationMessage(EventType.DOWNSTREAM, orgId);
     }
 
-    public <T> Optional<T> readInputJson(String orgId, Class<T> responseType) {
-        return readOrganizationJson(EventType.INPUT, orgId, responseType);
+    public <T> Optional<T> readDownstreamJson(String orgId, Class<T> responseType) {
+        return readOrganizationJson(EventType.DOWNSTREAM, orgId, responseType);
     }
 
     private <T> Optional<T> readOrganizationJson(EventType type, String orgId, Class<T> responseType) {

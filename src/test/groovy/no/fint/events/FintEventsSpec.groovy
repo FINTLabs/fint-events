@@ -19,8 +19,8 @@ class FintEventsSpec extends Specification {
         }
 
         EventsProps eventsProps = Mock(EventsProps) {
-            getDefaultInputQueue() >> "input"
-            getDefaultOutputQueue() >> "output"
+            getDefaultDownstreamQueue() >> "downstream"
+            getDefaultUpstreamQueue() >> "upstream"
             getDefaultErrorQueue() >> "error"
         }
 
