@@ -24,7 +24,7 @@ repositories {
     }
 }
 
-compile('no.fint:fint-events:0.0.10')
+compile('no.fint:fint-events:0.0.11')
 ```
 
 ## Usage
@@ -127,6 +127,7 @@ Spring Boot - Common application properties: http://docs.spring.io/spring-boot/d
 | spring.rabbitmq.listener.retry.max-attempts | Maximum number of attempts to deliver a message. | 3 |
 | spring.rabbitmq.listener.retry.max-interval | Maximum interval between attempts. | 10000 |
 | spring.rabbitmq.listener.retry.multiplier | A multiplier to apply to the previous delivery retry interval. | 1.0 |
+| spring.rabbitmq.listener.acknowledge-mode | Acknowledge mode of container. | MANUAL |
 
 ### FINT events config
 | Key | Description | Default value |

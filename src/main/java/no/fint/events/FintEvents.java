@@ -3,6 +3,7 @@ package no.fint.events;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.aopalliance.aop.Advice;
+import org.springframework.amqp.core.AcknowledgeMode;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.rabbit.config.RetryInterceptorBuilder;
@@ -131,6 +132,7 @@ public class FintEvents {
             Optional<SimpleMessageListenerContainer> listenerContainer = events.registerListener(org.getExchange(), queue, listener);
             if (listenerContainer.isPresent()) {
                 addRetry(org, listenerContainer.get());
+                addAcknowledgeMode(listenerContainer.get());
             } else {
                 log.error("Unable to register retry interceptor for {}", org.getName());
             }
@@ -144,6 +146,12 @@ public class FintEvents {
                 .recoverer(new RepublishMessageRecoverer(events.rabbitTemplate(), org.getExchangeName(), org.getErrorQueueName()))
                 .build();
         listenerContainer.setAdviceChain(new Advice[]{retryInterceptor});
+    }
+
+    private void addAcknowledgeMode(SimpleMessageListenerContainer listenerContainer) {
+        String acknowledgeModeProp = eventsProps.getAcknowledgeMode();
+        AcknowledgeMode acknowledgeMode = AcknowledgeMode.valueOf(acknowledgeModeProp);
+        listenerContainer.setAcknowledgeMode(acknowledgeMode);
     }
 
     public Optional<Message> readErrorMessage(String orgId) {

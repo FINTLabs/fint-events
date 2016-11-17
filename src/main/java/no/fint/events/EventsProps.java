@@ -38,4 +38,7 @@ public class EventsProps {
 
     @Value("${spring.rabbitmq.deadletter.queue:deadletter.queue}")
     private String deadletterQueue;
+
+    @Value("${spring.rabbitmq.listener.acknowledge-mode:MANUAL}")
+    private String acknowledgeMode;
 }
