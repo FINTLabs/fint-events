@@ -114,29 +114,52 @@ public class FintEvents {
                 .collect(Collectors.toList());
     }
 
+    public void registerDownstreamListener(String orgId, Class<?> listener) {
+        Optional<Organization> organization = getOrganization(orgId);
+        if (organization.isPresent()) {
+            registerListener(listener, EventType.DOWNSTREAM, organization.get());
+        }
+    }
+
     public void registerDownstreamListener(Class<?> listener) {
-        registerListener(listener, EventType.DOWNSTREAM);
+        registerOrganizationListeners(listener, EventType.DOWNSTREAM);
+    }
+
+    public void registerUpstreamListener(String orgId, Class<?> listener) {
+        Optional<Organization> organization = getOrganization(orgId);
+        if (organization.isPresent()) {
+            registerListener(listener, EventType.UPSTREAM, organization.get());
+        }
     }
 
     public void registerUpstreamListener(Class<?> listener) {
-        registerListener(listener, EventType.UPSTREAM);
+        registerOrganizationListeners(listener, EventType.UPSTREAM);
+    }
+
+    public void registerErrorListener(String orgId, Class<?> listener) {
+        Optional<Organization> organization = getOrganization(orgId);
+        if (organization.isPresent()) {
+            registerListener(listener, EventType.ERROR, organization.get());
+        }
     }
 
     public void registerErrorListener(Class<?> listener) {
-        registerListener(listener, EventType.ERROR);
+        registerOrganizationListeners(listener, EventType.ERROR);
     }
 
-    private void registerListener(Class<?> listener, EventType eventType) {
-        organizations.forEach(org -> {
-            Queue queue = org.getQueue(eventType);
-            Optional<SimpleMessageListenerContainer> listenerContainer = events.registerListener(org.getExchange(), queue, listener);
-            if (listenerContainer.isPresent()) {
-                addRetry(org, listenerContainer.get());
-                addAcknowledgeMode(listenerContainer.get());
-            } else {
-                log.error("Unable to register retry interceptor for {}", org.getName());
-            }
-        });
+    private void registerOrganizationListeners(Class<?> listener, EventType eventType) {
+        organizations.forEach(org -> registerListener(listener, eventType, org));
+    }
+
+    private void registerListener(Class<?> listener, EventType eventType, Organization org) {
+        Queue queue = org.getQueue(eventType);
+        Optional<SimpleMessageListenerContainer> listenerContainer = events.registerListener(org.getExchange(), queue, listener);
+        if (listenerContainer.isPresent()) {
+            addRetry(org, listenerContainer.get());
+            addAcknowledgeMode(listenerContainer.get());
+        } else {
+            log.error("Unable to register retry interceptor for {}", org.getName());
+        }
     }
 
     private void addRetry(Organization org, SimpleMessageListenerContainer listenerContainer) {
