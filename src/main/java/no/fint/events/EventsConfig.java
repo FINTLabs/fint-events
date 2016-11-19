@@ -20,4 +20,9 @@ public class EventsConfig {
     public FintEvents fintEvents() {
         return new FintEvents();
     }
+
+    @Bean
+    public EventsProps eventsProps() {
+        return new EventsProps();
+    }
 }
