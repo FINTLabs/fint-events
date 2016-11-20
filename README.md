@@ -136,6 +136,7 @@ Spring Boot - Common application properties: http://docs.spring.io/spring-boot/d
 | fint.events.default-downstream-queue | The format of the default downstream queue. | %s.input |
 | fint.events.default-upstream-queue | The format of the default upstream queue. | %s.output |
 | fint.events.default-error-queue | The format of the default error queue. | %s.error |
+| fint.events.test-mode | Test mode will not automatically connect to rabbitmq, making it easier to test without requiring rabbitmq. | false |
 
 ---------
 

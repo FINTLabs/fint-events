@@ -1,8 +1,9 @@
 package no.fint.events.testutils;
 
-import no.fint.events.Events;
+import no.fint.events.EnableFintEvents;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-@SpringBootApplication(scanBasePackageClasses = Events.class)
+@EnableFintEvents
+@SpringBootApplication
 public class TestApplication {
 }

@@ -20,6 +20,9 @@ public class EventsProps {
     @Value("${fint.events.default-error-queue:%s.error}")
     private String defaultErrorQueue;
 
+    @Value("${fint.events.test-mode:false}")
+    private String testMode;
+
 
     @Value("${spring.rabbitmq.listener.retry.initial-interval:1000}")
     private int retryInitialInterval;

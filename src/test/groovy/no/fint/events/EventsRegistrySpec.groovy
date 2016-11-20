@@ -4,13 +4,13 @@ import no.fint.events.testutils.*
 import org.springframework.beans.factory.NoSuchBeanDefinitionException
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.ContextConfiguration
+import org.springframework.test.context.TestPropertySource
 import spock.lang.Specification
 
-@ActiveProfiles("norabbitmq")
 @ContextConfiguration
 @SpringBootTest(classes = TestApplication)
+@TestPropertySource(properties = "fint.events.test-mode=true")
 class EventsRegistrySpec extends Specification {
 
     @Autowired

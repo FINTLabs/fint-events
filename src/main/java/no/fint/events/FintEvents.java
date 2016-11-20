@@ -11,7 +11,6 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
 import org.springframework.amqp.rabbit.retry.RepublishMessageRecoverer;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
 import org.springframework.retry.interceptor.RetryOperationsInterceptor;
 
 import javax.annotation.PostConstruct;
@@ -23,9 +22,6 @@ import java.util.stream.Collectors;
 
 @Slf4j
 public class FintEvents {
-
-    @Autowired
-    private Environment environment;
 
     @Autowired
     private Events events;
@@ -41,7 +37,8 @@ public class FintEvents {
     @PostConstruct
     public void init() {
         organizations = getDefaultQueues();
-        if (environment.acceptsProfiles("!norabbitmq")) {
+        String testMode = eventsProps.getTestMode();
+        if (!Boolean.valueOf(testMode)) {
             organizations.forEach(organization -> {
                 log.info("Setting up queue for: {}", organization.getName());
                 events.addQueues(organization.getExchange(),
