@@ -23,7 +23,6 @@ public class EventsHeaderAndBodyListener extends MessageListenerAdapter {
             Map<String, Object> headers = originalMessage.getMessageProperties().getHeaders();
             byte[] body = originalMessage.getBody();
             methodInvoker.setArguments(new Object[]{headers, body});
-            
             methodInvoker.prepare();
             return methodInvoker.invoke();
         } catch (Exception ex) {

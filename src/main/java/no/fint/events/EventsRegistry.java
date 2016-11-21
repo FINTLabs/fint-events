@@ -48,7 +48,6 @@ public class EventsRegistry implements ApplicationContextAware {
                 listenerContainer.setMessageListener(new EventsHeaderAndBodyListener(bean, headerAndBodyListener.get().getName()));
                 log.info("Registering listener method: {}", headerAndBodyListener.get().getName());
             } else {
-                log.info("No method in the listener found with Message as input parameter, using the standard MessageListenerAdapter");
                 Optional<Method> publicMethod = getPublicMethod(listener);
                 if (publicMethod.isPresent()) {
                     log.info("Registering listener method: {}", publicMethod.get().getName());
@@ -88,7 +87,10 @@ public class EventsRegistry implements ApplicationContextAware {
 
     Optional<Method> getPublicMethod(Class<?> listener) {
         Method[] methods = listener.getDeclaredMethods();
-        return Arrays.stream(methods).filter(method -> (Modifier.isPublic(method.getModifiers()) && method.getParameterCount() == 1)).findFirst();
+        return Arrays.stream(methods)
+                .filter(method -> (Modifier.isPublic(method.getModifiers())))
+                .filter(method -> method.getParameterCount() == 1)
+                .findFirst();
     }
 
     void shutdown(String queue) {
