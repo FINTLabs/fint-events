@@ -8,7 +8,7 @@ apply plugin: 'maven'
 
 jar {
     baseName = 'fint-events'
-    version = '0.0.17'
+    version = '0.0.18-SNAPSHOT'
 }
 
 sourceCompatibility = 1.8
