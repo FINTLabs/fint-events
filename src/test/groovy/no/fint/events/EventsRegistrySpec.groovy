@@ -60,6 +60,15 @@ class EventsRegistrySpec extends Specification {
         method.get().getName() == "test3"
     }
 
+    def "Get json object listener method"() {
+        when:
+        def method = eventsRegistry.getJsonObjectMethod(TestListener5)
+
+        then:
+        method.isPresent()
+        method.get().getName() == "test4"
+    }
+
     def "Get public method"() {
         when:
         def method = eventsRegistry.getPublicMethod(TestListener2)

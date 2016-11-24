@@ -28,6 +28,5 @@ public class EventsHeaderAndBodyListener extends MessageListenerAdapter {
         } catch (Exception ex) {
             throw new ListenerExecutionFailedException("Failed to invoke target method " + methodName, ex);
         }
-
     }
 }

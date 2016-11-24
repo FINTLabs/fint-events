@@ -1,7 +1,9 @@
 package no.fint.events;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import no.fint.events.listeners.EventsHeaderAndBodyListener;
+import no.fint.events.listeners.EventsJsonObjectListener;
 import no.fint.events.listeners.EventsMessageListener;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
@@ -26,6 +28,9 @@ public class EventsRegistry implements ApplicationContextAware {
     @Autowired
     private ConnectionFactory connectionFactory;
 
+    @Autowired
+    private ObjectMapper objectMapper;
+
     private ApplicationContext applicationContext;
 
     private Map<String, SimpleMessageListenerContainer> registeredContainers = new HashMap<>();
@@ -42,12 +47,16 @@ public class EventsRegistry implements ApplicationContextAware {
 
         Optional<Method> messageListener = getMessageListenerMethod(listener);
         Optional<Method> headerAndBodyListener = getHeaderAndBodyListenerMethod(listener);
+        Optional<Method> jsonObjectListener = getJsonObjectMethod(listener);
         if (messageListener.isPresent()) {
             listenerContainer.setMessageListener(new EventsMessageListener(bean, messageListener.get().getName()));
-            log.info("Registering listener method: {}", messageListener.get().getName());
+            log.info("Registering message listener method: {}", messageListener.get().getName());
         } else if (headerAndBodyListener.isPresent()) {
             listenerContainer.setMessageListener(new EventsHeaderAndBodyListener(bean, headerAndBodyListener.get().getName()));
-            log.info("Registering listener method: {}", headerAndBodyListener.get().getName());
+            log.info("Registering header and body listener method: {}", headerAndBodyListener.get().getName());
+        } else if (jsonObjectListener.isPresent()) {
+            listenerContainer.setMessageListener(new EventsJsonObjectListener(objectMapper, jsonObjectListener.get().getParameterTypes()[0], bean, jsonObjectListener.get().getName()));
+            log.info("Registering json object listener method: {}", jsonObjectListener.get().getName());
         } else {
             Optional<Method> publicMethod = getPublicMethod(listener);
             if (publicMethod.isPresent()) {
@@ -79,6 +88,16 @@ public class EventsRegistry implements ApplicationContextAware {
                 .filter(method -> method.getParameterCount() == 2)
                 .filter(method -> method.getParameterTypes()[0] == Map.class)
                 .filter(method -> method.getParameterTypes()[1] == byte[].class)
+                .findAny();
+    }
+
+    Optional<Method> getJsonObjectMethod(Class<?> listener) {
+        Method[] methods = listener.getDeclaredMethods();
+        return Arrays.stream(methods)
+                .filter(method -> (Modifier.isPublic(method.getModifiers())))
+                .filter(method -> method.getParameterCount() == 1)
+                .filter(method -> method.getParameterTypes()[0] != byte[].class)
+                .filter(method -> !"equals".equals(method.getName()))
                 .findAny();
     }
 
