@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.amqp.rabbit.listener.AbstractMessageListenerContainer;
 import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -27,6 +28,13 @@ public class Events {
     }
 
     public Optional<SimpleMessageListenerContainer> registerListener(TopicExchange exchange, Queue queue, Class<?> listener) {
+        addQueues(exchange, queue);
+        Optional<SimpleMessageListenerContainer> listenerContainer = eventsRegistry.add(queue.getName(), listener);
+        listenerContainer.ifPresent(AbstractMessageListenerContainer::start);
+        return listenerContainer;
+    }
+
+    Optional<SimpleMessageListenerContainer> registerUnstartedListener(TopicExchange exchange, Queue queue, Class<?> listener) {
         addQueues(exchange, queue);
         return eventsRegistry.add(queue.getName(), listener);
     }
@@ -58,7 +66,12 @@ public class Events {
 
     public void removeListener(TopicExchange exchange, Queue queue) {
         amqpAdmin.removeBinding(getBinding(exchange, queue));
-        eventsRegistry.shutdown(queue.getName());
+        eventsRegistry.close(queue.getName());
+    }
+
+    public void send(String queue, String message) {
+        RabbitTemplate rabbitTemplate = rabbitTemplate(queue);
+        rabbitTemplate.convertAndSend(queue, message);
     }
 
     private Binding getBinding(TopicExchange exchange, Queue queue) {

@@ -1,5 +1,6 @@
 package no.fint.events;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.aopalliance.aop.Advice;
@@ -78,9 +79,7 @@ public class FintEvents {
             );
 
             Optional<Integer> index = getOrganizationIndex(orgId);
-            if (index.isPresent()) {
-                organizations.remove(index.get().intValue());
-            }
+            index.ifPresent(integer -> organizations.remove(integer.intValue()));
         } else {
             log.error("Organization {} not found", orgId);
         }
@@ -92,6 +91,45 @@ public class FintEvents {
 
     public boolean containsOrganization(String orgId) {
         return getOrganization(orgId).isPresent();
+    }
+
+    public void sendDownstreamMessage(String orgId, String message) {
+        getOrganization(orgId).ifPresent(organization -> events.send(organization.getDownstreamQueueName(), message));
+    }
+
+    public void sendDownstreamObject(String orgId, Object message) {
+        try {
+            String json = objectMapper.writeValueAsString(message);
+            sendDownstreamMessage(orgId, json);
+        } catch (JsonProcessingException e) {
+            throw new IllegalArgumentException("Unable to create json from object", e);
+        }
+    }
+
+    public void sendUpstreamMessage(String orgId, String message) {
+        getOrganization(orgId).ifPresent(organization -> events.send(organization.getUpstreamQueueName(), message));
+    }
+
+    public void sendUpstreamObject(String orgId, Object message) {
+        try {
+            String json = objectMapper.writeValueAsString(message);
+            sendUpstreamMessage(orgId, json);
+        } catch (JsonProcessingException e) {
+            throw new IllegalArgumentException("Unable to create json from object", e);
+        }
+    }
+
+    public void sendErrorMessage(String orgId, String message) {
+        getOrganization(orgId).ifPresent(organization -> events.send(organization.getErrorQueueName(), message));
+    }
+
+    public void sendErrorObject(String orgId, Object message) {
+        try {
+            String json = objectMapper.writeValueAsString(message);
+            sendErrorMessage(orgId, json);
+        } catch (JsonProcessingException e) {
+            throw new IllegalArgumentException("Unable to create json from object", e);
+        }
     }
 
     public void deleteDefaultQueues() {
@@ -112,10 +150,7 @@ public class FintEvents {
     }
 
     public void registerDownstreamListener(String orgId, Class<?> listener) {
-        Optional<Organization> organization = getOrganization(orgId);
-        if (organization.isPresent()) {
-            registerListener(listener, EventType.DOWNSTREAM, organization.get());
-        }
+        getOrganization(orgId).ifPresent(organization -> registerListener(listener, EventType.DOWNSTREAM, organization));
     }
 
     public void registerDownstreamListener(Class<?> listener) {
@@ -124,9 +159,7 @@ public class FintEvents {
 
     public void registerUpstreamListener(String orgId, Class<?> listener) {
         Optional<Organization> organization = getOrganization(orgId);
-        if (organization.isPresent()) {
-            registerListener(listener, EventType.UPSTREAM, organization.get());
-        }
+        organization.ifPresent(org -> registerListener(listener, EventType.UPSTREAM, org));
     }
 
     public void registerUpstreamListener(Class<?> listener) {
@@ -135,9 +168,7 @@ public class FintEvents {
 
     public void registerErrorListener(String orgId, Class<?> listener) {
         Optional<Organization> organization = getOrganization(orgId);
-        if (organization.isPresent()) {
-            registerListener(listener, EventType.ERROR, organization.get());
-        }
+        organization.ifPresent(org -> registerListener(listener, EventType.ERROR, org));
     }
 
     public void registerErrorListener(Class<?> listener) {
@@ -150,10 +181,11 @@ public class FintEvents {
 
     private void registerListener(Class<?> listener, EventType eventType, Organization org) {
         Queue queue = org.getQueue(eventType);
-        Optional<SimpleMessageListenerContainer> listenerContainer = events.registerListener(org.getExchange(), queue, listener);
+        Optional<SimpleMessageListenerContainer> listenerContainer = events.registerUnstartedListener(org.getExchange(), queue, listener);
         if (listenerContainer.isPresent()) {
             addRetry(org, listenerContainer.get());
             addAcknowledgeMode(listenerContainer.get());
+            listenerContainer.get().start();
         } else {
             log.error("Unable to register retry interceptor for {}", org.getName());
         }
@@ -178,7 +210,7 @@ public class FintEvents {
         return readOrganizationMessage(EventType.ERROR, orgId);
     }
 
-    public <T> Optional<T> readErrorJson(String orgId, Class<T> responseType) {
+    public <T> Optional<T> readErrorObject(String orgId, Class<T> responseType) {
         return readOrganizationJson(EventType.ERROR, orgId, responseType);
     }
 
@@ -186,7 +218,7 @@ public class FintEvents {
         return readOrganizationMessage(EventType.UPSTREAM, orgId);
     }
 
-    public <T> Optional<T> readUpstreamJson(String orgId, Class<T> responseType) {
+    public <T> Optional<T> readUpstreamObject(String orgId, Class<T> responseType) {
         return readOrganizationJson(EventType.UPSTREAM, orgId, responseType);
     }
 
@@ -194,7 +226,7 @@ public class FintEvents {
         return readOrganizationMessage(EventType.DOWNSTREAM, orgId);
     }
 
-    public <T> Optional<T> readDownstreamJson(String orgId, Class<T> responseType) {
+    public <T> Optional<T> readDownstreamObject(String orgId, Class<T> responseType) {
         return readOrganizationJson(EventType.DOWNSTREAM, orgId, responseType);
     }
 

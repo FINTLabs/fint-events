@@ -5,18 +5,18 @@ import no.fint.events.listeners.EventsHeaderAndBodyListener;
 import no.fint.events.listeners.EventsMessageListener;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
+import org.springframework.amqp.rabbit.listener.AbstractMessageListenerContainer;
 import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
 import org.springframework.amqp.rabbit.listener.adapter.MessageListenerAdapter;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.context.ConfigurableApplicationContext;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
@@ -26,44 +26,41 @@ public class EventsRegistry implements ApplicationContextAware {
     @Autowired
     private ConnectionFactory connectionFactory;
 
-    private ConfigurableListableBeanFactory beanFactory;
+    private ApplicationContext applicationContext;
+
+    private Map<String, SimpleMessageListenerContainer> registeredContainers = new HashMap<>();
 
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        beanFactory = ((ConfigurableApplicationContext) applicationContext).getBeanFactory();
+        this.applicationContext = applicationContext;
     }
 
     Optional<SimpleMessageListenerContainer> add(String queue, Class<?> listener) {
-        if (!containsListener(queue)) {
-            SimpleMessageListenerContainer listenerContainer = new SimpleMessageListenerContainer(connectionFactory);
-            listenerContainer.addQueueNames(queue);
-            Object bean = beanFactory.getBean(listener);
+        SimpleMessageListenerContainer listenerContainer = new SimpleMessageListenerContainer(connectionFactory);
+        listenerContainer.addQueueNames(queue);
+        Object bean = applicationContext.getBean(listener);
 
-            Optional<Method> messageListener = getMessageListenerMethod(listener);
-            Optional<Method> headerAndBodyListener = getHeaderAndBodyListenerMethod(listener);
-            if (messageListener.isPresent()) {
-                listenerContainer.setMessageListener(new EventsMessageListener(bean, messageListener.get().getName()));
-                log.info("Registering listener method: {}", messageListener.get().getName());
-            } else if (headerAndBodyListener.isPresent()) {
-                listenerContainer.setMessageListener(new EventsHeaderAndBodyListener(bean, headerAndBodyListener.get().getName()));
-                log.info("Registering listener method: {}", headerAndBodyListener.get().getName());
+        Optional<Method> messageListener = getMessageListenerMethod(listener);
+        Optional<Method> headerAndBodyListener = getHeaderAndBodyListenerMethod(listener);
+        if (messageListener.isPresent()) {
+            listenerContainer.setMessageListener(new EventsMessageListener(bean, messageListener.get().getName()));
+            log.info("Registering listener method: {}", messageListener.get().getName());
+        } else if (headerAndBodyListener.isPresent()) {
+            listenerContainer.setMessageListener(new EventsHeaderAndBodyListener(bean, headerAndBodyListener.get().getName()));
+            log.info("Registering listener method: {}", headerAndBodyListener.get().getName());
+        } else {
+            Optional<Method> publicMethod = getPublicMethod(listener);
+            if (publicMethod.isPresent()) {
+                log.info("Registering listener method: {}", publicMethod.get().getName());
+                listenerContainer.setMessageListener(new MessageListenerAdapter(bean, publicMethod.get().getName()));
             } else {
-                Optional<Method> publicMethod = getPublicMethod(listener);
-                if (publicMethod.isPresent()) {
-                    log.info("Registering listener method: {}", publicMethod.get().getName());
-                    listenerContainer.setMessageListener(new MessageListenerAdapter(bean, publicMethod.get().getName()));
-                } else {
-                    throw new IllegalStateException("Unable to find any listener methods, " + listener);
-                }
+                throw new IllegalStateException("Unable to find any listener methods, " + listener);
             }
-
-            beanFactory.registerSingleton(queue, listenerContainer);
-            log.info("Registered {} to listen on queue {}", listener.getSimpleName(), queue);
-
-            return Optional.of(listenerContainer);
         }
 
-        return Optional.empty();
+        registeredContainers.put(queue, listenerContainer);
+        log.info("Registered {} to listen on queue {}", listener.getSimpleName(), queue);
+        return Optional.of(listenerContainer);
     }
 
     Optional<Method> getMessageListenerMethod(Class<?> listener) {
@@ -93,19 +90,21 @@ public class EventsRegistry implements ApplicationContextAware {
                 .findFirst();
     }
 
-    void shutdown(String queue) {
-        if (containsListener(queue)) {
-            SimpleMessageListenerContainer bean = beanFactory.getBean(queue, SimpleMessageListenerContainer.class);
-            bean.shutdown();
+    void close(String queue) {
+        if (registeredContainers.containsKey(queue)) {
+            SimpleMessageListenerContainer listenerContainer = registeredContainers.get(queue);
+            listenerContainer.stop();
+            registeredContainers.remove(queue);
+        } else {
+            log.warn("The key {} was not found in the registered listeners", queue);
         }
     }
 
     void shutdown() {
-        Map<String, SimpleMessageListenerContainer> beans = beanFactory.getBeansOfType(SimpleMessageListenerContainer.class);
-        beans.values().forEach(SimpleMessageListenerContainer::shutdown);
+        registeredContainers.values().stream().findFirst().ifPresent(AbstractMessageListenerContainer::shutdown);
     }
 
     boolean containsListener(String queue) {
-        return beanFactory.containsBean(queue);
+        return registeredContainers.containsKey(queue);
     }
 }

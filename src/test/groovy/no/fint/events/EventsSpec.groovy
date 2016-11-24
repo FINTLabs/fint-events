@@ -1,15 +1,10 @@
 package no.fint.events
 
 import no.fint.events.testutils.TestListener
-import org.springframework.amqp.core.AmqpAdmin
-import org.springframework.amqp.core.Binding
-import org.springframework.amqp.core.Exchange
-import org.springframework.amqp.core.Queue
-import org.springframework.amqp.core.TopicExchange
+import org.springframework.amqp.core.*
 import org.springframework.amqp.rabbit.connection.ConnectionFactory
 import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer
 import spock.lang.Specification
-
 
 class EventsSpec extends Specification {
     private Events events
@@ -26,7 +21,7 @@ class EventsSpec extends Specification {
 
     def "Create exchange and queues when registering a message listener"() {
         when:
-        def listener = events.registerListener("my-exchange", "my-queue", TestListener)
+        def listener = events.registerUnstartedListener(new TopicExchange("my-exchange"), new Queue("my-queue"), TestListener)
 
         then:
         1 * amqpAdmin.declareExchange(_ as Exchange)

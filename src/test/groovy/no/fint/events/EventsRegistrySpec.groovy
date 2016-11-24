@@ -16,13 +16,13 @@ class EventsRegistrySpec extends Specification {
     @Autowired
     private EventsRegistry eventsRegistry
 
-    def "Add and remove listener"() {
+    def "Add listener and call shutdown"() {
         given:
         def queue = "test-queue"
 
         when:
         eventsRegistry.add(queue, TestListener)
-        def containsListener = eventsRegistry.containsListener(queue)
+        def containsListener = eventsRegistry.containsListener("test-queue")
         eventsRegistry.shutdown()
 
         then:
@@ -35,8 +35,8 @@ class EventsRegistrySpec extends Specification {
 
         when:
         eventsRegistry.add(queue, TestListener4)
-        def containsListener = eventsRegistry.containsListener(queue)
-        eventsRegistry.shutdown()
+        def containsListener = eventsRegistry.containsListener("test-queue2")
+        eventsRegistry.close("test-queue2")
 
         then:
         containsListener
