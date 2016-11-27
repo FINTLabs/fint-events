@@ -18,6 +18,7 @@ public class TestListener {
         messageCalled = true;
     }
 
+    // To test method lookup
     public void test2(String test) {
     }
 

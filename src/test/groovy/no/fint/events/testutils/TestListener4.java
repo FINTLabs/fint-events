@@ -7,6 +7,7 @@ import java.util.Map;
 @Component
 public class TestListener4 {
 
+    // To test method lookup
     public void headerAndBody(Map<String, Object> header, byte[] body) {
     }
 }
