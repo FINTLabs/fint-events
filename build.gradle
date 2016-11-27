@@ -5,6 +5,7 @@ plugins {
 apply plugin: 'java'
 apply plugin: 'groovy'
 apply plugin: 'maven'
+apply plugin: 'jacoco'
 
 jar {
     baseName = 'fint-events'
@@ -30,6 +31,12 @@ dependencies {
     testCompile('cglib:cglib-nodep:3.2.4')
     testCompile("org.spockframework:spock-spring:${spockSpringVersion}")
     testCompile("org.springframework.boot:spring-boot-starter-test:${springBootVersion}")
+}
+
+jacocoTestReport {
+    reports {
+        xml.enabled true
+    }
 }
 
 if (project.hasProperty('bintrayUser') && project.hasProperty('bintrayKey')) {
