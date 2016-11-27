@@ -1,8 +1,11 @@
 package no.fint.events;
 
+import no.fint.events.local.LocalRabbit;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 
+@Import(LocalRabbit.class)
 @Configuration
 public class EventsConfig {
 

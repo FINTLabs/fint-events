@@ -44,4 +44,8 @@ public class EventsProps {
 
     @Value("${spring.rabbitmq.listener.acknowledge-mode:AUTO}")
     private String acknowledgeMode;
+
+    public boolean isTestMode() {
+        return Boolean.valueOf(testMode);
+    }
 }

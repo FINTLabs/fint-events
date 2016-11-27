@@ -38,8 +38,7 @@ public class FintEvents {
     @PostConstruct
     public void init() {
         organizations = getDefaultQueues();
-        String testMode = eventsProps.getTestMode();
-        if (!Boolean.valueOf(testMode)) {
+        if (!eventsProps.isTestMode()) {
             organizations.forEach(organization -> {
                 log.info("Setting up queue for: {}", organization.getName());
                 events.addQueues(organization.getExchange(),
