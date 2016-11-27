@@ -18,8 +18,8 @@ public class TestListener {
         messageCalled = true;
     }
 
-    // To test method lookup
     public void test2(String test) {
+        // To test method lookup
     }
 
     public void test3(Map<String, String> headers, byte[] body) {
