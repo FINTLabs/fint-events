@@ -25,6 +25,7 @@ dependencies {
 
     compile("org.springframework.boot:spring-boot-starter-web:${springBootVersion}")
     compile("org.springframework.boot:spring-boot-starter-amqp:${springBootVersion}")
+    compile('org.apache.qpid:qpid-broker:6.1.0')
 
     testCompile('cglib:cglib-nodep:3.2.4')
     testCompile("org.spockframework:spock-spring:${spockSpringVersion}")

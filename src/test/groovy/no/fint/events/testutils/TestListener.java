@@ -1,15 +1,17 @@
 package no.fint.events.testutils;
 
-import lombok.Data;
+import lombok.Getter;
 import org.springframework.amqp.core.Message;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
 
-@Data
 @Component
 public class TestListener {
+    @Getter
     private boolean headerAndBodyCalled = false;
+
+    @Getter
     private boolean messageCalled = false;
 
     public void test(Message message) {
