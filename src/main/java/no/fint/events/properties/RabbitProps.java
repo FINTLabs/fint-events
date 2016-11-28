@@ -6,13 +6,13 @@ import org.springframework.beans.factory.annotation.Value;
 @Getter
 public class RabbitProps {
 
-    @Value("${fint.rabbitmq.host:}")
+    @Value("${fint.rabbitmq.host:localhost}")
     private String host;
 
-    @Value("${fint.rabbitmq.port:}")
+    @Value("${fint.rabbitmq.port:5672}")
     private int port;
 
-    @Value("${fint.rabbitmq.virtual-host:}")
+    @Value("${fint.rabbitmq.virtual-host:/}")
     private String virtualHost;
 
     @Value("${fint.rabbitmq.username:}")
