@@ -1,6 +1,7 @@
 package no.fint.events
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import no.fint.events.properties.EventsProps
 import no.fint.events.testutils.TestDto
 import org.springframework.amqp.core.Message
 import org.springframework.amqp.rabbit.core.RabbitTemplate

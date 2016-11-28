@@ -3,6 +3,8 @@ package no.fint.events;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import no.fint.events.properties.EventsProps;
+import no.fint.events.properties.ListenerProps;
 import org.aopalliance.aop.Advice;
 import org.springframework.amqp.core.AcknowledgeMode;
 import org.springframework.amqp.core.Message;
@@ -29,6 +31,9 @@ public class FintEvents {
 
     @Autowired
     private EventsProps eventsProps;
+
+    @Autowired
+    private ListenerProps listenerProps;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -192,15 +197,15 @@ public class FintEvents {
 
     private void addRetry(Organization org, SimpleMessageListenerContainer listenerContainer) {
         RetryOperationsInterceptor retryInterceptor = RetryInterceptorBuilder.stateless()
-                .maxAttempts(eventsProps.getRetryMaxAttempts())
-                .backOffOptions(eventsProps.getRetryInitialInterval(), eventsProps.getRetryMultiplier(), eventsProps.getRetryMaxInterval())
+                .maxAttempts(listenerProps.getRetryMaxAttempts())
+                .backOffOptions(listenerProps.getRetryInitialInterval(), listenerProps.getRetryMultiplier(), listenerProps.getRetryMaxInterval())
                 .recoverer(new RepublishMessageRecoverer(events.rabbitTemplate(), org.getExchangeName(), org.getErrorQueueName()))
                 .build();
         listenerContainer.setAdviceChain(new Advice[]{retryInterceptor});
     }
 
     private void addAcknowledgeMode(SimpleMessageListenerContainer listenerContainer) {
-        String acknowledgeModeProp = eventsProps.getAcknowledgeMode();
+        String acknowledgeModeProp = listenerProps.getAcknowledgeMode();
         AcknowledgeMode acknowledgeMode = AcknowledgeMode.valueOf(acknowledgeModeProp);
         listenerContainer.setAcknowledgeMode(acknowledgeMode);
     }

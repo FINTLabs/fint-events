@@ -116,20 +116,20 @@ Spring Boot - Common application properties: http://docs.spring.io/spring-boot/d
 ### Rabbitmq config
 | Key | Description | Default value |
 |-----|-------------|---------------|
-| spring.rabbitmq.host | RabbitMQ host. | localhost |
-| spring.rabbitmq.username | Login user to authenticate to the broker. | |
-| spring.rabbitmq.password | Login to authenticate against the broker. | |
-| spring.rabbitmq.port | RabbitMQ port. | 5672 |
-| spring.rabbitmq.virtual-host | Virtual host to use when connecting to the broker. | |
+| fint.rabbitmq.host | RabbitMQ host. | localhost |
+| fint.rabbitmq.username | Login user to authenticate to the broker. | |
+| fint.rabbitmq.password | Login to authenticate against the broker. | |
+| fint.rabbitmq.port | RabbitMQ port. | 5672 |
+| fint.rabbitmq.virtual-host | Virtual host to use when connecting to the broker. | |
 
 ### Listener config
 | Key | Description | Default value |
 |-----|-------------|---------------|
-| spring.rabbitmq.listener.retry.initial-interval | Interval between the first and second attempt to deliver a message. | 1000 |
-| spring.rabbitmq.listener.retry.max-attempts | Maximum number of attempts to deliver a message. | 3 |
-| spring.rabbitmq.listener.retry.max-interval | Maximum interval between attempts. | 10000 |
-| spring.rabbitmq.listener.retry.multiplier | A multiplier to apply to the previous delivery retry interval. | 1.0 |
-| spring.rabbitmq.listener.acknowledge-mode | Acknowledge mode of container. | MANUAL |
+| fint.listener.retry.initial-interval | Interval between the first and second attempt to deliver a message. | 30000 |
+| fint.listener.retry.max-attempts | Maximum number of attempts to deliver a message. | 3 |
+| fint.listener.retry.max-interval | Maximum interval between attempts. | 30000 |
+| fint.listener.retry.multiplier | A multiplier to apply to the previous delivery retry interval. | 1.0 |
+| fint.listener.acknowledge-mode | Acknowledge mode of container. | AUTO |
 
 ### FINT events config
 | Key | Description | Default value |
