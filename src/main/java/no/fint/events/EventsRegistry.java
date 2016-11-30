@@ -41,6 +41,10 @@ public class EventsRegistry implements ApplicationContextAware {
     }
 
     Optional<SimpleMessageListenerContainer> add(String queue, Class<?> listener) {
+        if (registeredContainers.get(queue) != null) {
+            return Optional.empty();
+        }
+
         SimpleMessageListenerContainer listenerContainer = new SimpleMessageListenerContainer(connectionFactory);
         listenerContainer.addQueueNames(queue);
         Object bean = applicationContext.getBean(listener);

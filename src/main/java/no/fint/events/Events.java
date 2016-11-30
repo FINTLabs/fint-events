@@ -6,6 +6,7 @@ import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.rabbit.listener.AbstractMessageListenerContainer;
 import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
+import org.springframework.amqp.rabbit.support.CorrelationData;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Arrays;
@@ -72,6 +73,13 @@ public class Events {
     public void send(String queue, String message) {
         RabbitTemplate rabbitTemplate = rabbitTemplate(queue);
         rabbitTemplate.convertAndSend(queue, message);
+    }
+
+    public Message sendAndReceive(String exchange, String queue, String id, String message) {
+        RabbitTemplate rabbitTemplate = rabbitTemplate();
+        rabbitTemplate.setExchange(exchange);
+        rabbitTemplate.setReplyTimeout(-1);
+        return rabbitTemplate.sendAndReceive(queue, new Message(message.getBytes(), new MessageProperties()), new CorrelationData(id));
     }
 
     private Binding getBinding(TopicExchange exchange, Queue queue) {

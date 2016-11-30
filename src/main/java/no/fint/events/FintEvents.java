@@ -9,6 +9,7 @@ import org.aopalliance.aop.Advice;
 import org.springframework.amqp.core.AcknowledgeMode;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.Queue;
+import org.springframework.amqp.core.TopicExchange;
 import org.springframework.amqp.rabbit.config.RetryInterceptorBuilder;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
@@ -18,9 +19,7 @@ import org.springframework.retry.interceptor.RetryOperationsInterceptor;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -97,6 +96,22 @@ public class FintEvents {
         return getOrganization(orgId).isPresent();
     }
 
+    public <T> Optional<T> sendAndReceiveObject(String orgId, String id, Object message, Class<T> type) {
+        Optional<Organization> org = getOrganization(orgId);
+        if (org.isPresent()) {
+            try {
+                String json = objectMapper.writeValueAsString(message);
+                Organization organization = org.get();
+                Message response = events.sendAndReceive(organization.getExchangeName(), organization.getDownstreamQueueName(), id, json);
+                return Optional.ofNullable(objectMapper.readValue(response.getBody(), type));
+            } catch (IOException e) {
+                throw new IllegalArgumentException("Unable to read/write object from json", e);
+            }
+        } else {
+            return Optional.empty();
+        }
+    }
+
     public void sendDownstreamMessage(String orgId, String message) {
         getOrganization(orgId).ifPresent(organization -> events.send(organization.getDownstreamQueueName(), message));
     }
@@ -112,6 +127,25 @@ public class FintEvents {
 
     public void sendUpstreamMessage(String orgId, String message) {
         getOrganization(orgId).ifPresent(organization -> events.send(organization.getUpstreamQueueName(), message));
+    }
+
+    public void sendUpstreamObject(String orgId, String corrId, Object message) {
+        try {
+            Optional<Organization> organization = getOrganization(orgId);
+            if (organization.isPresent()) {
+                String json = objectMapper.writeValueAsString(message);
+                String queueName = organization.get().getUpstreamQueueName() + "." + corrId;
+
+                Map<String, Object> arguments = new HashMap<>();
+                arguments.put("x-message-ttl", 30000);
+                arguments.put("x-expires", 35000);
+                Queue queue = new Queue(queueName, false, false, true, arguments);
+                events.addQueues(new TopicExchange(orgId), queue);
+                events.send(queueName, json);
+            }
+        } catch (JsonProcessingException e) {
+            throw new IllegalArgumentException("Unable to create json from object", e);
+        }
     }
 
     public void sendUpstreamObject(String orgId, Object message) {
@@ -190,8 +224,6 @@ public class FintEvents {
             addRetry(org, listenerContainer.get());
             addAcknowledgeMode(listenerContainer.get());
             listenerContainer.get().start();
-        } else {
-            log.error("Unable to register retry interceptor for {}", org.getName());
         }
     }
 
@@ -220,6 +252,15 @@ public class FintEvents {
 
     public Optional<Message> readUpstreamMessage(String orgId) {
         return readOrganizationMessage(EventType.UPSTREAM, orgId);
+    }
+
+    public <T> Optional<T> readUpstreamObject(String orgId, String corrId, Class<T> responseType) {
+        Optional<Organization> organization = getOrganization(orgId);
+        if (organization.isPresent()) {
+            return readJson(organization.get().getUpstreamQueueName() + "." + corrId, responseType);
+        } else {
+            throw new IllegalArgumentException("No organization with id " + orgId);
+        }
     }
 
     public <T> Optional<T> readUpstreamObject(String orgId, Class<T> responseType) {
