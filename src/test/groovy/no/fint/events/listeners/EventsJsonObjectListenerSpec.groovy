@@ -1,54 +1,37 @@
 package no.fint.events.listeners
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import no.fint.events.testutils.TestDto
-import no.fint.events.testutils.TestListener5
-import org.springframework.amqp.core.Message
+import no.fint.events.testutils.listeners.JsonObjectListener
+import org.springframework.amqp.core.MessageBuilder
 import org.springframework.amqp.core.MessageProperties
+import org.springframework.amqp.rabbit.listener.exception.ListenerExecutionFailedException
 import spock.lang.Specification
 
 class EventsJsonObjectListenerSpec extends Specification {
-    private ObjectMapper objectMapper
-
-    void setup() {
-        objectMapper = new ObjectMapper()
-    }
 
     def "Invoke method with json object"() {
         given:
-        Message message = Mock(Message) {
-            getMessageProperties() >> Mock(MessageProperties) {
-                getHeaders() >> Collections.emptyMap()
-            }
-            getBody() >> objectMapper.writeValueAsString(new TestDto(value: "test"))
-        }
-
-        TestListener5 testListener = new TestListener5()
-        EventsJsonObjectListener listener = new EventsJsonObjectListener(new ObjectMapper(), TestDto, testListener, "test4")
+        JsonObjectListener jsonObjectListener = new JsonObjectListener()
+        EventsJsonObjectListener listener = new EventsJsonObjectListener(TestDto, jsonObjectListener, "onObject")
+        def message = MessageBuilder.withBody("{\"value\":\"test123\"}".bytes).setContentType(MessageProperties.CONTENT_TYPE_JSON).build()
 
         when:
-        listener.invokeListenerMethod("test4", new Object[0], message)
+        listener.onMessage(message)
 
         then:
-        testListener.jsonObjectCalled
+        jsonObjectListener.called
     }
 
     def "Throw exception when invoking method with invalid json object"() {
         given:
-        Message message = Mock(Message) {
-            getMessageProperties() >> Mock(MessageProperties) {
-                getHeaders() >> Collections.emptyMap()
-            }
-            getBody() >> objectMapper.writeValueAsString("test")
-        }
-
-        TestListener5 testListener = new TestListener5()
-        EventsJsonObjectListener listener = new EventsJsonObjectListener(new ObjectMapper(), TestDto, testListener, "test4")
+        JsonObjectListener jsonObjectListener = new JsonObjectListener()
+        EventsJsonObjectListener listener = new EventsJsonObjectListener(TestDto, jsonObjectListener, "test4")
+        def message = MessageBuilder.withBody("test".bytes).setContentType(MessageProperties.CONTENT_TYPE_JSON).build()
 
         when:
-        listener.invokeListenerMethod("test4", new Object[0], message)
+        listener.onMessage(message)
 
         then:
-        thrown(IllegalArgumentException)
+        thrown(ListenerExecutionFailedException)
     }
 }

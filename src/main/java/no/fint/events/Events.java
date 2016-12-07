@@ -79,7 +79,10 @@ public class Events {
         RabbitTemplate rabbitTemplate = rabbitTemplate();
         rabbitTemplate.setExchange(exchange);
         rabbitTemplate.setReplyTimeout(-1);
-        return rabbitTemplate.sendAndReceive(queue, new Message(message.getBytes(), new MessageProperties()), new CorrelationData(id));
+
+        Message msg = MessageBuilder.withBody(message.getBytes()).setContentType(MessageProperties.CONTENT_TYPE_JSON)
+                .setMessageId(id).build();
+        return rabbitTemplate.sendAndReceive(queue, msg, new CorrelationData(id));
     }
 
     private Binding getBinding(TopicExchange exchange, Queue queue) {

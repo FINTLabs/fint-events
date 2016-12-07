@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import no.fint.events.properties.EventsProps;
 import no.fint.events.properties.ListenerProps;
 import org.aopalliance.aop.Advice;
+import org.springframework.amqp.AmqpIOException;
 import org.springframework.amqp.core.AcknowledgeMode;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.Queue;
@@ -257,7 +258,12 @@ public class FintEvents {
     public <T> Optional<T> readUpstreamObject(String orgId, String corrId, Class<T> responseType) {
         Optional<Organization> organization = getOrganization(orgId);
         if (organization.isPresent()) {
-            return readJson(organization.get().getUpstreamQueueName() + "." + corrId, responseType);
+            try {
+                return readJson(organization.get().getUpstreamQueueName() + "." + corrId, responseType);
+            } catch (AmqpIOException e) {
+
+                return Optional.empty();
+            }
         } else {
             throw new IllegalArgumentException("No organization with id " + orgId);
         }

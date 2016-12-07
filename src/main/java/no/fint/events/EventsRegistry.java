@@ -59,7 +59,7 @@ public class EventsRegistry implements ApplicationContextAware {
             listenerContainer.setMessageListener(new EventsHeaderAndBodyListener(bean, headerAndBodyListener.get().getName()));
             log.info("Registering header and body listener method: {}", headerAndBodyListener.get().getName());
         } else if (jsonObjectListener.isPresent()) {
-            listenerContainer.setMessageListener(new EventsJsonObjectListener(objectMapper, jsonObjectListener.get().getParameterTypes()[0], bean, jsonObjectListener.get().getName()));
+            listenerContainer.setMessageListener(new EventsJsonObjectListener(jsonObjectListener.get().getParameterTypes()[0], bean, jsonObjectListener.get().getName()));
             log.info("Registering json object listener method: {}", jsonObjectListener.get().getName());
         } else {
             Optional<Method> publicMethod = getPublicMethod(listener);
