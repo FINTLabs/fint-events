@@ -122,6 +122,7 @@ Spring Boot - Common application properties: http://docs.spring.io/spring-boot/d
 | fint.rabbitmq.password | Login to authenticate against the broker. | |
 | fint.rabbitmq.port | RabbitMQ port. | 5672 |
 | fint.rabbitmq.virtual-host | Virtual host to use when connecting to the broker. | |
+| fint.rabbitmq.reply-to-timeout | How long the client will wait for a response using sendAndReceive() | 30000 |
 
 ### Listener config
 | Key | Description | Default value |

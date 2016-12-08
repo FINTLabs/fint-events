@@ -1,6 +1,5 @@
 package no.fint.events;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import no.fint.events.listeners.EventsHeaderAndBodyListener;
 import no.fint.events.listeners.EventsJsonObjectListener;
@@ -27,9 +26,6 @@ public class EventsRegistry implements ApplicationContextAware {
 
     @Autowired
     private ConnectionFactory connectionFactory;
-
-    @Autowired
-    private ObjectMapper objectMapper;
 
     private ApplicationContext applicationContext;
 

@@ -1,13 +1,18 @@
 package no.fint.events;
 
 import lombok.extern.slf4j.Slf4j;
+import no.fint.events.properties.RabbitProps;
 import org.springframework.amqp.core.*;
+import org.springframework.amqp.rabbit.connection.Connection;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
+import org.springframework.amqp.rabbit.connection.ConnectionListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.rabbit.listener.AbstractMessageListenerContainer;
+import org.springframework.amqp.rabbit.listener.ConditionalRejectingErrorHandler;
 import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import javax.annotation.PostConstruct;
 import java.util.Arrays;
 import java.util.Optional;
 
@@ -22,6 +27,24 @@ public class Events {
 
     @Autowired
     private EventsRegistry eventsRegistry;
+
+    @Autowired
+    private RabbitProps rabbitProps;
+
+    @PostConstruct
+    public void init() {
+        connectionFactory.addConnectionListener(new ConnectionListener() {
+            @Override
+            public void onCreate(Connection connection) {
+                log.info("Connecting on local port: {}", connection.getLocalPort());
+            }
+
+            @Override
+            public void onClose(Connection connection) {
+                log.info("Close connection on local port: {}", connection.getLocalPort());
+            }
+        });
+    }
 
     public Optional<SimpleMessageListenerContainer> registerListener(String exchange, String queue, Class<?> listener) {
         return registerListener(new TopicExchange(exchange), new Queue(queue), listener);
@@ -78,7 +101,7 @@ public class Events {
         RabbitTemplate rabbitTemplate = rabbitTemplate();
         rabbitTemplate.setExchange(exchange);
         rabbitTemplate.setRoutingKey(queue);
-        rabbitTemplate.setReplyTimeout(-1);
+        rabbitTemplate.setReplyTimeout(rabbitProps.getReplyToTimeout());
 
         Message msg = MessageBuilder.withBody(message.getBytes()).setContentType(MessageProperties.CONTENT_TYPE_JSON).build();
         return rabbitTemplate.sendAndReceive(msg);
