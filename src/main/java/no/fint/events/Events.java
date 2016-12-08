@@ -6,7 +6,6 @@ import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.rabbit.listener.AbstractMessageListenerContainer;
 import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
-import org.springframework.amqp.rabbit.support.CorrelationData;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Arrays;
@@ -75,14 +74,14 @@ public class Events {
         rabbitTemplate.convertAndSend(queue, message);
     }
 
-    public Message sendAndReceive(String exchange, String queue, String id, String message) {
+    public Message sendAndReceive(String exchange, String queue, String message) {
         RabbitTemplate rabbitTemplate = rabbitTemplate();
         rabbitTemplate.setExchange(exchange);
+        rabbitTemplate.setRoutingKey(queue);
         rabbitTemplate.setReplyTimeout(-1);
 
-        Message msg = MessageBuilder.withBody(message.getBytes()).setContentType(MessageProperties.CONTENT_TYPE_JSON)
-                .setMessageId(id).build();
-        return rabbitTemplate.sendAndReceive(queue, msg, new CorrelationData(id));
+        Message msg = MessageBuilder.withBody(message.getBytes()).setContentType(MessageProperties.CONTENT_TYPE_JSON).build();
+        return rabbitTemplate.sendAndReceive(msg);
     }
 
     private Binding getBinding(TopicExchange exchange, Queue queue) {

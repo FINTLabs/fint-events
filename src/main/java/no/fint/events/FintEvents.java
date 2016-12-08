@@ -97,13 +97,13 @@ public class FintEvents {
         return getOrganization(orgId).isPresent();
     }
 
-    public <T> Optional<T> sendAndReceiveObject(String orgId, String id, Object message, Class<T> type) {
+    public <T> Optional<T> sendAndReceiveObject(String orgId, Object message, Class<T> type) {
         Optional<Organization> org = getOrganization(orgId);
         if (org.isPresent()) {
             try {
                 String json = objectMapper.writeValueAsString(message);
                 Organization organization = org.get();
-                Message response = events.sendAndReceive(organization.getExchangeName(), organization.getDownstreamQueueName(), id, json);
+                Message response = events.sendAndReceive(organization.getExchangeName(), organization.getDownstreamQueueName(), json);
                 return Optional.ofNullable(objectMapper.readValue(response.getBody(), type));
             } catch (IOException e) {
                 throw new IllegalArgumentException("Unable to read/write object from json", e);
