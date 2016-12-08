@@ -39,9 +39,6 @@ public class FintEvents {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @Autowired
-    private EventsObjectMapper eventsObjectMapper;
-
     private List<Organization> organizations;
 
     @PostConstruct
