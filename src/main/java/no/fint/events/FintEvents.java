@@ -10,7 +10,6 @@ import org.springframework.amqp.AmqpIOException;
 import org.springframework.amqp.core.AcknowledgeMode;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.Queue;
-import org.springframework.amqp.core.TopicExchange;
 import org.springframework.amqp.rabbit.config.RetryInterceptorBuilder;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
@@ -20,7 +19,9 @@ import org.springframework.retry.interceptor.RetryOperationsInterceptor;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -37,6 +38,9 @@ public class FintEvents {
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    @Autowired
+    private EventsObjectMapper eventsObjectMapper;
 
     private List<Organization> organizations;
 
@@ -100,53 +104,28 @@ public class FintEvents {
     public <T> Optional<T> sendAndReceiveObject(String orgId, Object message, Class<T> type) {
         Optional<Organization> org = getOrganization(orgId);
         if (org.isPresent()) {
-            try {
-                String json = objectMapper.writeValueAsString(message);
-                Organization organization = org.get();
-                Message response = events.sendAndReceive(organization.getExchangeName(), organization.getDownstreamQueueName(), json);
-                return Optional.ofNullable(objectMapper.readValue(response.getBody(), type));
-            } catch (IOException e) {
-                throw new IllegalArgumentException("Unable to read/write object from json", e);
-            }
+            Organization organization = org.get();
+            T response = events.sendAndReceive(organization.getExchangeName(), organization.getDownstreamQueueName(), message, type);
+            return Optional.ofNullable(response);
         } else {
             return Optional.empty();
         }
     }
 
-    public void sendDownstreamMessage(String orgId, String message) {
-        getOrganization(orgId).ifPresent(organization -> events.send(organization.getDownstreamQueueName(), message));
-    }
-
     public void sendDownstreamObject(String orgId, Object message) {
-        try {
-            String json = objectMapper.writeValueAsString(message);
-            sendDownstreamMessage(orgId, json);
-        } catch (JsonProcessingException e) {
-            throw new IllegalArgumentException("Unable to create json from object", e);
+        Optional<Organization> organization = getOrganization(orgId);
+        if (organization.isPresent()) {
+            try {
+                String json = objectMapper.writeValueAsString(message);
+                events.send(organization.get().getDownstreamQueueName(), json);
+            } catch (JsonProcessingException e) {
+                throw new IllegalArgumentException("Unable to create json from object", e);
+            }
         }
     }
 
     public void sendUpstreamMessage(String orgId, String message) {
         getOrganization(orgId).ifPresent(organization -> events.send(organization.getUpstreamQueueName(), message));
-    }
-
-    public void sendUpstreamObject(String orgId, String corrId, Object message) {
-        try {
-            Optional<Organization> organization = getOrganization(orgId);
-            if (organization.isPresent()) {
-                String json = objectMapper.writeValueAsString(message);
-                String queueName = organization.get().getUpstreamQueueName() + "." + corrId;
-
-                Map<String, Object> arguments = new HashMap<>();
-                arguments.put("x-message-ttl", 30000);
-                arguments.put("x-expires", 35000);
-                Queue queue = new Queue(queueName, false, false, true, arguments);
-                events.addQueues(new TopicExchange(orgId), queue);
-                events.send(queueName, json);
-            }
-        } catch (JsonProcessingException e) {
-            throw new IllegalArgumentException("Unable to create json from object", e);
-        }
     }
 
     public void sendUpstreamObject(String orgId, Object message) {

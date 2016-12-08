@@ -9,6 +9,7 @@ import org.springframework.amqp.rabbit.connection.ConnectionListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.rabbit.listener.AbstractMessageListenerContainer;
 import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
+import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.annotation.PostConstruct;
@@ -96,14 +97,16 @@ public class Events {
         rabbitTemplate.convertAndSend(queue, message);
     }
 
-    public Message sendAndReceive(String exchange, String queue, String message) {
+    public <T> T sendAndReceive(String exchange, String queue, Object message, Class<T> type) {
         RabbitTemplate rabbitTemplate = rabbitTemplate();
         rabbitTemplate.setExchange(exchange);
         rabbitTemplate.setRoutingKey(queue);
         rabbitTemplate.setReplyTimeout(rabbitProps.getReplyToTimeout());
 
-        Message msg = MessageBuilder.withBody(message.getBytes()).setContentType(MessageProperties.CONTENT_TYPE_JSON).build();
-        return rabbitTemplate.sendAndReceive(msg);
+        Jackson2JsonMessageConverter converter = JsonConverterFactory.create(type);
+        rabbitTemplate.setMessageConverter(converter);
+
+        return (T) rabbitTemplate.convertSendAndReceive(message);
     }
 
     private Binding getBinding(TopicExchange exchange, Queue queue) {

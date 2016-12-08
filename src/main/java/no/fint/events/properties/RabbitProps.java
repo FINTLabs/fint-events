@@ -21,7 +21,7 @@ public class RabbitProps {
     @Value("${fint.rabbitmq.password:}")
     private String password;
 
-    @Value("${fint.rabbitmq.reply-to-timeout:30000")
+    @Value("${fint.rabbitmq.reply-to-timeout:30000}")
     private int replyToTimeout;
 
 }
