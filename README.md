@@ -14,6 +14,7 @@ Making it easy to dynamically create new queues and listeners for RabbitMQ.
  * [Listener config](#listener-config)
  * [FINT events config](#fint-events-config)
 * [Upload](#upload)
+* [References](#references)
 
 ## Installation
 
@@ -147,3 +148,9 @@ Spring Boot - Common application properties: http://docs.spring.io/spring-boot/d
 Upload release to bintray
 
 `./gradlew bintrayUpload -PbintrayUser=<username> -PbintrayKey=<apiKey>`
+
+
+---------
+
+## References
+- []Spring AMQP Direct-TO](https://bitbucket.org/tomask79/spring-rabbitmq-request-response)
