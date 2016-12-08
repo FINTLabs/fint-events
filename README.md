@@ -153,4 +153,5 @@ Upload release to bintray
 ---------
 
 ## References
-- []Spring AMQP Direct-TO](https://bitbucket.org/tomask79/spring-rabbitmq-request-response)
+- [Direct reply-to](https://www.rabbitmq.com/direct-reply-to.html)
+- [Spring AMQP Direct-TO](https://bitbucket.org/tomask79/spring-rabbitmq-request-response)
