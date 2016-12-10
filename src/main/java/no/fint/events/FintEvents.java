@@ -105,6 +105,7 @@ public class FintEvents {
         return readOrganisationObject(EventType.DOWNSTREAM, orgId, responseType);
     }
 
+    @SuppressWarnings("unchecked")
     private <T> Optional<T> readOrganisationObject(EventType type, String orgId, Class<T> responseType) {
         Optional<FintOrganisation> org = organisations.get(orgId);
         if (org.isPresent()) {

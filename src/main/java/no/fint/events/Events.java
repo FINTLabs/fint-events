@@ -98,14 +98,12 @@ public class Events {
         rabbitTemplate.convertAndSend(queue, message);
     }
 
+    @SuppressWarnings("unchecked")
     public <T> T sendAndReceive(String exchange, String queue, Object message, Class<T> type) {
         RabbitTemplate rabbitTemplate = rabbitTemplate(type);
         rabbitTemplate.setExchange(exchange);
         rabbitTemplate.setRoutingKey(queue);
         rabbitTemplate.setReplyTimeout(rabbitProps.getReplyToTimeout());
-
-        Jackson2JsonMessageConverter converter = JsonConverterFactory.create(type);
-        rabbitTemplate.setMessageConverter(converter);
 
         return (T) rabbitTemplate.convertSendAndReceive(message);
     }
@@ -122,13 +120,6 @@ public class Events {
 
         RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);
         rabbitTemplate.setMessageConverter(jackson2JsonMessageConverter);
-        return rabbitTemplate;
-    }
-
-    public RabbitTemplate rabbitTemplate(String queue) {
-        RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);
-        rabbitTemplate.setQueue(queue);
-        rabbitTemplate.setRoutingKey(queue);
         return rabbitTemplate;
     }
 
