@@ -31,7 +31,7 @@ public class FintOrganisations {
                 events.addQueues(fintOrganisation.getExchange(),
                         fintOrganisation.getDownstreamQueue(),
                         fintOrganisation.getUpstreamQueue(),
-                        fintOrganisation.getErrorQueue());
+                        fintOrganisation.getUndeliveredQueue());
             });
         }
     }
@@ -41,7 +41,7 @@ public class FintOrganisations {
                 orgId,
                 eventsProps.getDefaultDownstreamQueue(),
                 eventsProps.getDefaultUpstreamQueue(),
-                eventsProps.getDefaultErrorQueue()
+                eventsProps.getDefaultUndeliveredQueue()
         );
 
         organisations.add(fintOrganisation);
@@ -49,7 +49,7 @@ public class FintOrganisations {
                 fintOrganisation.getExchange(),
                 fintOrganisation.getDownstreamQueue(),
                 fintOrganisation.getUpstreamQueue(),
-                fintOrganisation.getErrorQueue()
+                fintOrganisation.getUndeliveredQueue()
         );
     }
 
@@ -61,7 +61,7 @@ public class FintOrganisations {
                     org.getExchange(),
                     org.getDownstreamQueue(),
                     org.getUpstreamQueue(),
-                    org.getErrorQueue()
+                    org.getUndeliveredQueue()
             );
 
             Optional<Integer> index = getIndex(orgId);
@@ -84,7 +84,7 @@ public class FintOrganisations {
                 org.getExchange(),
                 org.getDownstreamQueue(),
                 org.getUpstreamQueue(),
-                org.getErrorQueue()));
+                org.getUndeliveredQueue()));
     }
 
     private List<FintOrganisation> getDefaultQueues() {
@@ -92,7 +92,7 @@ public class FintOrganisations {
                 org,
                 eventsProps.getDefaultDownstreamQueue(),
                 eventsProps.getDefaultUpstreamQueue(),
-                eventsProps.getDefaultErrorQueue()))
+                eventsProps.getDefaultUndeliveredQueue()))
                 .collect(Collectors.toList());
     }
 

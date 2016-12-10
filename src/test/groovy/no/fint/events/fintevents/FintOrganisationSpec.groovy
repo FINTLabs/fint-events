@@ -6,7 +6,7 @@ class FintOrganisationSpec extends Specification {
     private FintOrganisation organisation
 
     void setup() {
-        organisation = new FintOrganisation("hfk.no", "%s.input", "%s.output", "%s.error")
+        organisation = new FintOrganisation("hfk.no", "%s.input", "%s.output", "%s.undelivered")
     }
 
     def "Get input queue by type"() {
@@ -25,11 +25,11 @@ class FintOrganisationSpec extends Specification {
         queue.getName() == "hfk.no.output"
     }
 
-    def "Get error queue by type"() {
+    def "Get undelivered queue by type"() {
         when:
-        def queue = organisation.getQueue(EventType.ERROR)
+        def queue = organisation.getQueue(EventType.UNDELIVERED)
 
         then:
-        queue.getName() == "hfk.no.error"
+        queue.getName() == "hfk.no.undelivered"
     }
 }

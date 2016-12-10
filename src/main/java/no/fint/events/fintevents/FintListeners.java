@@ -35,7 +35,7 @@ public class FintListeners {
         RetryOperationsInterceptor retryInterceptor = RetryInterceptorBuilder.stateless()
                 .maxAttempts(listenerProps.getRetryMaxAttempts())
                 .backOffOptions(listenerProps.getRetryInitialInterval(), listenerProps.getRetryMultiplier(), listenerProps.getRetryMaxInterval())
-                .recoverer(new RepublishMessageRecoverer(events.rabbitTemplate(), org.getExchangeName(), org.getErrorQueueName()))
+                .recoverer(new RepublishMessageRecoverer(events.rabbitTemplate(), org.getExchangeName(), org.getUndeliveredQueueName()))
                 .build();
         listenerContainer.setAdviceChain(new Advice[]{retryInterceptor});
     }

@@ -9,14 +9,14 @@ public class FintOrganisation {
     private String exchange;
     private String downstreamQueue;
     private String upstreamQueue;
-    private String errorQueue;
+    private String undeliveredQueue;
 
-    public FintOrganisation(String name, String defaultDownstreamQueue, String defaultUpstreamQueue, String defaultErrorQueue) {
+    public FintOrganisation(String name, String defaultDownstreamQueue, String defaultUpstreamQueue, String defaultUndeliveredQueue) {
         this.name = name;
         this.exchange = name;
         this.downstreamQueue = String.format(defaultDownstreamQueue, name);
         this.upstreamQueue = String.format(defaultUpstreamQueue, name);
-        this.errorQueue = String.format(defaultErrorQueue, name);
+        this.undeliveredQueue = String.format(defaultUndeliveredQueue, name);
     }
 
     public String getName() {
@@ -47,12 +47,12 @@ public class FintOrganisation {
         return new Queue(upstreamQueue);
     }
 
-    public String getErrorQueueName() {
-        return errorQueue;
+    public String getUndeliveredQueueName() {
+        return undeliveredQueue;
     }
 
-    public Queue getErrorQueue() {
-        return new Queue(errorQueue);
+    public Queue getUndeliveredQueue() {
+        return new Queue(undeliveredQueue);
     }
 
     public Queue getQueue(EventType type) {
@@ -61,7 +61,7 @@ public class FintOrganisation {
         } else if (type == EventType.UPSTREAM) {
             return getUpstreamQueue();
         } else {
-            return getErrorQueue();
+            return getUndeliveredQueue();
         }
     }
 }

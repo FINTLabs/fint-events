@@ -25,7 +25,7 @@ class FintListenersSpec extends Specification {
 
     def "Register event listener with retry and set acknowledge mode"() {
         when:
-        listeners.register(EventsMessageListener, EventType.DOWNSTREAM, new FintOrganisation("rogfk.no", "downstream", "upstream", "error"))
+        listeners.register(EventsMessageListener, EventType.DOWNSTREAM, new FintOrganisation('rogfk.no', 'downstream', 'upstream', 'undelivered'))
 
         then:
         1 * events.registerUnstartedListener(_ as TopicExchange, _ as Queue, _ as Class) >> Optional.of(Mock(SimpleMessageListenerContainer))
@@ -33,6 +33,6 @@ class FintListenersSpec extends Specification {
         1 * listenerProps.retryInitialInterval >> 1.0
         1 * listenerProps.retryMultiplier >> 1.5
         1 * listenerProps.retryMaxInterval >> 100
-        1 * listenerProps.acknowledgeMode >> "AUTO"
+        1 * listenerProps.acknowledgeMode >> 'AUTO'
     }
 }

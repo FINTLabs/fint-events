@@ -12,10 +12,10 @@ class FintOrganisationsSpec extends Specification {
         events = Mock(Events)
 
         EventsProps eventsProps = Mock(EventsProps) {
-            getDefaultDownstreamQueue() >> "downstream"
-            getDefaultUpstreamQueue() >> "upstream"
-            getDefaultErrorQueue() >> "error"
-            getOrganizations() >> ["rogfk.no", "hfk.no", "vaf.no"]
+            getDefaultDownstreamQueue() >> 'downstream'
+            getDefaultUpstreamQueue() >> 'upstream'
+            getDefaultUndeliveredQueue() >> 'undelivered'
+            getOrganizations() >> ['rogfk.no', 'hfk.no', 'vaf.no']
         }
 
         organisations = new FintOrganisations(eventsProps: eventsProps, events: events)
@@ -24,7 +24,7 @@ class FintOrganisationsSpec extends Specification {
 
     def "Add and remove organisation"() {
         given:
-        def orgId = "test.org"
+        def orgId = 'test.org'
 
         when:
         organisations.addOrganization(orgId)

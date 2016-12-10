@@ -15,8 +15,8 @@ public class EventsProps {
     @Value("${fint.events.default-upstream-queue:%s.upstream}")
     private String defaultUpstreamQueue;
 
-    @Value("${fint.events.default-error-queue:%s.error}")
-    private String defaultErrorQueue;
+    @Value("${fint.events.default-undelivered-queue:%s.undelivered}")
+    private String defaultUndeliveredQueue;
 
     @Value("${fint.events.test-mode:false}")
     private String testMode;

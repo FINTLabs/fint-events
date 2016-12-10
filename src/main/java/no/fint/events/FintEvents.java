@@ -54,13 +54,13 @@ public class FintEvents {
         sendUpstream(orgId, message, defaultType);
     }
 
-    public void sendError(String orgId, Object message, Class<?> type) {
-        organisations.get(orgId).ifPresent(org -> events.send(org.getErrorQueueName(), message, type));
+    public void sendUndelivered(String orgId, Object message, Class<?> type) {
+        organisations.get(orgId).ifPresent(org -> events.send(org.getUndeliveredQueueName(), message, type));
     }
 
-    public void sendError(String orgId, Object message) {
+    public void sendUndelivered(String orgId, Object message) {
         verifyDefaultType();
-        sendError(orgId, message, defaultType);
+        sendUndelivered(orgId, message, defaultType);
     }
 
     public void registerDownstreamListener(String orgId, Class<?> listener) {
@@ -79,20 +79,20 @@ public class FintEvents {
         registerOrganizationListeners(listener, EventType.UPSTREAM);
     }
 
-    public void registerErrorListener(String orgId, Class<?> listener) {
-        organisations.get(orgId).ifPresent(org -> listeners.register(listener, EventType.ERROR, org));
+    public void registerUndeliveredListener(String orgId, Class<?> listener) {
+        organisations.get(orgId).ifPresent(org -> listeners.register(listener, EventType.UNDELIVERED, org));
     }
 
-    public void registerErrorListener(Class<?> listener) {
-        registerOrganizationListeners(listener, EventType.ERROR);
+    public void registerUndeliveredListener(Class<?> listener) {
+        registerOrganizationListeners(listener, EventType.UNDELIVERED);
     }
 
     private void registerOrganizationListeners(Class<?> listener, EventType eventType) {
         organisations.getAll().forEach(org -> listeners.register(listener, eventType, org));
     }
 
-    public <T> Optional<T> readError(String orgId, Class<T> type) {
-        return read(EventType.ERROR, orgId, type);
+    public <T> Optional<T> readUndelivered(String orgId, Class<T> type) {
+        return read(EventType.UNDELIVERED, orgId, type);
     }
 
     public <T> Optional<T> readUpstream(String orgId, Class<T> responseType) {
