@@ -1,9 +1,10 @@
-package no.fint.events;
+package no.fint.events.fintevents;
 
+import no.fint.events.EventType;
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.core.TopicExchange;
 
-class Organization {
+public class FintOrganisation {
     private final String name;
 
     private String exchange;
@@ -11,7 +12,7 @@ class Organization {
     private String upstreamQueue;
     private String errorQueue;
 
-    public Organization(String name, String defaultDownstreamQueue, String defaultUpstreamQueue, String defaultErrorQueue) {
+    public FintOrganisation(String name, String defaultDownstreamQueue, String defaultUpstreamQueue, String defaultErrorQueue) {
         this.name = name;
         this.exchange = name;
         this.downstreamQueue = String.format(defaultDownstreamQueue, name);

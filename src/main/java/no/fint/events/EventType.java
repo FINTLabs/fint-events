@@ -1,5 +1,5 @@
 package no.fint.events;
 
-enum EventType {
+public enum EventType {
     DOWNSTREAM, UPSTREAM, ERROR
 }

@@ -9,6 +9,7 @@ import org.springframework.amqp.rabbit.connection.ConnectionListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.rabbit.listener.AbstractMessageListenerContainer;
 import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
+import org.springframework.amqp.support.converter.DefaultClassMapper;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -57,12 +58,12 @@ public class Events {
         return listenerContainer;
     }
 
-    Optional<SimpleMessageListenerContainer> registerUnstartedListener(TopicExchange exchange, Queue queue, Class<?> listener) {
+    public Optional<SimpleMessageListenerContainer> registerUnstartedListener(TopicExchange exchange, Queue queue, Class<?> listener) {
         addQueues(exchange, queue);
         return eventsRegistry.add(queue.getName(), listener);
     }
 
-    void addQueues(TopicExchange exchange, Queue... queues) {
+    public void addQueues(TopicExchange exchange, Queue... queues) {
         amqpAdmin.declareExchange(exchange);
         Arrays.stream(queues).forEach(queue -> {
             amqpAdmin.declareQueue(queue);
@@ -70,7 +71,7 @@ public class Events {
         });
     }
 
-    void deleteQueues(TopicExchange exchange, Queue... queues) {
+    public void deleteQueues(TopicExchange exchange, Queue... queues) {
         Arrays.stream(queues).forEach(queue -> {
             boolean deleted = amqpAdmin.deleteQueue(queue.getName());
             if (deleted) {
@@ -92,13 +93,13 @@ public class Events {
         eventsRegistry.close(queue.getName());
     }
 
-    public void send(String queue, String message) {
-        RabbitTemplate rabbitTemplate = rabbitTemplate(queue);
+    public void send(String queue, Object message, Class<?> type) {
+        RabbitTemplate rabbitTemplate = rabbitTemplate(type);
         rabbitTemplate.convertAndSend(queue, message);
     }
 
     public <T> T sendAndReceive(String exchange, String queue, Object message, Class<T> type) {
-        RabbitTemplate rabbitTemplate = rabbitTemplate();
+        RabbitTemplate rabbitTemplate = rabbitTemplate(type);
         rabbitTemplate.setExchange(exchange);
         rabbitTemplate.setRoutingKey(queue);
         rabbitTemplate.setReplyTimeout(rabbitProps.getReplyToTimeout());
@@ -113,15 +114,22 @@ public class Events {
         return BindingBuilder.bind(queue).to(exchange).with(queue.getName());
     }
 
+    public RabbitTemplate rabbitTemplate(Class<?> type) {
+        DefaultClassMapper defaultClassMapper = new DefaultClassMapper();
+        defaultClassMapper.setDefaultType(type);
+        Jackson2JsonMessageConverter jackson2JsonMessageConverter = new Jackson2JsonMessageConverter();
+        jackson2JsonMessageConverter.setClassMapper(defaultClassMapper);
+
+        RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);
+        rabbitTemplate.setMessageConverter(jackson2JsonMessageConverter);
+        return rabbitTemplate;
+    }
+
     public RabbitTemplate rabbitTemplate(String queue) {
         RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);
         rabbitTemplate.setQueue(queue);
         rabbitTemplate.setRoutingKey(queue);
         return rabbitTemplate;
-    }
-
-    public RabbitTemplate rabbitTemplate(Queue queue) {
-        return rabbitTemplate(queue.getName());
     }
 
     public RabbitTemplate rabbitTemplate() {

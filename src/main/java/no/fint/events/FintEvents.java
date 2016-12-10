@@ -1,28 +1,13 @@
 package no.fint.events;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import no.fint.events.properties.EventsProps;
-import no.fint.events.properties.ListenerProps;
-import org.aopalliance.aop.Advice;
-import org.springframework.amqp.AmqpIOException;
-import org.springframework.amqp.core.AcknowledgeMode;
-import org.springframework.amqp.core.Message;
-import org.springframework.amqp.core.Queue;
-import org.springframework.amqp.rabbit.config.RetryInterceptorBuilder;
+import no.fint.events.fintevents.FintOrganisations;
+import no.fint.events.fintevents.FintListeners;
+import no.fint.events.fintevents.FintOrganisation;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
-import org.springframework.amqp.rabbit.retry.RepublishMessageRecoverer;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.retry.interceptor.RetryOperationsInterceptor;
 
-import javax.annotation.PostConstruct;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Slf4j
 public class FintEvents {
@@ -31,141 +16,57 @@ public class FintEvents {
     private Events events;
 
     @Autowired
-    private EventsProps eventsProps;
+    private FintOrganisations organisations;
 
     @Autowired
-    private ListenerProps listenerProps;
+    private FintListeners listeners;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+    private Class<?> defaultType;
 
-    private List<Organization> organizations;
-
-    @PostConstruct
-    public void init() {
-        organizations = getDefaultQueues();
-        if (!eventsProps.isTestMode()) {
-            organizations.forEach(organization -> {
-                log.info("Setting up queue for: {}", organization.getName());
-                events.addQueues(organization.getExchange(),
-                        organization.getDownstreamQueue(),
-                        organization.getUpstreamQueue(),
-                        organization.getErrorQueue());
-            });
-        }
+    public void setDefaultType(Class<?> defaultType) {
+        this.defaultType = defaultType;
     }
 
-    public void addOrganization(String orgId) {
-        Organization organization = new Organization(
-                orgId,
-                eventsProps.getDefaultDownstreamQueue(),
-                eventsProps.getDefaultUpstreamQueue(),
-                eventsProps.getDefaultErrorQueue()
-        );
-
-        organizations.add(organization);
-        events.addQueues(
-                organization.getExchange(),
-                organization.getDownstreamQueue(),
-                organization.getUpstreamQueue(),
-                organization.getErrorQueue()
-        );
-    }
-
-    public void removeOrganization(String orgId) {
-        Optional<Organization> organization = getOrganization(orgId);
-        if (organization.isPresent()) {
-            Organization org = organization.get();
-            events.deleteQueues(
-                    org.getExchange(),
-                    org.getDownstreamQueue(),
-                    org.getUpstreamQueue(),
-                    org.getErrorQueue()
-            );
-
-            Optional<Integer> index = getOrganizationIndex(orgId);
-            index.ifPresent(integer -> organizations.remove(integer.intValue()));
-        } else {
-            log.error("Organization {} not found", orgId);
-        }
-    }
-
-    public List<String> getRegisteredOrgIds() {
-        return organizations.stream().map(Organization::getName).collect(Collectors.toList());
-    }
-
-    public boolean containsOrganization(String orgId) {
-        return getOrganization(orgId).isPresent();
-    }
-
-    public <T> Optional<T> sendAndReceiveObject(String orgId, Object message, Class<T> type) {
-        Optional<Organization> org = getOrganization(orgId);
+    public <T> Optional<T> sendAndReceive(String orgId, Object message, Class<T> type) {
+        Optional<FintOrganisation> org = organisations.get(orgId);
         if (org.isPresent()) {
-            Organization organization = org.get();
-            T response = events.sendAndReceive(organization.getExchangeName(), organization.getDownstreamQueueName(), message, type);
+            FintOrganisation organisation = org.get();
+            T response = events.sendAndReceive(organisation.getExchangeName(), organisation.getDownstreamQueueName(), message, type);
             return Optional.ofNullable(response);
         } else {
             return Optional.empty();
         }
     }
 
-    public void sendDownstreamObject(String orgId, Object message) {
-        Optional<Organization> organization = getOrganization(orgId);
-        if (organization.isPresent()) {
-            try {
-                String json = objectMapper.writeValueAsString(message);
-                events.send(organization.get().getDownstreamQueueName(), json);
-            } catch (JsonProcessingException e) {
-                throw new IllegalArgumentException("Unable to create json from object", e);
-            }
-        }
+    public void sendDownstream(String orgId, Object message, Class<?> type) {
+        organisations.get(orgId).ifPresent(org -> events.send(org.getDownstreamQueueName(), message, type));
     }
 
-    public void sendUpstreamMessage(String orgId, String message) {
-        getOrganization(orgId).ifPresent(organization -> events.send(organization.getUpstreamQueueName(), message));
+    public void sendDownstream(String orgId, Object message) {
+        verifyDefaultType();
+        sendDownstream(orgId, message, defaultType);
     }
 
-    public void sendUpstreamObject(String orgId, Object message) {
-        try {
-            String json = objectMapper.writeValueAsString(message);
-            sendUpstreamMessage(orgId, json);
-        } catch (JsonProcessingException e) {
-            throw new IllegalArgumentException("Unable to create json from object", e);
-        }
+    public void sendUpstream(String orgId, Object message, Class<?> type) {
+        organisations.get(orgId).ifPresent(org -> events.send(org.getUpstreamQueueName(), message, type));
     }
 
-    public void sendErrorMessage(String orgId, String message) {
-        getOrganization(orgId).ifPresent(organization -> events.send(organization.getErrorQueueName(), message));
+    public void sendUpstream(String orgId, Object message) {
+        verifyDefaultType();
+        sendUpstream(orgId, message, defaultType);
     }
 
-    public void sendErrorObject(String orgId, Object message) {
-        try {
-            String json = objectMapper.writeValueAsString(message);
-            sendErrorMessage(orgId, json);
-        } catch (JsonProcessingException e) {
-            throw new IllegalArgumentException("Unable to create json from object", e);
-        }
+    public void sendError(String orgId, Object message, Class<?> type) {
+        organisations.get(orgId).ifPresent(org -> events.send(org.getErrorQueueName(), message, type));
     }
 
-    public void deleteDefaultQueues() {
-        getDefaultQueues().forEach(organization -> events.deleteQueues(
-                organization.getExchange(),
-                organization.getDownstreamQueue(),
-                organization.getUpstreamQueue(),
-                organization.getErrorQueue()));
-    }
-
-    List<Organization> getDefaultQueues() {
-        return Arrays.stream(eventsProps.getOrganizations()).map(org -> new Organization(
-                org,
-                eventsProps.getDefaultDownstreamQueue(),
-                eventsProps.getDefaultUpstreamQueue(),
-                eventsProps.getDefaultErrorQueue()))
-                .collect(Collectors.toList());
+    public void sendError(String orgId, Object message) {
+        verifyDefaultType();
+        sendError(orgId, message, defaultType);
     }
 
     public void registerDownstreamListener(String orgId, Class<?> listener) {
-        getOrganization(orgId).ifPresent(organization -> registerListener(listener, EventType.DOWNSTREAM, organization));
+        organisations.get(orgId).ifPresent(org -> listeners.register(listener, EventType.DOWNSTREAM, org));
     }
 
     public void registerDownstreamListener(Class<?> listener) {
@@ -173,8 +74,7 @@ public class FintEvents {
     }
 
     public void registerUpstreamListener(String orgId, Class<?> listener) {
-        Optional<Organization> organization = getOrganization(orgId);
-        organization.ifPresent(org -> registerListener(listener, EventType.UPSTREAM, org));
+        organisations.get(orgId).ifPresent(org -> listeners.register(listener, EventType.UPSTREAM, org));
     }
 
     public void registerUpstreamListener(Class<?> listener) {
@@ -182,8 +82,7 @@ public class FintEvents {
     }
 
     public void registerErrorListener(String orgId, Class<?> listener) {
-        Optional<Organization> organization = getOrganization(orgId);
-        organization.ifPresent(org -> registerListener(listener, EventType.ERROR, org));
+        organisations.get(orgId).ifPresent(org -> listeners.register(listener, EventType.ERROR, org));
     }
 
     public void registerErrorListener(Class<?> listener) {
@@ -191,122 +90,36 @@ public class FintEvents {
     }
 
     private void registerOrganizationListeners(Class<?> listener, EventType eventType) {
-        organizations.forEach(org -> registerListener(listener, eventType, org));
+        organisations.getAll().forEach(org -> listeners.register(listener, eventType, org));
     }
 
-    private void registerListener(Class<?> listener, EventType eventType, Organization org) {
-        Queue queue = org.getQueue(eventType);
-        Optional<SimpleMessageListenerContainer> listenerContainer = events.registerUnstartedListener(org.getExchange(), queue, listener);
-        if (listenerContainer.isPresent()) {
-            addRetry(org, listenerContainer.get());
-            addAcknowledgeMode(listenerContainer.get());
-            listenerContainer.get().start();
+    public <T> Optional<T> readError(String orgId, Class<T> type) {
+        return readOrganisationObject(EventType.ERROR, orgId, type);
+    }
+
+    public <T> Optional<T> readUpstream(String orgId, Class<T> responseType) {
+        return readOrganisationObject(EventType.UPSTREAM, orgId, responseType);
+    }
+
+    public <T> Optional<T> readDownstream(String orgId, Class<T> responseType) {
+        return readOrganisationObject(EventType.DOWNSTREAM, orgId, responseType);
+    }
+
+    private <T> Optional<T> readOrganisationObject(EventType type, String orgId, Class<T> responseType) {
+        Optional<FintOrganisation> org = organisations.get(orgId);
+        if (org.isPresent()) {
+            RabbitTemplate rabbitTemplate = events.rabbitTemplate(responseType);
+            Object value = rabbitTemplate.receiveAndConvert(org.get().getQueue(type).getName());
+            return Optional.ofNullable((T) value);
         }
-    }
 
-    private void addRetry(Organization org, SimpleMessageListenerContainer listenerContainer) {
-        RetryOperationsInterceptor retryInterceptor = RetryInterceptorBuilder.stateless()
-                .maxAttempts(listenerProps.getRetryMaxAttempts())
-                .backOffOptions(listenerProps.getRetryInitialInterval(), listenerProps.getRetryMultiplier(), listenerProps.getRetryMaxInterval())
-                .recoverer(new RepublishMessageRecoverer(events.rabbitTemplate(), org.getExchangeName(), org.getErrorQueueName()))
-                .build();
-        listenerContainer.setAdviceChain(new Advice[]{retryInterceptor});
-    }
-
-    private void addAcknowledgeMode(SimpleMessageListenerContainer listenerContainer) {
-        String acknowledgeModeProp = listenerProps.getAcknowledgeMode();
-        AcknowledgeMode acknowledgeMode = AcknowledgeMode.valueOf(acknowledgeModeProp);
-        listenerContainer.setAcknowledgeMode(acknowledgeMode);
-    }
-
-    public Optional<Message> readErrorMessage(String orgId) {
-        return readOrganizationMessage(EventType.ERROR, orgId);
-    }
-
-    public <T> Optional<T> readErrorObject(String orgId, Class<T> responseType) {
-        return readOrganizationJson(EventType.ERROR, orgId, responseType);
-    }
-
-    public Optional<Message> readUpstreamMessage(String orgId) {
-        return readOrganizationMessage(EventType.UPSTREAM, orgId);
-    }
-
-    public <T> Optional<T> readUpstreamObject(String orgId, String corrId, Class<T> responseType) {
-        Optional<Organization> organization = getOrganization(orgId);
-        if (organization.isPresent()) {
-            try {
-                return readJson(organization.get().getUpstreamQueueName() + "." + corrId, responseType);
-            } catch (AmqpIOException e) {
-
-                return Optional.empty();
-            }
-        } else {
-            throw new IllegalArgumentException("No organization with id " + orgId);
-        }
-    }
-
-    public <T> Optional<T> readUpstreamObject(String orgId, Class<T> responseType) {
-        return readOrganizationJson(EventType.UPSTREAM, orgId, responseType);
-    }
-
-    public Optional<Message> readDownstreamMessage(String orgId) {
-        return readOrganizationMessage(EventType.DOWNSTREAM, orgId);
-    }
-
-    public <T> Optional<T> readDownstreamObject(String orgId, Class<T> responseType) {
-        return readOrganizationJson(EventType.DOWNSTREAM, orgId, responseType);
-    }
-
-    private <T> Optional<T> readOrganizationJson(EventType type, String orgId, Class<T> responseType) {
-        Optional<Organization> organization = getOrganization(orgId);
-        if (organization.isPresent()) {
-            Queue queue = organization.get().getQueue(type);
-            return readJson(queue.getName(), responseType);
-        } else {
-            throw new IllegalArgumentException("No organization with id " + orgId);
-        }
-    }
-
-    private Optional<Message> readOrganizationMessage(EventType type, String orgId) {
-        Optional<Organization> organization = getOrganization(orgId);
-        if (organization.isPresent()) {
-            Queue queue = organization.get().getQueue(type);
-            return Optional.ofNullable(readMessage(queue.getName()));
-        } else {
-            throw new IllegalArgumentException("No organization with id " + orgId);
-        }
-    }
-
-    private Optional<Organization> getOrganization(String orgId) {
-        return organizations.stream().filter(org -> org.getName().equals(orgId)).findAny();
-    }
-
-    private Optional<Integer> getOrganizationIndex(String orgId) {
-        for (int i = 0; i < organizations.size(); i++) {
-            Organization o = organizations.get(i);
-            if (o.getName().equals(orgId)) {
-                return Optional.of(i);
-            }
-        }
         return Optional.empty();
     }
 
-    public <T> Optional<T> readJson(String queue, Class<T> responseType) {
-        try {
-            Message message = readMessage(queue);
-            if (message == null) {
-                return Optional.empty();
-            } else {
-                return Optional.ofNullable(objectMapper.readValue(message.getBody(), responseType));
-            }
-        } catch (IOException e) {
-            throw new IllegalArgumentException("Unable to create object from json message", e);
+    private void verifyDefaultType() {
+        if (defaultType == null) {
+            throw new IllegalStateException("No default type set");
         }
-    }
-
-    public Message readMessage(String queue) {
-        RabbitTemplate rabbitTemplate = events.rabbitTemplate(queue);
-        return rabbitTemplate.receive();
     }
 
 }
