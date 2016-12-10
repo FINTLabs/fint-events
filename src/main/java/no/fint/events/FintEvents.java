@@ -1,6 +1,7 @@
 package no.fint.events;
 
 import lombok.extern.slf4j.Slf4j;
+import no.fint.events.fintevents.EventType;
 import no.fint.events.fintevents.FintOrganisations;
 import no.fint.events.fintevents.FintListeners;
 import no.fint.events.fintevents.FintOrganisation;

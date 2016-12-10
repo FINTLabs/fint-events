@@ -1,6 +1,5 @@
 package no.fint.events.fintevents
 
-import no.fint.events.EventType
 import spock.lang.Specification
 
 class FintOrganisationSpec extends Specification {

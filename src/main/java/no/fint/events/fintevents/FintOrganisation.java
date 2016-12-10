@@ -1,6 +1,5 @@
 package no.fint.events.fintevents;
 
-import no.fint.events.EventType;
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.core.TopicExchange;
 

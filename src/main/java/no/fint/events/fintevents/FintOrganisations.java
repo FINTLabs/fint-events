@@ -80,11 +80,11 @@ public class FintOrganisations {
     }
 
     public void deleteDefaultQueues() {
-        getDefaultQueues().forEach(fintOrganisation -> events.deleteQueues(
-                fintOrganisation.getExchange(),
-                fintOrganisation.getDownstreamQueue(),
-                fintOrganisation.getUpstreamQueue(),
-                fintOrganisation.getErrorQueue()));
+        getDefaultQueues().forEach(org -> events.deleteQueues(
+                org.getExchange(),
+                org.getDownstreamQueue(),
+                org.getUpstreamQueue(),
+                org.getErrorQueue()));
     }
 
     private List<FintOrganisation> getDefaultQueues() {

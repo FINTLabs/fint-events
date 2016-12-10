@@ -1,6 +1,5 @@
 package no.fint.events.fintevents;
 
-import no.fint.events.EventType;
 import no.fint.events.Events;
 import no.fint.events.properties.ListenerProps;
 import org.aopalliance.aop.Advice;
