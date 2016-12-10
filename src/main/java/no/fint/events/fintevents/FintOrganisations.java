@@ -4,7 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import no.fint.events.Events;
 import no.fint.events.properties.EventsProps;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.util.Arrays;
@@ -13,7 +12,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
-@Component
 public class FintOrganisations {
 
     @Autowired

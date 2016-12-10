@@ -1,6 +1,8 @@
 package no.fint.events;
 
 import lombok.extern.slf4j.Slf4j;
+import no.fint.events.fintevents.FintListeners;
+import no.fint.events.fintevents.FintOrganisations;
 import no.fint.events.properties.EventsProps;
 import no.fint.events.properties.ListenerProps;
 import no.fint.events.properties.RabbitProps;
@@ -84,5 +86,15 @@ public class EventsConfig {
     @Bean
     public ListenerProps listenerProps() {
         return new ListenerProps();
+    }
+
+    @Bean
+    public FintOrganisations fintOrganisations() {
+        return new FintOrganisations();
+    }
+
+    @Bean
+    public FintListeners fintListeners() {
+        return new FintListeners();
     }
 }

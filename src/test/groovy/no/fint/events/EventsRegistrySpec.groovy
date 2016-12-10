@@ -2,7 +2,6 @@ package no.fint.events
 
 import no.fint.events.testutils.TestApplication
 import no.fint.events.testutils.listeners.*
-import org.junit.Ignore
 import org.springframework.beans.factory.NoSuchBeanDefinitionException
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -10,7 +9,6 @@ import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.TestPropertySource
 import spock.lang.Specification
 
-@Ignore
 @ContextConfiguration
 @SpringBootTest(classes = TestApplication)
 @TestPropertySource(properties = "fint.events.test-mode=true")

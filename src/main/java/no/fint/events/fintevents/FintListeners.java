@@ -11,11 +11,9 @@ import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
 import org.springframework.amqp.rabbit.retry.RepublishMessageRecoverer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.retry.interceptor.RetryOperationsInterceptor;
-import org.springframework.stereotype.Component;
 
 import java.util.Optional;
 
-@Component
 public class FintListeners {
 
     @Autowired
