@@ -14,6 +14,7 @@ Making it easy to dynamically create new queues and listeners for RabbitMQ.
  * [Listener config](#listener-config)
  * [FINT events config](#fint-events-config)
 * [Upload](#upload)
+* [End-to-end tests](#end-to-end-tests)
 * [References](#references)
 
 ## Installation
@@ -150,6 +151,9 @@ Upload release to bintray
 
 `./gradlew bintrayUpload -PbintrayUser=<username> -PbintrayKey=<apiKey>`
 
+## End-to-end tests
+
+To run the end-to-end tests: `e2e.enabled=true`
 
 ---------
 

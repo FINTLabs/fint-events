@@ -36,7 +36,7 @@ public class FintOrganisations {
         }
     }
 
-    public void addOrganization(String orgId) {
+    public void addOrganisation(String orgId) {
         FintOrganisation fintOrganisation = new FintOrganisation(
                 orgId,
                 eventsProps.getDefaultDownstreamQueue(),
@@ -53,7 +53,7 @@ public class FintOrganisations {
         );
     }
 
-    public void removeOrganization(String orgId) {
+    public void removeOrganisation(String orgId) {
         Optional<FintOrganisation> organization = get(orgId);
         if (organization.isPresent()) {
             FintOrganisation org = organization.get();

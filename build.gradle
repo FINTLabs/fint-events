@@ -28,6 +28,7 @@ dependencies {
     compile("org.springframework.boot:spring-boot-starter-amqp:${springBootVersion}")
 
     testCompile('cglib:cglib-nodep:3.2.4')
+    testCompile('com.spotify:docker-client:6.1.1')
     testCompile("org.spockframework:spock-spring:${spockSpringVersion}")
     testCompile("org.springframework.boot:spring-boot-starter-test:${springBootVersion}")
 }
