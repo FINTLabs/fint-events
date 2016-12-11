@@ -54,9 +54,9 @@ public class FintOrganisations {
     }
 
     public void remove(String orgId) {
-        Optional<FintOrganisation> organization = get(orgId);
-        if (organization.isPresent()) {
-            FintOrganisation org = organization.get();
+        Optional<FintOrganisation> organisation = get(orgId);
+        if (organisation.isPresent()) {
+            FintOrganisation org = organisation.get();
             events.deleteQueues(
                     org.getExchange(),
                     org.getDownstreamQueue(),
@@ -67,7 +67,7 @@ public class FintOrganisations {
             Optional<Integer> index = getIndex(orgId);
             index.ifPresent(integer -> organisations.remove(integer.intValue()));
         } else {
-            log.error("Organization {} not found", orgId);
+            log.error("Organisation {} not found", orgId);
         }
     }
 
@@ -88,7 +88,7 @@ public class FintOrganisations {
     }
 
     private List<FintOrganisation> getDefaultQueues() {
-        return Arrays.stream(eventsProps.getOrganizations()).map(org -> new FintOrganisation(
+        return Arrays.stream(eventsProps.getOrganisations()).map(org -> new FintOrganisation(
                 org,
                 eventsProps.getDefaultDownstreamQueue(),
                 eventsProps.getDefaultUpstreamQueue(),

@@ -68,7 +68,7 @@ public class FintEvents {
     }
 
     public void registerDownstreamListener(Class<?> listener) {
-        registerOrganizationListeners(listener, EventType.DOWNSTREAM);
+        registerOrgListeners(listener, EventType.DOWNSTREAM);
     }
 
     public void registerUpstreamListener(String orgId, Class<?> listener) {
@@ -76,7 +76,7 @@ public class FintEvents {
     }
 
     public void registerUpstreamListener(Class<?> listener) {
-        registerOrganizationListeners(listener, EventType.UPSTREAM);
+        registerOrgListeners(listener, EventType.UPSTREAM);
     }
 
     public void registerUndeliveredListener(String orgId, Class<?> listener) {
@@ -84,10 +84,10 @@ public class FintEvents {
     }
 
     public void registerUndeliveredListener(Class<?> listener) {
-        registerOrganizationListeners(listener, EventType.UNDELIVERED);
+        registerOrgListeners(listener, EventType.UNDELIVERED);
     }
 
-    private void registerOrganizationListeners(Class<?> listener, EventType eventType) {
+    private void registerOrgListeners(Class<?> listener, EventType eventType) {
         organisations.getAll().forEach(org -> listeners.register(listener, eventType, org));
     }
 

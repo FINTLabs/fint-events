@@ -8,7 +8,7 @@ Making it easy to dynamically create new queues and listeners for RabbitMQ.
 
 * [Installation](#installation)
 * [Usage](#usage)
-* [Organizations](#organizations)
+* [Organisations](#organisations)
 * [Configuration](#configuration)
  * [Rabbitmq config](#rabbitmq-config)
  * [Listener config](#listener-config)
@@ -90,13 +90,13 @@ spring:
   virtual-host:
 ```
 
-## Organizations
+## Organisations
 
-The class `FintEvents` is created as a helper-class to use organizations.
-Each organization will generate the default queues on startup (which can be configured in `application.yml`).  
+The class `FintEvents` is created as a helper-class to use organisations.
+Each organisation will generate the default queues on startup (which can be configured in `application.yml`).  
 
-A registered listener will receive messages that are sent to the configured organizations.
-Then the listener class can figure out who the organization is by looking at the Message object received.  
+A registered listener will receive messages that are sent to the configured organisations.
+Then the listener class can figure out who the organisation is by looking at the Message object received.  
 
 It is possible to register listeners for: _input_, _output_ and _error_.
 
@@ -139,7 +139,7 @@ Spring Boot - Common application properties: http://docs.spring.io/spring-boot/d
 ### FINT events config
 | Key | Description | Default value |
 |-----|-------------|---------------|
-| fint.events.orgs | The organizations that are included when generating the default queues. Each organization will generate the exchange (with the org name) and input, output and error queues. | |
+| fint.events.orgs | The organisations that are included when generating the default queues. Each organisation will generate the exchange (with the org name) and input, output and error queues. | |
 | fint.events.default-downstream-queue | The format of the default downstream queue. | %s.input |
 | fint.events.default-upstream-queue | The format of the default upstream queue. | %s.output |
 | fint.events.default-undelivered-queue | The format of the default undelivered queue. | %s.undelivered |

@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 public class EventsProps {
 
     @Value("${fint.events.orgs:}")
-    private String[] organizations;
+    private String[] organisations;
 
     @Value("${fint.events.default-downstream-queue:%s.downstream}")
     private String defaultDownstreamQueue;

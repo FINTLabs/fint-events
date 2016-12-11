@@ -15,7 +15,7 @@ class FintOrganisationsSpec extends Specification {
             getDefaultDownstreamQueue() >> 'downstream'
             getDefaultUpstreamQueue() >> 'upstream'
             getDefaultUndeliveredQueue() >> 'undelivered'
-            getOrganizations() >> ['rogfk.no', 'hfk.no', 'vaf.no']
+            getOrganisations() >> ['rogfk.no', 'hfk.no', 'vaf.no']
         }
 
         organisations = new FintOrganisations(eventsProps: eventsProps, events: events)
