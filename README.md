@@ -46,9 +46,11 @@ public class Application {
 ```
 
 Create a receiver class. The method receiving the message accepts the following arguments:  
-- Message
-- Map<String, Object> header, byte[] body
-- byte[] body
+- `(Message msg)`
+- `(Map<String, Object> header, byte[] body)`
+- `(MyObject myObject)` - transformed from json
+- `(String replyTo, MyObject myObject)` - transformed from json
+- `(byte[] body)`
 
 ```
 @Component

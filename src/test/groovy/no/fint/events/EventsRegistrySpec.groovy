@@ -19,11 +19,11 @@ class EventsRegistrySpec extends Specification {
 
     def "Add listener and call shutdown"() {
         given:
-        def queue = "test-queue"
+        def queue = 'test-queue'
 
         when:
         eventsRegistry.add(queue, MessageListener)
-        def containsListener = eventsRegistry.containsListener("test-queue")
+        def containsListener = eventsRegistry.containsListener('test-queue')
         eventsRegistry.shutdown()
 
         then:
@@ -32,12 +32,12 @@ class EventsRegistrySpec extends Specification {
 
     def "Add and remove listener with header and body arguments"() {
         given:
-        def queue = "test-queue2"
+        def queue = 'test-queue2'
 
         when:
         eventsRegistry.add(queue, HeaderAndBodyListener)
-        def containsListener = eventsRegistry.containsListener("test-queue2")
-        eventsRegistry.close("test-queue2")
+        def containsListener = eventsRegistry.containsListener('test-queue2')
+        eventsRegistry.close('test-queue2')
 
         then:
         containsListener
@@ -49,7 +49,7 @@ class EventsRegistrySpec extends Specification {
 
         then:
         method.isPresent()
-        method.get().getName() == "onMessage"
+        method.get().getName() == 'onMessage'
     }
 
     def "Get header and body listener method"() {
@@ -58,7 +58,7 @@ class EventsRegistrySpec extends Specification {
 
         then:
         method.isPresent()
-        method.get().getName() == "onHeaderAndBody"
+        method.get().getName() == 'onHeaderAndBody'
     }
 
     def "Get json object listener method"() {
@@ -67,7 +67,7 @@ class EventsRegistrySpec extends Specification {
 
         then:
         method.isPresent()
-        method.get().getName() == "onObject"
+        method.get().getName() == 'onObject'
     }
 
     def "Get public method"() {
@@ -76,7 +76,7 @@ class EventsRegistrySpec extends Specification {
 
         then:
         method.isPresent()
-        method.get().getName() == "onString"
+        method.get().getName() == 'onString'
     }
 
     def "No method returned when no listener method is found"() {
@@ -89,9 +89,18 @@ class EventsRegistrySpec extends Specification {
 
     def "Exception when trying to register non-spring bean"() {
         when:
-        eventsRegistry.add("test-queue123", String.class)
+        eventsRegistry.add('test-queue123', String.class)
 
         then:
         thrown(NoSuchBeanDefinitionException)
+    }
+
+    def "Get reply to json object method"() {
+        when:
+        def method = eventsRegistry.getReplyToJsonObjectMethod(ReplyToJsonObjectListener)
+
+        then:
+        method.isPresent()
+        method.get().getName() == 'onReplyToAndObject'
     }
 }

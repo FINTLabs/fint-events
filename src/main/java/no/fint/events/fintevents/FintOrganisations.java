@@ -36,7 +36,7 @@ public class FintOrganisations {
         }
     }
 
-    public void addOrganisation(String orgId) {
+    public void add(String orgId) {
         FintOrganisation fintOrganisation = new FintOrganisation(
                 orgId,
                 eventsProps.getDefaultDownstreamQueue(),
@@ -53,7 +53,7 @@ public class FintOrganisations {
         );
     }
 
-    public void removeOrganisation(String orgId) {
+    public void remove(String orgId) {
         Optional<FintOrganisation> organization = get(orgId);
         if (organization.isPresent()) {
             FintOrganisation org = organization.get();
@@ -75,7 +75,7 @@ public class FintOrganisations {
         return organisations.stream().map(FintOrganisation::getName).collect(Collectors.toList());
     }
 
-    public boolean containsOrganisation(String orgId) {
+    public boolean contains(String orgId) {
         return get(orgId).isPresent();
     }
 

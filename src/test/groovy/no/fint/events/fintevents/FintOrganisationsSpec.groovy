@@ -27,10 +27,10 @@ class FintOrganisationsSpec extends Specification {
         def orgId = 'test.org'
 
         when:
-        organisations.addOrganisation(orgId)
-        def containsOrgAfterAdd = organisations.containsOrganisation(orgId)
-        organisations.removeOrganisation(orgId)
-        def containsOrgAfterRemove = organisations.containsOrganisation(orgId)
+        organisations.add(orgId)
+        def containsOrgAfterAdd = organisations.contains(orgId)
+        organisations.remove(orgId)
+        def containsOrgAfterRemove = organisations.contains(orgId)
 
         then:
         containsOrgAfterAdd

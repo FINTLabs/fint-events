@@ -33,7 +33,7 @@ class LocalRabbit {
             containerId = container.id()
             docker.startContainer(containerId)
 
-            Thread.sleep(5000)
+            Thread.sleep(7000)
             println 'Rabbitmq docker container started'
         }
     }

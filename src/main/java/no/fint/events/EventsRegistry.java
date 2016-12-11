@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import no.fint.events.listeners.EventsHeaderAndBodyListener;
 import no.fint.events.listeners.EventsJsonObjectListener;
 import no.fint.events.listeners.EventsMessageListener;
+import no.fint.events.listeners.EventsReplyToJsonObjectListener;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.listener.AbstractMessageListenerContainer;
@@ -48,6 +49,7 @@ public class EventsRegistry implements ApplicationContextAware {
         Optional<Method> messageListener = getMessageListenerMethod(listener);
         Optional<Method> headerAndBodyListener = getHeaderAndBodyListenerMethod(listener);
         Optional<Method> jsonObjectListener = getJsonObjectMethod(listener);
+        Optional<Method> replyToListener = getReplyToJsonObjectMethod(listener);
         if (messageListener.isPresent()) {
             listenerContainer.setMessageListener(new EventsMessageListener(bean, messageListener.get().getName()));
             log.info("Registering message listener method: {}", messageListener.get().getName());
@@ -57,6 +59,9 @@ public class EventsRegistry implements ApplicationContextAware {
         } else if (jsonObjectListener.isPresent()) {
             listenerContainer.setMessageListener(new EventsJsonObjectListener(jsonObjectListener.get().getParameterTypes()[0], bean, jsonObjectListener.get().getName()));
             log.info("Registering json object listener method: {}", jsonObjectListener.get().getName());
+        } else if (replyToListener.isPresent()) {
+            listenerContainer.setMessageListener(new EventsReplyToJsonObjectListener(replyToListener.get().getParameterTypes()[1], bean, replyToListener.get().getName()));
+            log.info("Registering reply-to json object listener method: {}", replyToListener.get().getName());
         } else {
             Optional<Method> publicMethod = getPublicMethod(listener);
             if (publicMethod.isPresent()) {
@@ -98,6 +103,15 @@ public class EventsRegistry implements ApplicationContextAware {
                 .filter(method -> method.getParameterCount() == 1)
                 .filter(method -> method.getParameterTypes()[0] != byte[].class)
                 .filter(method -> !"equals".equals(method.getName()))
+                .findAny();
+    }
+
+    Optional<Method> getReplyToJsonObjectMethod(Class<?> listener) {
+        Method[] methods = listener.getDeclaredMethods();
+        return Arrays.stream(methods)
+                .filter(method -> (Modifier.isPublic(method.getModifiers())))
+                .filter(method -> method.getParameterCount() == 2)
+                .filter(method -> method.getParameterTypes()[0] == String.class)
                 .findAny();
     }
 

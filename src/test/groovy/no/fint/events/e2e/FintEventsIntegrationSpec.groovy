@@ -54,13 +54,13 @@ class FintEventsIntegrationSpec extends Specification {
     }
 
     void setup() {
-        organisations.addOrganisation('rogfk.no')
+        organisations.add('rogfk.no')
     }
 
     void cleanup() {
         def org = organisations.get('rogfk.no')
         events.removeListener(org.get().getExchange(), org.get().getDownstreamQueue())
-        organisations.removeOrganisation('rogfk.no')
+        organisations.remove('rogfk.no')
     }
 
     def "Send message to message listener"() {

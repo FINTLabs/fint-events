@@ -107,4 +107,16 @@ class FintEventsSpec extends Specification {
         1 * listeners.register(StringListener, EventType.DOWNSTREAM, organisation)
     }
 
+    def "Send reply message"() {
+        given:
+        def testDto = new TestDto()
+        fintEvents.setDefaultType(TestDto)
+
+        when:
+        fintEvents.reply('reply-to-address', testDto)
+
+        then:
+        1 * events.send('reply-to-address', testDto, TestDto)
+    }
+
 }

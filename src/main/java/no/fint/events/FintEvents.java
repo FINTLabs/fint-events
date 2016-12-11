@@ -103,6 +103,14 @@ public class FintEvents {
         return read(EventType.DOWNSTREAM, orgId, responseType);
     }
 
+    public void reply(String replyTo, Object message) {
+        events.send(replyTo, message, defaultType);
+    }
+
+    public void reply(String replyTo, Object message, Class<?> type) {
+        events.send(replyTo, message, type);
+    }
+
     private <T> Optional<T> sendAndReceive(EventType type, String orgId, Object message, Class<T> messageType) {
         Optional<FintOrganisation> org = organisations.get(orgId);
         if (org.isPresent()) {
