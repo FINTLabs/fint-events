@@ -1,7 +1,7 @@
 package no.fint.events.testutils.listeners;
 
 import lombok.extern.slf4j.Slf4j;
-import no.fint.events.Events;
+import no.fint.events.FintEvents;
 import no.fint.events.testutils.TestDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -11,10 +11,10 @@ import org.springframework.stereotype.Component;
 public class ReplyToListener {
 
     @Autowired
-    private Events events;
+    private FintEvents fintEvents;
 
     public void onMessage(String replyTo, TestDto testDto) {
         log.info("ReplyToListener called: {}", testDto);
-        events.send(replyTo, testDto, TestDto.class);
+        fintEvents.reply(replyTo, testDto, TestDto.class);
     }
 }
