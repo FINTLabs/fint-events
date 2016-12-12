@@ -64,39 +64,39 @@ public class FintEvents {
     }
 
     public void registerDownstreamListener(String orgId, Class<?> listener) {
-        organisations.get(orgId).ifPresent(org -> listeners.register(listener, EventType.DOWNSTREAM, org));
+        organisations.get(orgId).ifPresent(org -> {
+            if (!containsListener(orgId, EventType.DOWNSTREAM)) {
+                listeners.register(listener, EventType.DOWNSTREAM, org);
+            }
+        });
     }
 
     public void registerDownstreamListener(Class<?> listener) {
         registerOrgListeners(listener, EventType.DOWNSTREAM);
     }
 
-    public boolean containsDownstreamListener(String orgId) {
-        return containsListener(orgId, EventType.DOWNSTREAM);
-    }
-
     public void registerUpstreamListener(String orgId, Class<?> listener) {
-        organisations.get(orgId).ifPresent(org -> listeners.register(listener, EventType.UPSTREAM, org));
+        organisations.get(orgId).ifPresent(org -> {
+            if (!containsListener(orgId, EventType.UPSTREAM)) {
+                listeners.register(listener, EventType.UPSTREAM, org);
+            }
+        });
     }
 
     public void registerUpstreamListener(Class<?> listener) {
         registerOrgListeners(listener, EventType.UPSTREAM);
     }
 
-    public boolean containsUpstreamListener(String orgId) {
-        return containsListener(orgId, EventType.UPSTREAM);
-    }
-
     public void registerUndeliveredListener(String orgId, Class<?> listener) {
-        organisations.get(orgId).ifPresent(org -> listeners.register(listener, EventType.UNDELIVERED, org));
+        organisations.get(orgId).ifPresent(org -> {
+            if (!containsListener(orgId, EventType.UNDELIVERED)) {
+                listeners.register(listener, EventType.UNDELIVERED, org);
+            }
+        });
     }
 
     public void registerUndeliveredListener(Class<?> listener) {
         registerOrgListeners(listener, EventType.UNDELIVERED);
-    }
-
-    public boolean containsUndeliveredListener(String orgId) {
-        return containsListener(orgId, EventType.UNDELIVERED);
     }
 
     private void registerOrgListeners(Class<?> listener, EventType eventType) {

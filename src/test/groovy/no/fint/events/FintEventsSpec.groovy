@@ -102,12 +102,9 @@ class FintEventsSpec extends Specification {
     def "Register downstream listener"() {
         when:
         fintEvents.registerDownstreamListener('rogfk.no', StringListener)
-        def containsListener = fintEvents.containsDownstreamListener('rogfk.no')
 
         then:
         1 * listeners.register(StringListener, EventType.DOWNSTREAM, organisation)
-        1 * events.containsListener('queue') >> true
-        containsListener
     }
 
     def "Send reply message"() {
