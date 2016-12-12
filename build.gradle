@@ -9,7 +9,7 @@ apply plugin: 'jacoco'
 
 jar {
     baseName = 'fint-events'
-    version = '0.0.23'
+    version = '0.0.24-SNAPSHOT'
 }
 
 sourceCompatibility = 1.8
