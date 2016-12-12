@@ -93,6 +93,10 @@ public class Events {
         eventsRegistry.close(queue.getName());
     }
 
+    public boolean containsListener(String queue) {
+        return eventsRegistry.containsListener(queue);
+    }
+
     public void send(String queue, Object message, Class<?> type) {
         RabbitTemplate rabbitTemplate = rabbitTemplate(type);
         rabbitTemplate.convertAndSend(queue, message);

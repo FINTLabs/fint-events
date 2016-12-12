@@ -71,6 +71,10 @@ public class FintEvents {
         registerOrgListeners(listener, EventType.DOWNSTREAM);
     }
 
+    public boolean containsDownstreamListener(String orgId) {
+        return containsListener(orgId, EventType.DOWNSTREAM);
+    }
+
     public void registerUpstreamListener(String orgId, Class<?> listener) {
         organisations.get(orgId).ifPresent(org -> listeners.register(listener, EventType.UPSTREAM, org));
     }
@@ -79,12 +83,20 @@ public class FintEvents {
         registerOrgListeners(listener, EventType.UPSTREAM);
     }
 
+    public boolean containsUpstreamListener(String orgId) {
+        return containsListener(orgId, EventType.UPSTREAM);
+    }
+
     public void registerUndeliveredListener(String orgId, Class<?> listener) {
         organisations.get(orgId).ifPresent(org -> listeners.register(listener, EventType.UNDELIVERED, org));
     }
 
     public void registerUndeliveredListener(Class<?> listener) {
         registerOrgListeners(listener, EventType.UNDELIVERED);
+    }
+
+    public boolean containsUndeliveredListener(String orgId) {
+        return containsListener(orgId, EventType.UNDELIVERED);
     }
 
     private void registerOrgListeners(Class<?> listener, EventType eventType) {
@@ -109,6 +121,11 @@ public class FintEvents {
 
     public void reply(String replyTo, Object message, Class<?> type) {
         events.send(replyTo, message, type);
+    }
+
+    private boolean containsListener(String orgId, EventType eventType) {
+        Optional<FintOrganisation> org = organisations.get(orgId);
+        return org.map(fintOrganisation -> events.containsListener(fintOrganisation.getQueue(eventType).getName())).orElse(false);
     }
 
     private <T> Optional<T> sendAndReceive(EventType type, String orgId, Object message, Class<T> messageType) {
