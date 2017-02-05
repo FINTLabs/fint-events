@@ -1,13 +1,16 @@
 language: java
 jdk:
- - oraclejdk8
+- oraclejdk8
 before_install:
- - curl -sL https://github.com/jpm4j/jpm4j.installers/raw/master/dist/biz.aQute.jpm.run.jar >jpm4j.jar
- - java -jar jpm4j.jar -u init
- - ~/jpm/bin/jpm install com.codacy:codacy-coverage-reporter:assembly
+- curl -sL https://github.com/jpm4j/jpm4j.installers/raw/master/dist/biz.aQute.jpm.run.jar
+  >jpm4j.jar
+- java -jar jpm4j.jar -u init
+- ~/jpm/bin/jpm install com.codacy:codacy-coverage-reporter:assembly
 install: true
-script:
- ./gradlew build
+script: ./gradlew build
 after_success:
- -  ./gradlew jacocoTestReport
- - ~/jpm/bin/codacy-coverage-reporter -l Java -r build/reports/jacoco/test/jacocoTestReport.xml
+- ./gradlew jacocoTestReport
+- ~/jpm/bin/codacy-coverage-reporter -l Java -r build/reports/jacoco/test/jacocoTestReport.xml
+notifications:
+  slack:
+    secure: V15uecY+U6USvE6qNJELtP52KC0eRvLkDN52u64FDDe02x1d+Fitn+iDK6j2ZgojIGURxQHGUkIgsjqlMO8gh9putgKLzLXciGQIlyd4cBDwUFxqZwjzXjyxKRbtg7U2WkIdmJgFIuySkrWQEeKN2n9Agd+VdQmdIn//Qm6vVI6+vpsp+gpIfn1yg17hjMHwv9H5y3ZvR3jwcxwPrgEcrnJT56UvXvsdI3N2gLbInqiFJNru/yATBRtiOuHLhiBpea77YLYC/Gq9HhqEKgjqTtpqy5hQYl60hiwTh9Ece6jIUoW3+v9HlgJDt9x/hruAiYOyuhYbMDKLbSLCvm+h0L8pTB+BaIJjWDlQVnbIzz7iWIpaTRsKwT2KO9DOsRV7odFUrEjRAMfStVbcKL0IWExHWyVtWNCdtFrAklZffbCGbF9xoVEt1V2U/sePGvLSXq3fe0R8ku8/o4FFAQcwNJ9hMU6OnWUI7kn3V0TeRO1qMq4UU45X1VLii5ax0n+1IJuD47p6vBg5gC98QE/hsvcRJduIBO9t2IGNLVMKNBGFDnwYJQVGbCn5mdZV1o2H2c0Nhk5A2G2h4t99WWvRoRUK0DctauOxgT6PKw5100dhELqc7CBAV9apuOOmOOIVT22vX6FvFInM5v5X/YD8D3qBGfaI6AmAlad/pUApRGg=
