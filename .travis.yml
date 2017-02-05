@@ -11,3 +11,5 @@ script:
 after_success:
  -  ./gradlew jacocoTestReport
  - ~/jpm/bin/codacy-coverage-reporter -l Java -r build/reports/jacoco/test/jacocoTestReport.xml
+notifications:
+ slack: fintd:vWWYpAavtMrWpJEZtyuVxdkL
