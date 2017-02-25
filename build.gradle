@@ -1,3 +1,17 @@
+buildscript {
+    apply from: 'https://raw.githubusercontent.com/FINTlibs/fint-buildscripts/v1.0.0/dependencies.gradle'
+    ext {
+        springBootVersion = springBootVersion
+    }
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        //classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+        classpath('io.spring.gradle:dependency-management-plugin:0.5.4.RELEASE')
+    }
+}
+
 plugins {
     id "com.jfrog.bintray" version "1.7"
 }
@@ -6,6 +20,7 @@ apply plugin: 'java'
 apply plugin: 'groovy'
 apply plugin: 'maven'
 apply plugin: 'jacoco'
+apply plugin: 'io.spring.dependency-management'
 
 jar {
     baseName = 'fint-events'
@@ -20,12 +35,13 @@ repositories {
     mavenCentral()
 }
 
-apply from: 'https://raw.githubusercontent.com/FINTlibs/fint-buildscripts/v1.0.0/dependencies.gradle'
+//apply from: 'https://raw.githubusercontent.com/FINTlibs/fint-buildscripts/v1.0.0/dependencies.gradle'
 dependencies {
     compile("org.projectlombok:lombok:${lombokVersion}")
 
     compile("org.springframework.boot:spring-boot-starter-web:${springBootVersion}")
     compile("org.springframework.boot:spring-boot-starter-amqp:${springBootVersion}")
+    compile("org.springframework.cloud:spring-cloud-starter-config")
 
     testCompile('cglib:cglib-nodep:3.2.4')
     testCompile('com.spotify:docker-client:6.1.1')
@@ -36,6 +52,12 @@ dependencies {
 jacocoTestReport {
     reports {
         xml.enabled true
+    }
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:Camden.SR5"
     }
 }
 
