@@ -14,7 +14,6 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.scheduling.TaskScheduler;
 
 import javax.annotation.PostConstruct;
-import javax.naming.OperationNotSupportedException;
 import java.lang.reflect.Method;
 import java.util.concurrent.BlockingQueue;
 
@@ -34,17 +33,17 @@ public class FintEvents implements ApplicationContextAware {
     }
 
     @PostConstruct
-    public void init() throws OperationNotSupportedException {
+    public void init() {
         client = createRedissonClient();
     }
 
-    RedissonClient createRedissonClient() throws OperationNotSupportedException {
+    RedissonClient createRedissonClient() {
         Config config = new Config();
         String redisConfiguration = props.getRedisConfiguration();
         if (RedisConfiguration.isSingle(redisConfiguration)) {
             config.useSingleServer().setAddress(props.getRedisAddress());
         } else {
-            throw new OperationNotSupportedException(String.format("The redis-configuration %s is not supported", redisConfiguration));
+            throw new IllegalArgumentException(String.format("The redis-configuration %s is not supported", redisConfiguration));
         }
 
         return Redisson.create(config);

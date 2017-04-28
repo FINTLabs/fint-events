@@ -23,7 +23,7 @@ public class Listener implements Runnable {
             if (response != null) {
                 method.invoke(object, response);
             }
-        } catch (IllegalAccessException | InvocationTargetException e) {
+        } catch (IllegalArgumentException | IllegalAccessException | InvocationTargetException e) {
             log.error("Unable to call listener, bean:{} method:{}. Exception: {}", object.getClass().getName(), method.getName(), e.getMessage());
         }
     }
