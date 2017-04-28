@@ -1,8 +1,6 @@
 # FINT events
 
 [![Build Status](https://travis-ci.org/FINTlibs/fint-events.svg?branch=master)](https://travis-ci.org/FINTlibs/fint-events)
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/17468ef5fdac4b89b1cc5e81806ad2d2)](https://www.codacy.com/app/jarle/fint-events?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=FINTlibs/fint-events&amp;utm_campaign=Badge_Grade)
-[![Codacy Badge](https://api.codacy.com/project/badge/Coverage/17468ef5fdac4b89b1cc5e81806ad2d2)](https://www.codacy.com/app/jarle/fint-events?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=FINTlibs/fint-events&amp;utm_campaign=Badge_Coverage)
 
 Making it easy to dynamically create new queues and listeners for RabbitMQ.
 
