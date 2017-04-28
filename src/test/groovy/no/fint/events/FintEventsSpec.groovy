@@ -83,10 +83,31 @@ class FintEventsSpec extends Specification {
 
     def "Register listener"() {
         when:
-        fintEvents.registerListener(TestListener)
+        fintEvents.registerListener('test-listener-queue', TestListener)
 
         then:
         1 * applicationContext.getBean(TestListener) >> new TestListener()
+        1 * client.getBlockingQueue('test-listener-queue')
+        1 * taskScheduler.scheduleWithFixedDelay(_ as Listener, 10)
+    }
+
+    def "Register downstream listener"() {
+        when:
+        fintEvents.registerDownstreamListener('rogfk.no', TestListener)
+
+        then:
+        1 * applicationContext.getBean(TestListener) >> new TestListener()
+        1 * client.getBlockingQueue('rogfk.no.downstream')
+        1 * taskScheduler.scheduleWithFixedDelay(_ as Listener, 10)
+    }
+
+    def "Register upstream listener"() {
+        when:
+        fintEvents.registerUpstreamListener('rogfk.no', TestListener)
+
+        then:
+        1 * applicationContext.getBean(TestListener) >> new TestListener()
+        1 * client.getBlockingQueue('rogfk.no.upstream')
         1 * taskScheduler.scheduleWithFixedDelay(_ as Listener, 10)
     }
 }

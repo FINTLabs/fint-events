@@ -45,7 +45,7 @@ class FintEventsIntegrationSpec extends Specification {
         fintEvents.getQueue('test-listener-queue').offer(new TestDto(name: 'test123'))
 
         when:
-        fintEvents.registerListener(TestListener)
+        fintEvents.registerListener('test-listener-queue', TestListener)
 
         then:
         conditions.eventually {

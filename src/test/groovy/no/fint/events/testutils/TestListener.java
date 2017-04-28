@@ -9,7 +9,7 @@ public class TestListener {
     @Getter
     private TestDto testDto;
 
-    @FintEventsListener("test-listener-queue")
+    @FintEventsListener
     public void receive(TestDto testDto) {
         this.testDto = testDto;
     }

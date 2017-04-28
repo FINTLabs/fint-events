@@ -80,14 +80,23 @@ public class FintEvents implements ApplicationContextAware {
         getUpstream(orgId).offer(value);
     }
 
-    public void registerListener(Class<?> listener) {
+    public void registerDownstreamListener(String orgId, Class<?> listener) {
+        String downstream = props.getDefaultDownstreamQueue();
+        registerListener(String.format(downstream, orgId), listener);
+    }
+
+    public void registerUpstreamListener(String orgId, Class<?> listener) {
+        String upstream = props.getDefaultUpstreamQueue();
+        registerListener(String.format(upstream, orgId), listener);
+    }
+
+    public void registerListener(String queue, Class<?> listener) {
         Object bean = applicationContext.getBean(listener);
         Method[] methods = bean.getClass().getMethods();
         for (Method method : methods) {
             FintEventsListener annotation = method.getAnnotation(FintEventsListener.class);
             if (annotation != null) {
-                BlockingQueue queue = getQueue(annotation.value());
-                Listener listenerInstance = new Listener(bean, method, queue);
+                Listener listenerInstance = new Listener(bean, method, getQueue(queue));
                 taskScheduler.scheduleWithFixedDelay(listenerInstance, 10);
             }
         }
