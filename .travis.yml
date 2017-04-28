@@ -1,16 +1,8 @@
 language: java
 jdk:
-- oraclejdk8
-before_install:
-- curl -sL https://github.com/jpm4j/jpm4j.installers/raw/master/dist/biz.aQute.jpm.run.jar
-  >jpm4j.jar
-- java -jar jpm4j.jar -u init
-- ~/jpm/bin/jpm install com.codacy:codacy-coverage-reporter:assembly
+ - oraclejdk8
 install: true
-script: ./gradlew build
+script:
+ ./gradlew build
 after_success:
-- ./gradlew jacocoTestReport
-- ~/jpm/bin/codacy-coverage-reporter -l Java -r build/reports/jacoco/test/jacocoTestReport.xml
-notifications:
-  slack:
-    secure: tqsN5Sxe6Vy/XFImxNNrO6hJSSSg/KS7Y1RkHApjfcSEcyxQZK7Me84sOVVpp94Wm9zjmqkbjuKip7qCnMpnNFldTLjojNad1ll9D5TwOJ4sKL6aPYRY/YiIWfU0P1aOF6Va5yNizf1hXxOuUVwe2wLnSdeJ/jMoudJvTMefm0DVDAUJkGq9kI37Oasw8SOJ84zf/goD9VQJMEIlgYvv/U4lUJ7+NKZJHkLeeN8NHIZASrvQCE0vfWUvlJ6LGEFy9cHD18J8plfk3dZpLzbUecGpLJg+t8OMvJLKUUINZZNM//w6F9+QQT4sCJbqyqb1eF5H2vywUQuH6w7QNyA7W/Lz+6DKGQd+lqRdiNbk183mNB6bhIDdYuMifSFrF5vEsaIouG7REbsJNSApBqVm73fHcfSKIPjJ/HtjD/h9RXOMipjTkPt5lYFlnE8G6zgy8EKIVN2L3vvZBY0sjAbnOgu6d3h6oQuWbiC2LkhO5lWdJ1QZ6Me+1EyMigF8RQf0fvKber+ixmP86xO3uhHRIe/CkkyHuytdC8a/Jw4XySoa3coA7fp8PF0ebFGr8v1iheF0wHABlDQsaAZXjkqgSXqiPaxirpkkY3OV+lsB1XXZWT8kCPy3eKC2LdLnXzOrk22eadc4manQ5m8f1b0B53IGG7UoC0zGxryGCZ20YFk=
+- ./gradlew jacocoTestReport coveralls
