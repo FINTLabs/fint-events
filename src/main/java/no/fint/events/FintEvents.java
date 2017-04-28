@@ -1,159 +1,95 @@
 package no.fint.events;
 
-import lombok.extern.slf4j.Slf4j;
-import no.fint.events.fintevents.EventType;
-import no.fint.events.fintevents.FintListeners;
-import no.fint.events.fintevents.FintOrganisation;
-import no.fint.events.fintevents.FintOrganisations;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import no.fint.events.annotations.FintEventsListener;
+import no.fint.events.config.FintEventsProps;
+import no.fint.events.config.RedisConfiguration;
+import no.fint.events.listener.Listener;
+import org.redisson.Redisson;
+import org.redisson.api.RedissonClient;
+import org.redisson.config.Config;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+import org.springframework.scheduling.TaskScheduler;
 
-import java.util.Optional;
+import javax.annotation.PostConstruct;
+import javax.naming.OperationNotSupportedException;
+import java.lang.reflect.Method;
+import java.util.concurrent.BlockingQueue;
 
-@Slf4j
-public class FintEvents {
+public class FintEvents implements ApplicationContextAware {
+    private RedissonClient client;
+    private ApplicationContext applicationContext;
 
     @Autowired
-    private Events events;
+    private FintEventsProps props;
 
     @Autowired
-    private FintOrganisations organisations;
+    private TaskScheduler taskScheduler;
 
-    @Autowired
-    private FintListeners listeners;
-
-    private Class<?> defaultType;
-
-    public void setDefaultType(Class<?> defaultType) {
-        this.defaultType = defaultType;
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        this.applicationContext = applicationContext;
     }
 
-    public <T> Optional<T> sendAndReceiveDownstream(String orgId, Object message, Class<T> type) {
-        return sendAndReceive(EventType.DOWNSTREAM, orgId, message, type);
+    @PostConstruct
+    public void init() throws OperationNotSupportedException {
+        client = createRedissonClient();
     }
 
-    public void sendDownstream(String orgId, Object message, Class<?> type) {
-        organisations.get(orgId).ifPresent(org -> events.send(org.getDownstreamQueueName(), message, type));
-    }
-
-    public void sendDownstream(String orgId, Object message) {
-        verifyDefaultType();
-        sendDownstream(orgId, message, defaultType);
-    }
-
-    public <T> Optional<T> sendAndReceiveUpstream(String orgId, Object message, Class<T> type) {
-        return sendAndReceive(EventType.UPSTREAM, orgId, message, type);
-    }
-
-    public void sendUpstream(String orgId, Object message, Class<?> type) {
-        organisations.get(orgId).ifPresent(org -> events.send(org.getUpstreamQueueName(), message, type));
-    }
-
-    public void sendUpstream(String orgId, Object message) {
-        verifyDefaultType();
-        sendUpstream(orgId, message, defaultType);
-    }
-
-    public void sendUndelivered(String orgId, Object message, Class<?> type) {
-        organisations.get(orgId).ifPresent(org -> events.send(org.getUndeliveredQueueName(), message, type));
-    }
-
-    public void sendUndelivered(String orgId, Object message) {
-        verifyDefaultType();
-        sendUndelivered(orgId, message, defaultType);
-    }
-
-    public void registerDownstreamListener(String orgId, Class<?> listener) {
-        organisations.get(orgId).ifPresent(org -> {
-            if (!containsListener(orgId, EventType.DOWNSTREAM)) {
-                listeners.register(listener, EventType.DOWNSTREAM, org);
-            }
-        });
-    }
-
-    public void registerDownstreamListener(Class<?> listener) {
-        registerOrgListeners(listener, EventType.DOWNSTREAM);
-    }
-
-    public void registerUpstreamListener(String orgId, Class<?> listener) {
-        organisations.get(orgId).ifPresent(org -> {
-            if (!containsListener(orgId, EventType.UPSTREAM)) {
-                listeners.register(listener, EventType.UPSTREAM, org);
-            }
-        });
-    }
-
-    public void registerUpstreamListener(Class<?> listener) {
-        registerOrgListeners(listener, EventType.UPSTREAM);
-    }
-
-    public void registerUndeliveredListener(String orgId, Class<?> listener) {
-        organisations.get(orgId).ifPresent(org -> {
-            if (!containsListener(orgId, EventType.UNDELIVERED)) {
-                listeners.register(listener, EventType.UNDELIVERED, org);
-            }
-        });
-    }
-
-    public void registerUndeliveredListener(Class<?> listener) {
-        registerOrgListeners(listener, EventType.UNDELIVERED);
-    }
-
-    private void registerOrgListeners(Class<?> listener, EventType eventType) {
-        organisations.getAll().forEach(org -> listeners.register(listener, eventType, org));
-    }
-
-    public <T> Optional<T> readUndelivered(String orgId, Class<T> type) {
-        return read(EventType.UNDELIVERED, orgId, type);
-    }
-
-    public <T> Optional<T> readUpstream(String orgId, Class<T> responseType) {
-        return read(EventType.UPSTREAM, orgId, responseType);
-    }
-
-    public <T> Optional<T> readDownstream(String orgId, Class<T> responseType) {
-        return read(EventType.DOWNSTREAM, orgId, responseType);
-    }
-
-    public void reply(String replyTo, Object message) {
-        events.send(replyTo, message, defaultType);
-    }
-
-    public void reply(String replyTo, Object message, Class<?> type) {
-        events.send(replyTo, message, type);
-    }
-
-    private boolean containsListener(String orgId, EventType eventType) {
-        Optional<FintOrganisation> org = organisations.get(orgId);
-        return org.map(fintOrganisation -> events.containsListener(fintOrganisation.getQueue(eventType).getName())).orElse(false);
-    }
-
-    private <T> Optional<T> sendAndReceive(EventType type, String orgId, Object message, Class<T> messageType) {
-        Optional<FintOrganisation> org = organisations.get(orgId);
-        if (org.isPresent()) {
-            T response = events.sendAndReceive(org.get().getExchangeName(), org.get().getQueue(type).getName(), message, messageType);
-            return Optional.ofNullable(response);
+    RedissonClient createRedissonClient() throws OperationNotSupportedException {
+        Config config = new Config();
+        String redisConfiguration = props.getRedisConfiguration();
+        if (RedisConfiguration.isSingle(redisConfiguration)) {
+            config.useSingleServer().setAddress(props.getRedisAddress());
         } else {
-            return Optional.empty();
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    private <T> Optional<T> read(EventType type, String orgId, Class<T> responseType) {
-        Optional<FintOrganisation> org = organisations.get(orgId);
-        if (org.isPresent()) {
-            RabbitTemplate rabbitTemplate = events.rabbitTemplate(responseType);
-            Object value = rabbitTemplate.receiveAndConvert(org.get().getQueue(type).getName());
-            return Optional.ofNullable((T) value);
+            throw new OperationNotSupportedException(String.format("The redis-configuration %s is not supported", redisConfiguration));
         }
 
-        return Optional.empty();
+        return Redisson.create(config);
     }
 
-    private void verifyDefaultType() {
-        if (defaultType == null) {
-            throw new IllegalStateException("No default type set");
+    public RedissonClient getClient() {
+        return client;
+    }
+
+    public <V> BlockingQueue<V> getQueue(String queue) {
+        return client.getBlockingQueue(queue);
+    }
+
+    public <V> BlockingQueue<V> getDownstream(String orgId) {
+        String downstream = props.getDefaultDownstreamQueue();
+        return getQueue(String.format(downstream, orgId));
+    }
+
+    public <V> BlockingQueue<V> getUpstream(String orgId) {
+        String upstream = props.getDefaultUpstreamQueue();
+        return getQueue(String.format(upstream, orgId));
+    }
+
+    public void send(String queue, Object value) {
+        getQueue(queue).offer(value);
+    }
+
+    public void sendDownstream(String orgId, Object value) {
+        getDownstream(orgId).offer(value);
+    }
+
+    public void sendUpstream(String orgId, Object value) {
+        getUpstream(orgId).offer(value);
+    }
+
+    public void registerListener(Class<?> listener) {
+        Object bean = applicationContext.getBean(listener);
+        Method[] methods = bean.getClass().getMethods();
+        for (Method method : methods) {
+            FintEventsListener annotation = method.getAnnotation(FintEventsListener.class);
+            if (annotation != null) {
+                BlockingQueue queue = getQueue(annotation.value());
+                Listener listenerInstance = new Listener(bean, method, queue);
+                taskScheduler.scheduleWithFixedDelay(listenerInstance, 10);
+            }
         }
     }
-
 }

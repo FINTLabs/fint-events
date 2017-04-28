@@ -1,6 +1,0 @@
-fint:
- rabbitmq:
-  username: guest
-  password: guest
- events:
-  orgs: rogfk.no

@@ -9,37 +9,32 @@ apply plugin: 'maven'
 apply plugin: 'jacoco'
 
 jar {
-    baseName = 'fint-events'
-    version = '0.0.26-SNAPSHOT'
+    baseName = 'fint-no.fint.events'
+    version = '0.1.0-SNAPSHOT'
 }
 
 sourceCompatibility = 1.8
 
 repositories {
+    mavenLocal()
     jcenter()
 }
 
 apply from: 'https://raw.githubusercontent.com/FINTlibs/fint-buildscripts/v1.0.8/dependencies.gradle'
 dependencies {
+    compile('org.redisson:redisson:3.3.2')
+    compile('com.github.kstyrc:embedded-redis:0.6')
     compile("org.projectlombok:lombok:${lombokVersion}")
 
     compile("org.springframework.boot:spring-boot-starter-web:${springBootVersion}")
-    compile("org.springframework.boot:spring-boot-starter-amqp:${springBootVersion}")
 
-    testCompile('cglib:cglib-nodep:3.2.4')
-    testCompile('com.spotify:docker-client:6.1.1')
+    testCompile('cglib:cglib-nodep:3.2.5')
     testCompile("org.spockframework:spock-spring:${spockSpringVersion}")
     testCompile("org.springframework.boot:spring-boot-starter-test:${springBootVersion}")
 }
 
 task wrapper(type: Wrapper) {
     gradleVersion = gradleVersion
-}
-
-test {
-    testLogging {
-        events 'passed', 'skipped', 'failed'
-    }
 }
 
 jacocoTestReport {

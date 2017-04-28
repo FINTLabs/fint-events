@@ -1,122 +1,92 @@
 package no.fint.events
 
-import no.fint.events.fintevents.EventType
-import no.fint.events.fintevents.FintListeners
-import no.fint.events.fintevents.FintOrganisation
-import no.fint.events.fintevents.FintOrganisations
+import no.fint.events.config.FintEventsProps
+import no.fint.events.listener.Listener
 import no.fint.events.testutils.TestDto
-import no.fint.events.testutils.listeners.StringListener
-import org.springframework.amqp.core.Queue
-import org.springframework.amqp.rabbit.core.RabbitTemplate
+import no.fint.events.testutils.TestListener
+import org.redisson.api.RBlockingQueue
+import org.redisson.api.RedissonClient
+import org.springframework.context.ApplicationContext
+import org.springframework.scheduling.TaskScheduler
 import spock.lang.Specification
 
 class FintEventsSpec extends Specification {
     private FintEvents fintEvents
-    private Events events
-    private FintOrganisations organisations
-    private FintOrganisation organisation
-    private FintListeners listeners
+    private RedissonClient client
+    private TaskScheduler taskScheduler
+    private ApplicationContext applicationContext
 
     void setup() {
-        events = Mock(Events)
-        organisation = Mock(FintOrganisation) {
-            getDownstreamQueueName() >> 'downstream'
-            getExchangeName() >> 'exchange'
-            getQueue(_ as EventType) >> Mock(Queue) {
-                getName() >> 'queue'
-            }
-        }
-        organisations = Mock(FintOrganisations) {
-            get(_ as String) >> Optional.of(organisation)
-        }
-
-        listeners = Mock(FintListeners)
-        fintEvents = new FintEvents(events: events, organisations: organisations, listeners: listeners)
+        client = Mock(RedissonClient)
+        taskScheduler = Mock(TaskScheduler)
+        applicationContext = Mock(ApplicationContext)
+        def props = new FintEventsProps(defaultDownstreamQueue: '%s.downstream', defaultUpstreamQueue: '%s.upstream')
+        fintEvents = new FintEvents(client: client, props: props, taskScheduler: taskScheduler, applicationContext: applicationContext)
     }
 
-    def "Send and receive with an unknown organisation returns empty response"() {
+    def "Get downstream queue"() {
         when:
-        def response = fintEvents.sendAndReceiveDownstream('unknown-org', new TestDto(), TestDto)
+        def downstream = fintEvents.getDownstream('rogfk.no')
 
         then:
-        1 * organisations.get('unknown-org') >> Optional.empty()
-        !response.isPresent()
+        1 * client.getBlockingQueue('rogfk.no.downstream') >> Mock(RBlockingQueue)
+        downstream != null
     }
 
-    def "Send and receive to a registered organisation"() {
+    def "Get upstream queue"() {
+        when:
+        def upstream = fintEvents.getUpstream('rogfk.no')
+
+        then:
+        1 * client.getBlockingQueue('rogfk.no.upstream') >> Mock(RBlockingQueue)
+        upstream != null
+    }
+
+    def "Send object to queue"() {
         given:
+        def queue = Mock(RBlockingQueue)
         def testDto = new TestDto()
 
         when:
-        def response = fintEvents.sendAndReceiveDownstream('rogfk.no', testDto, TestDto)
+        fintEvents.send('test-queue', testDto)
 
         then:
-        1 * events.sendAndReceive('exchange', 'queue', testDto, TestDto) >> Optional.of(new TestDto())
-        response.isPresent()
+        1 * client.getBlockingQueue('test-queue') >> queue
+        1 * queue.offer(testDto)
     }
 
-    def "Send downstream with type"() {
+    def "Send object to downstream queue"() {
         given:
+        def queue = Mock(RBlockingQueue)
         def testDto = new TestDto()
-
-        when:
-        fintEvents.sendDownstream('rogfk.no', testDto, TestDto)
-
-        then:
-        1 * events.send('downstream', testDto, TestDto)
-    }
-
-    def "Send downstream with no default type set"() {
-        when:
-        fintEvents.sendDownstream('rogfk.no', new TestDto())
-
-        then:
-        thrown(IllegalStateException)
-    }
-
-    def "Send downstream with default type"() {
-        given:
-        def testDto = new TestDto()
-        fintEvents.setDefaultType(TestDto)
 
         when:
         fintEvents.sendDownstream('rogfk.no', testDto)
 
         then:
-        1 * events.send('downstream', testDto, TestDto)
+        1 * client.getBlockingQueue('rogfk.no.downstream') >> queue
+        1 * queue.offer(testDto)
     }
 
-    def "Read downstream message"() {
+    def "Send object to upstream queue"() {
         given:
-        def rabbitTemplate = Mock(RabbitTemplate)
-
-        when:
-        def response = fintEvents.readDownstream('rogfk.no', TestDto)
-
-        then:
-        1 * events.rabbitTemplate(TestDto) >> rabbitTemplate
-        1 * rabbitTemplate.receiveAndConvert('queue') >> new TestDto()
-        response.isPresent()
-    }
-
-    def "Register downstream listener"() {
-        when:
-        fintEvents.registerDownstreamListener('rogfk.no', StringListener)
-
-        then:
-        1 * listeners.register(StringListener, EventType.DOWNSTREAM, organisation)
-    }
-
-    def "Send reply message"() {
-        given:
+        def queue = Mock(RBlockingQueue)
         def testDto = new TestDto()
-        fintEvents.setDefaultType(TestDto)
 
         when:
-        fintEvents.reply('reply-to-address', testDto)
+        fintEvents.sendUpstream('rogfk.no', testDto)
 
         then:
-        1 * events.send('reply-to-address', testDto, TestDto)
+        1 * client.getBlockingQueue('rogfk.no.upstream') >> queue
+        1 * queue.offer(testDto)
     }
 
+    def "Register listener"() {
+        when:
+        fintEvents.registerListener(TestListener)
+
+        then:
+        1 * applicationContext.getBean(TestListener) >> new TestListener()
+        1 * taskScheduler.scheduleWithFixedDelay(_ as Listener, 10)
+    }
 }
