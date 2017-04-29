@@ -1,5 +1,6 @@
 package no.fint.events;
 
+import lombok.Getter;
 import no.fint.events.annotations.FintEventListener;
 import no.fint.events.config.FintEventsProps;
 import no.fint.events.config.RedisConfiguration;
@@ -16,6 +17,8 @@ import org.springframework.scheduling.TaskScheduler;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 
 public class FintEvents implements ApplicationContextAware {
@@ -27,6 +30,9 @@ public class FintEvents implements ApplicationContextAware {
 
     @Autowired
     private TaskScheduler taskScheduler;
+
+    @Getter
+    private Map<String, Long> listeners = new HashMap<>();
 
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
@@ -103,6 +109,7 @@ public class FintEvents implements ApplicationContextAware {
             if (annotation != null) {
                 Listener listenerInstance = new Listener(bean, method, getQueue(queue));
                 taskScheduler.scheduleWithFixedDelay(listenerInstance, 10);
+                listeners.put(queue, System.currentTimeMillis());
             }
         }
     }

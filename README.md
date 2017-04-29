@@ -60,6 +60,11 @@ fintEvents.registerDownstreamListener("orgId", MyListener)
 fintEvents.registerUpstreamListener("orgId", MyListener)
 ```
 
+Get registered listeners:
+```java
+Map<String, Long> listeners = fintEvents.getListeners();
+```
+
 ## Health check
 
 **Client:**

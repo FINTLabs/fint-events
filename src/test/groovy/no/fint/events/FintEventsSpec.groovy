@@ -36,11 +36,11 @@ class FintEventsSpec extends Specification {
         thrown(IllegalArgumentException)
 
         where:
-        redisConfig | _
+        redisConfig    | _
         'master-slave' | _
-        'sentinel' | _
-        'clustered' | _
-        'replicated' | _
+        'sentinel'     | _
+        'clustered'    | _
+        'replicated'   | _
     }
 
     def "Get downstream queue"() {
@@ -108,6 +108,9 @@ class FintEventsSpec extends Specification {
         1 * applicationContext.getBean(TestListener) >> new TestListener()
         1 * client.getBlockingQueue('test-listener-queue')
         1 * taskScheduler.scheduleWithFixedDelay(_ as Listener, 10)
+        fintEvents.listeners.size() == 1
+        fintEvents.listeners.keySet()[0] == 'test-listener-queue'
+        fintEvents.listeners.values()[0] > 0L
     }
 
     def "Register downstream listener"() {
@@ -118,6 +121,9 @@ class FintEventsSpec extends Specification {
         1 * applicationContext.getBean(TestListener) >> new TestListener()
         1 * client.getBlockingQueue('rogfk.no.downstream')
         1 * taskScheduler.scheduleWithFixedDelay(_ as Listener, 10)
+        fintEvents.listeners.size() == 1
+        fintEvents.listeners.keySet()[0] == 'rogfk.no.downstream'
+        fintEvents.listeners.values()[0] > 0L
     }
 
     def "Register upstream listener"() {
@@ -128,6 +134,9 @@ class FintEventsSpec extends Specification {
         1 * applicationContext.getBean(TestListener) >> new TestListener()
         1 * client.getBlockingQueue('rogfk.no.upstream')
         1 * taskScheduler.scheduleWithFixedDelay(_ as Listener, 10)
+        fintEvents.listeners.size() == 1
+        fintEvents.listeners.keySet()[0] == 'rogfk.no.upstream'
+        fintEvents.listeners.values()[0] > 0L
     }
 
     def "Shutdown redisson client"() {
