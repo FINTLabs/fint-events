@@ -126,8 +126,8 @@ private FintEventsRemote fintEventsRemote;
 
 fintEventsRemote.registerServer(TestListener);
 ```
-## Configuration
 
+## Configuration
 
 | Key | Description | Default value |
 |-----|-------------|---------------|
