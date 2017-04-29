@@ -79,7 +79,7 @@ The method that will receive the message is annotated with `@FintEventsListener`
 @Component
 public class TestListener {
 
-    @FintEventsListener
+    @FintEventListener
     public void receive(TestDto testDto) {
         ...
     }
@@ -112,7 +112,7 @@ RemoteEvent<TestDto> remoteEvent = fintEventsRemote.registerClient();
 @Component
 public class TestListener {
 
-    @FintEventsListener
+    @FintEventListener
     public void receive(TestDto testDto) {
         ...
     }

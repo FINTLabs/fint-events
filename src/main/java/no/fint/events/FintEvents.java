@@ -1,6 +1,6 @@
 package no.fint.events;
 
-import no.fint.events.annotations.FintEventsListener;
+import no.fint.events.annotations.FintEventListener;
 import no.fint.events.config.FintEventsProps;
 import no.fint.events.config.RedisConfiguration;
 import no.fint.events.listener.Listener;
@@ -99,7 +99,7 @@ public class FintEvents implements ApplicationContextAware {
         Object bean = applicationContext.getBean(listener);
         Method[] methods = bean.getClass().getMethods();
         for (Method method : methods) {
-            FintEventsListener annotation = method.getAnnotation(FintEventsListener.class);
+            FintEventListener annotation = method.getAnnotation(FintEventListener.class);
             if (annotation != null) {
                 Listener listenerInstance = new Listener(bean, method, getQueue(queue));
                 taskScheduler.scheduleWithFixedDelay(listenerInstance, 10);
