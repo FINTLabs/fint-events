@@ -1,7 +1,8 @@
 package no.fint.events.config;
 
 import no.fint.events.FintEvents;
-import no.fint.events.FintEventsRemote;
+import no.fint.events.FintEventsHealth;
+import no.fint.events.remote.FintEventsRemote;
 import no.fint.events.testmode.EmbeddedRedis;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,7 +28,12 @@ public class FintEventsConfig {
     }
 
     @Bean
-    public FintEventsRemote fintEventsRemoteService() {
+    public FintEventsHealth fintEventsHealth() {
+        return new FintEventsHealth();
+    }
+
+    @Bean
+    public FintEventsRemote fintEventsRemote() {
         return new FintEventsRemote();
     }
 

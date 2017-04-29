@@ -1,9 +1,9 @@
 package no.fint.events
 
-import no.fint.events.testmode.EmbeddedRedis
 import no.fint.events.testutils.TestApplication
 import no.fint.events.testutils.TestDto
 import no.fint.events.testutils.TestListener
+import no.fint.events.testutils.TestListener2
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ContextConfiguration
@@ -20,6 +20,9 @@ class FintEventsIntegrationSpec extends Specification {
 
     @Autowired
     private TestListener testListener
+
+    @Autowired
+    private TestListener2 testListener2
 
     def "Create reddison client"() {
         when:
@@ -43,14 +46,18 @@ class FintEventsIntegrationSpec extends Specification {
         given:
         def conditions = new PollingConditions(timeout: 1, initialDelay: 0.02, factor: 1.25)
         fintEvents.getQueue('test-listener-queue').offer(new TestDto(name: 'test123'))
+        fintEvents.getQueue('test-listener-queue').offer(new TestDto(name: 'test234'))
 
         when:
         fintEvents.registerListener('test-listener-queue', TestListener)
+        fintEvents.registerListener('test-listener-queue', TestListener2)
 
         then:
         conditions.eventually {
             assert testListener.testDto != null
             assert testListener.testDto.name == 'test123'
+            assert testListener2.testDto != null
+            assert testListener2.testDto.name == 'test234'
         }
     }
 

@@ -2,7 +2,7 @@ package no.fint.events
 
 import no.fint.events.testutils.TestApplication
 import no.fint.events.testutils.TestDto
-import no.fint.events.testutils.TestRemote
+import no.fint.events.testutils.TestHealth
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ContextConfiguration
@@ -10,19 +10,19 @@ import spock.lang.Specification
 
 @ContextConfiguration
 @SpringBootTest(classes = TestApplication)
-class FintEventsRemoteSpec extends Specification {
+class FintEventsHealthSpec extends Specification {
 
     @Autowired
-    private FintEventsRemote fintEventsRemoteService
+    private FintEventsHealth fintEventsHealth
 
-    def "Register server and client, and call the request method"() {
+    def "Register server and client, and call the healthCheck method"() {
         when:
-        def client = fintEventsRemoteService.registerClient()
-        fintEventsRemoteService.registerServer(TestRemote)
-        def response = client.request(new TestDto(name: 'test'))
+        def client = fintEventsHealth.registerClient()
+        fintEventsHealth.registerServer(TestHealth)
+        def response = client.healthCheck(new TestDto(name: 'test'))
 
         then:
-        response.name == 'test123'
+        response.name == 'health check'
     }
 
 }

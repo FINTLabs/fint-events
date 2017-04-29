@@ -8,7 +8,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
 @Slf4j
-public class FintEventsRemote implements ApplicationContextAware {
+public class FintEventsHealth implements ApplicationContextAware {
     @Autowired
     private FintEvents fintEvents;
     private ApplicationContext applicationContext;
@@ -18,16 +18,15 @@ public class FintEventsRemote implements ApplicationContextAware {
         this.applicationContext = applicationContext;
     }
 
-    public void registerServer(Class<? extends FintRemoteEvent> type) {
-        FintRemoteEvent bean = applicationContext.getBean(type);
+    public void registerServer(Class<? extends Health> type) {
+        Health bean = applicationContext.getBean(type);
         RRemoteService remoteService = fintEvents.getClient().getRemoteService();
-        remoteService.register(FintRemoteEvent.class, bean);
+        remoteService.register(Health.class, bean);
     }
 
     @SuppressWarnings("unchecked")
-    public <V> FintRemoteEvent<V> registerClient() {
+    public <V> Health<V> registerClient() {
         RRemoteService remoteService = fintEvents.getClient().getRemoteService();
-        return remoteService.get(FintRemoteEvent.class);
+        return remoteService.get(Health.class);
     }
-
 }

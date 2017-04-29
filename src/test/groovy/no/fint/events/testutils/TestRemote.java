@@ -1,10 +1,10 @@
 package no.fint.events.testutils;
 
-import no.fint.events.FintRemoteEvent;
+import no.fint.events.remote.RemoteEvent;
 import org.springframework.stereotype.Component;
 
 @Component
-public class TestRemote implements FintRemoteEvent<TestDto> {
+public class TestRemote implements RemoteEvent<TestDto> {
     @Override
     public TestDto request(TestDto value) {
         value.setName("test123");
