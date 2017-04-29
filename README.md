@@ -30,3 +30,66 @@ public class Application {
     }
 }
 ```
+
+## Publish message on queue
+
+Custom queue name:
+```java
+@Autowired
+private FintEvents fintEvents;
+
+fintEvents.send("queue-name", messageObj);
+```
+
+Downstream/upstream queue:
+```java
+fintEvents.sendDownstream("orgId", messageObj);
+fintEvents.sendUpstream("orgId", messageObj);
+```
+
+## Register listener
+
+Custom queue name:
+```java
+fintEvents.registerListener("queue-name", MyListener)
+```
+
+Downstream/upstream queue:
+```java
+fintEvents.registerDownstreamListener("orgId", MyListener)
+fintEvents.registerUpstreamListener("orgId", MyListener)
+```
+
+## Health check
+
+**Client:**
+```java
+@Autowired
+private FintEventsHealth fintEventsHealth;
+
+Health<TestDto> healthClient = fintEventsHealth.registerClient();
+Health<TestDto> response = client.healthCheck(new TestDto());
+```
+
+**Server:**  
+
+Create listener bean. This needs to be a bean registered in the Spring container.  
+The method that will receive the message is annotated with `@FintEventsListener`.
+```java
+@Component
+public class TestListener {
+
+    @FintEventsListener
+    public void receive(TestDto testDto) {
+        ...
+    }
+}
+```
+
+Register listener in redisson:
+```java
+@Autowired
+private FintEventsHealth fintEventsHealth;
+
+fintEventsHealth.registerServer(TestHealth);
+```
