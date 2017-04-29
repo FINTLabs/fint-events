@@ -94,7 +94,7 @@ private FintEventsHealth fintEventsHealth;
 fintEventsHealth.registerServer(TestHealth);
 ```
 
-**Remote Service**
+## Remote Service
 
 We recommend publishing messages instead of using the remote service feature.  
 
@@ -126,3 +126,13 @@ private FintEventsRemote fintEventsRemote;
 
 fintEventsRemote.registerServer(TestListener);
 ```
+## Configuration
+
+
+| Key | Description | Default value |
+|-----|-------------|---------------|
+| fint.events.redis-configuration | The configuration used when redisson is connecting to redis. For example clustered or single server. | single |
+| fint.events.redis-address | Redis server address, includes port | localhost:6379 |
+| fint.events.default-downstream-queue | The format of the default downstream queue. | %s.downstream |
+| fint.events.default-upstream-queue | The format of the default upstream queue. | %s.upstream |
+| fint.events.test-mode | When test mode is enable, an embedded redis instance is initialized on startup | false |
