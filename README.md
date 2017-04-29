@@ -74,7 +74,7 @@ Health<TestDto> response = client.healthCheck(new TestDto());
 **Server:**  
 
 Create listener bean. This needs to be a bean registered in the Spring container.  
-The method that will receive the message is annotated with `@FintEventsListener`:
+The method that will receive the message is annotated with `@FintEventListener`:
 ```java
 @Component
 public class TestListener {
