@@ -131,7 +131,7 @@ fintEventsRemote.registerServer(TestListener);
 
 | Key | Description | Default value |
 |-----|-------------|---------------|
-| fint.events.redis-configuration | The configuration used when [redisson](https://github.com/redisson/redisson/wiki/2.-Configuration) is connecting to redis. For example clustered or single server. | single |
+| fint.events.redis-configuration | The [configuration](https://github.com/redisson/redisson/wiki/2.-Configuration) used when redisson is connecting to redis. For example clustered or single server. | single |
 | fint.events.redis-address | Redis server address, includes port. | localhost:6379 |
 | fint.events.default-downstream-queue | The format of the default downstream queue. | %s.downstream |
 | fint.events.default-upstream-queue | The format of the default upstream queue. | %s.upstream |
