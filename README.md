@@ -96,7 +96,7 @@ fintEventsHealth.registerServer(TestHealth);
 
 ## Remote Service
 
-We recommend publishing messages instead of using the remote service feature.  
+We recommend publishing messages instead of using the remote service feature. This is a blocking call, where the client will wait for a response or a timeout happens.
 
 
 **Client:**
