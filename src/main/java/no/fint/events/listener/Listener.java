@@ -27,7 +27,7 @@ public class Listener implements Runnable {
             }
         } catch (IllegalArgumentException | IllegalAccessException | InvocationTargetException e) {
             log.error("Unable to call listener, bean:{} method:{}. Exception: {}", object.getClass().getName(), method.getName(), e.getMessage());
-        } catch (RedissonShutdownException | RedisException e) {
+        } catch (RedisException e) {
             if (e instanceof RedissonShutdownException || e.getCause() instanceof RedissonShutdownException) {
                 log.debug("Listener task stopped because redisson is shutting down. {}", e.getMessage());
             } else {
