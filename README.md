@@ -74,7 +74,7 @@ Health<TestDto> response = client.healthCheck(new TestDto());
 **Server:**  
 
 Create listener bean. This needs to be a bean registered in the Spring container.  
-The method that will receive the message is annotated with `@FintEventsListener`.
+The method that will receive the message is annotated with `@FintEventsListener`:
 ```java
 @Component
 public class TestListener {
@@ -92,4 +92,37 @@ Register listener in redisson:
 private FintEventsHealth fintEventsHealth;
 
 fintEventsHealth.registerServer(TestHealth);
+```
+
+**Remote Service**
+
+We recommend publishing messages instead of using the remote service feature.  
+
+
+**Client:**
+```java
+@Autowired
+private FintEventsRemote fintEventsRemote;
+
+RemoteEvent<TestDto> remoteEvent = fintEventsRemote.registerClient();
+```
+
+**Server:**
+```java
+@Component
+public class TestListener {
+
+    @FintEventsListener
+    public void receive(TestDto testDto) {
+        ...
+    }
+}
+```
+
+Register listener in redisson:
+```java
+@Autowired
+private FintEventsRemote fintEventsRemote;
+
+fintEventsRemote.registerServer(TestListener);
 ```
