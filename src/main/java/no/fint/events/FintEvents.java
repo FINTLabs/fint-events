@@ -14,6 +14,7 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.scheduling.TaskScheduler;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import java.lang.reflect.Method;
 import java.util.concurrent.BlockingQueue;
 
@@ -35,6 +36,11 @@ public class FintEvents implements ApplicationContextAware {
     @PostConstruct
     public void init() {
         client = createRedissonClient();
+    }
+
+    @PreDestroy
+    public void shutdown() {
+        client.shutdown();
     }
 
     RedissonClient createRedissonClient() {
