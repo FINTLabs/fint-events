@@ -129,4 +129,12 @@ class FintEventsSpec extends Specification {
         1 * client.getBlockingQueue('rogfk.no.upstream')
         1 * taskScheduler.scheduleWithFixedDelay(_ as Listener, 10)
     }
+
+    def "Shutdown redisson client"() {
+        when:
+        fintEvents.shutdown()
+
+        then:
+        1 * client.shutdown()
+    }
 }
