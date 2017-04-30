@@ -1,12 +1,12 @@
 package no.fint.events.testutils;
 
-import no.fint.events.Health;
+import no.fint.events.HealthCheck;
 import org.springframework.stereotype.Component;
 
 @Component
-public class TestHealth implements Health<TestDto> {
+public class TestHealthCheck implements HealthCheck<TestDto> {
     @Override
-    public TestDto healthCheck(TestDto value) {
+    public TestDto check(TestDto value) {
         value.setName("health check");
         return value;
     }

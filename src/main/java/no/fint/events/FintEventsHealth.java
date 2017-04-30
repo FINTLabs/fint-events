@@ -18,15 +18,15 @@ public class FintEventsHealth implements ApplicationContextAware {
         this.applicationContext = applicationContext;
     }
 
-    public void registerServer(Class<? extends Health> type) {
-        Health bean = applicationContext.getBean(type);
+    public void registerServer(Class<? extends HealthCheck> type) {
+        HealthCheck bean = applicationContext.getBean(type);
         RRemoteService remoteService = fintEvents.getClient().getRemoteService();
-        remoteService.register(Health.class, bean);
+        remoteService.register(HealthCheck.class, bean);
     }
 
     @SuppressWarnings("unchecked")
-    public <V> Health<V> registerClient() {
+    public <V> HealthCheck<V> registerClient() {
         RRemoteService remoteService = fintEvents.getClient().getRemoteService();
-        return remoteService.get(Health.class);
+        return remoteService.get(HealthCheck.class);
     }
 }

@@ -93,9 +93,9 @@ Health<TestDto> response = client.healthCheck(new TestDto());
 
 ```java
 @Component
-public class TestHealth implements Health<TestDto> {
+public class TestHealth implements HealthCheck<TestDto> {
     @Override
-    public TestDto healthCheck(TestDto value) {
+    public TestDto check(TestDto value) {
         ...
         return value;
     }
