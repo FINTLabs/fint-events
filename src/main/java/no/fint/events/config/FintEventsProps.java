@@ -23,4 +23,7 @@ public class FintEventsProps {
     @Value("${fint.events.test-mode:false}")
     private String testMode;
 
+    @Value("${fint.events.queue-endpoint-enabled:false}")
+    private String queueEndpointEnabled;
+
 }

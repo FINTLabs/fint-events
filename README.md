@@ -144,6 +144,12 @@ private FintEventsRemote fintEventsRemote;
 fintEventsRemote.registerServer(TestListener);
 ```
 
+## Fint Events endpoint
+
+Makes it possible to query the content of the queue.  
+This will use a `peek()` method on the actual queue, meaning it will not be removed.  
+The endpoint is available on `/fint-events/{queue}`.
+
 ## Configuration
 
 | Key | Description | Default value |
@@ -153,3 +159,4 @@ fintEventsRemote.registerServer(TestListener);
 | fint.events.default-downstream-queue | The format of the default downstream queue. | %s.downstream |
 | fint.events.default-upstream-queue | The format of the default upstream queue. | %s.upstream |
 | fint.events.test-mode | When test mode is enable, an embedded redis instance is initialized on startup | false |
+| fint.events.queue-endpoint-enabled | Enable the rest endpoints `/fint-events/*` that make it possible to query the content of the queues. If the endpoint is disable a 404 response code is returned. | false |
