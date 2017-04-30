@@ -49,6 +49,19 @@ fintEvents.sendUpstream("orgId", messageObj);
 
 ## Register listener
 
+Create listener bean. This needs to be a bean registered in the Spring container.  
+The method that will receive the message is annotated with `@FintEventListener`:
+```java
+@Component
+public class TestListener {
+
+    @FintEventListener
+    public void receive(TestDto testDto) {
+        ...
+    }
+}
+```
+
 Custom queue name:
 ```java
 fintEvents.registerListener("queue-name", MyListener)
@@ -78,17 +91,16 @@ Health<TestDto> response = client.healthCheck(new TestDto());
 
 **Server:**  
 
-Create listener bean. This needs to be a bean registered in the Spring container.  
-The method that will receive the message is annotated with `@FintEventListener`:
 ```java
 @Component
-public class TestListener {
-
-    @FintEventListener
-    public void receive(TestDto testDto) {
+public class TestHealth implements Health<TestDto> {
+    @Override
+    public TestDto healthCheck(TestDto value) {
         ...
+        return value;
     }
 }
+
 ```
 
 Register listener in redisson:
