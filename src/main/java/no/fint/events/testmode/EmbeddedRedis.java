@@ -18,7 +18,7 @@ public class EmbeddedRedis {
 
     @PostConstruct
     public void init() throws IOException {
-        if (Boolean.valueOf(props.getTestMode())) {
+        if (Boolean.valueOf(props.getTestMode()) && redisServer == null) {
             log.info("Test mode enabled, starting embedded redis");
             redisServer = new RedisServer(6379);
             redisServer.start();

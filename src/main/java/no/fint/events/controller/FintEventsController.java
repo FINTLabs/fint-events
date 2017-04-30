@@ -31,7 +31,7 @@ public class FintEventsController {
             Object nextValue = q.peek();
             return ResponseEntity.ok(ImmutableMap.of(
                     "size", String.valueOf(size),
-                    "nextValue", nextValue.toString()
+                    "nextValue", (nextValue == null) ? "" : nextValue.toString()
             ));
         } else {
             return ResponseEntity.notFound().build();
