@@ -14,7 +14,7 @@ repositories {
     }
 }
 
-compile('no.fint:fint-events:0.1.1')
+compile('no.fint:fint-events:0.1.2')
 ```
 
 # Usage
@@ -144,15 +144,15 @@ private FintEventsRemote fintEventsRemote;
 fintEventsRemote.registerServer(TestListener);
 ```
 
+### Run RemoteService integration tests
+
+Add the system property: `remoteServiceTestsEnabled=true`
+
 ## Fint Events endpoint
 
 Makes it possible to query the content of the queue.  
 This will use a `peek()` method on the actual queue, meaning it will not be removed.  
 The endpoint is available on `/fint-events/{queue}`.
-
-## Run RemoteService integration tests
-
-Add the system property: `remoteServiceTestsEnabled=true`
 
 ## Configuration
 
