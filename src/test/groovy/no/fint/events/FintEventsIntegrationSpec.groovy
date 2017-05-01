@@ -1,7 +1,6 @@
 package no.fint.events
 
 import no.fint.events.config.FintEventsProps
-import no.fint.events.config.RedisConfiguration
 import no.fint.events.remote.FintEventsRemote
 import no.fint.events.testmode.EmbeddedRedis
 import no.fint.events.testutils.*
@@ -13,6 +12,7 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.HttpStatus
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.web.client.RestTemplate
+import spock.lang.Requires
 import spock.lang.Specification
 import spock.util.concurrent.PollingConditions
 
@@ -48,15 +48,6 @@ class FintEventsIntegrationSpec extends Specification {
 
     @Autowired
     private TestListener2 testListener2
-
-    def "Create reddison client"() {
-        when:
-        def client = fintEvents.createRedissonClient()
-        client.getMap('test')
-
-        then:
-        noExceptionThrown()
-    }
 
     def "Get blocking queue"() {
         when:
@@ -115,38 +106,6 @@ class FintEventsIntegrationSpec extends Specification {
         body.values()[1] == 'TestDto(name=testing)'
     }
 
-    def "Register server and client, and call the healthCheck method"() {
-        given:
-        def client = fintEventsHealth.registerClient()
-        fintEventsHealth.registerServer(TestHealthCheck)
-
-        when:
-        def response = client.check(new TestDto(name: 'test'))
-
-        then:
-        response.name == 'health check'
-    }
-
-    def "Register server and client, and call the request method"() {
-        given:
-        def client = fintEventsRemote.registerClient()
-        fintEventsRemote.registerServer(TestRemote)
-
-        when:
-        def response = client.request(new TestDto(name: 'test'))
-
-        then:
-        response.name == 'test123'
-    }
-
-    def "Verify that the default value of redis-configuration is 'single'"() {
-        when:
-        def configuration = props.getRedisConfiguration()
-
-        then:
-        configuration == RedisConfiguration.SINGLE
-    }
-
     def "Init and shutdown embedded redis"() {
         given:
         Config config = new Config()
@@ -165,4 +124,29 @@ class FintEventsIntegrationSpec extends Specification {
         response == 123L
     }
 
+    @Requires({ Boolean.valueOf(properties['remoteServiceTestsEnabled'])})
+    def "Register server and client, and call the healthCheck method"() {
+        given:
+        def client = fintEventsHealth.registerClient()
+        fintEventsHealth.registerServer(TestHealthCheck)
+
+        when:
+        def response = client.check(new TestDto(name: 'test'))
+
+        then:
+        response.name == 'health check'
+    }
+
+    @Requires({ Boolean.valueOf(properties['remoteServiceTestsEnabled'])})
+    def "Register server and client, and call the request method"() {
+        given:
+        def client = fintEventsRemote.registerClient()
+        fintEventsRemote.registerServer(TestRemote)
+
+        when:
+        def response = client.request(new TestDto(name: 'test'))
+
+        then:
+        response.name == 'test123'
+    }
 }

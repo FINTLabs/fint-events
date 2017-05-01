@@ -25,6 +25,10 @@ public class EmbeddedRedis {
         }
     }
 
+    public boolean isStarted() {
+        return redisServer != null && redisServer.isActive();
+    }
+
     @PreDestroy
     public void shutdown() {
         if (redisServer != null) {

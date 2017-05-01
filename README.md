@@ -150,6 +150,10 @@ Makes it possible to query the content of the queue.
 This will use a `peek()` method on the actual queue, meaning it will not be removed.  
 The endpoint is available on `/fint-events/{queue}`.
 
+## Run RemoteService integration tests
+
+Add the system property: `remoteServiceTestsEnabled=true`
+
 ## Configuration
 
 | Key | Description | Default value |
