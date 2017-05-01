@@ -14,7 +14,7 @@ repositories {
     }
 }
 
-compile('no.fint:fint-events:0.1.2')
+compile('no.fint:fint-events:0.1.3')
 ```
 
 # Usage
@@ -148,9 +148,15 @@ fintEventsRemote.registerServer(TestListener);
 
 Add the system property: `remoteServiceTestsEnabled=true`
 
-## Fint Events endpoint
+## Fint Events endpoints
 
 Makes it possible to query the content of the queues.  
+Enabled with the property `int.events.queue-endpoint-enabled`.  
+
+If use with [springfox-loader](https://github.com/jarlehansen/springfox-loader), add the `FintEventsController`:
+```java
+@EnableSpringfox(includeControllers = FintEventsController.class)
+```
 
 **GET all queue names**
 
