@@ -117,28 +117,34 @@ class FintEventsSpec extends Specification {
 
     def "Register downstream listener"() {
         when:
-        fintEvents.registerDownstreamListener('rogfk.no', TestListener)
+        fintEvents.registerDownstreamListener(TestListener, 'rogfk.no', 'hfk.no')
 
         then:
-        1 * applicationContext.getBean(TestListener) >> new TestListener()
+        2 * applicationContext.getBean(TestListener) >> new TestListener()
         1 * client.getBlockingQueue('rogfk.no.downstream')
-        1 * taskScheduler.scheduleWithFixedDelay(_ as Listener, 10)
-        fintEvents.listeners.size() == 1
-        fintEvents.listeners.keySet()[0] == 'rogfk.no.downstream'
+        1 * client.getBlockingQueue('hfk.no.downstream')
+        2 * taskScheduler.scheduleWithFixedDelay(_ as Listener, 10)
+        fintEvents.listeners.size() == 2
+        fintEvents.listeners.keySet().contains('hfk.no.downstream')
+        fintEvents.listeners.keySet().contains('rogfk.no.downstream')
         fintEvents.listeners.values()[0] > 0L
+        fintEvents.listeners.values()[1] > 0L
     }
 
     def "Register upstream listener"() {
         when:
-        fintEvents.registerUpstreamListener('rogfk.no', TestListener)
+        fintEvents.registerUpstreamListener(TestListener, 'rogfk.no', 'hfk.no')
 
         then:
-        1 * applicationContext.getBean(TestListener) >> new TestListener()
+        2 * applicationContext.getBean(TestListener) >> new TestListener()
         1 * client.getBlockingQueue('rogfk.no.upstream')
-        1 * taskScheduler.scheduleWithFixedDelay(_ as Listener, 10)
-        fintEvents.listeners.size() == 1
-        fintEvents.listeners.keySet()[0] == 'rogfk.no.upstream'
+        1 * client.getBlockingQueue('hfk.no.upstream')
+        2 * taskScheduler.scheduleWithFixedDelay(_ as Listener, 10)
+        fintEvents.listeners.size() == 2
+        fintEvents.listeners.keySet().contains('hfk.no.upstream')
+        fintEvents.listeners.keySet().contains('rogfk.no.upstream')
         fintEvents.listeners.values()[0] > 0L
+        fintEvents.listeners.values()[1] > 0L
     }
 
     def "Shutdown redisson client"() {

@@ -1,6 +1,7 @@
 package no.fint.events;
 
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import no.fint.events.annotations.FintEventListener;
 import no.fint.events.config.FintEventsProps;
 import no.fint.events.config.RedisConfiguration;
@@ -23,6 +24,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 
+@Slf4j
 public class FintEvents implements ApplicationContextAware {
     private RedissonClient client;
     private ApplicationContext applicationContext;
@@ -97,14 +99,20 @@ public class FintEvents implements ApplicationContextAware {
         getUpstream(orgId).offer(value);
     }
 
-    public void registerDownstreamListener(String orgId, Class<?> listener) {
+    public void registerDownstreamListener(Class<?> listener, String... orgIds) {
         String downstream = props.getDefaultDownstreamQueue();
-        registerListener(String.format(downstream, orgId), listener);
+        for (String orgId : orgIds) {
+            log.info("Registering downstream listener ({}) for {}", listener.getSimpleName(), orgId);
+            registerListener(String.format(downstream, orgId), listener);
+        }
     }
 
-    public void registerUpstreamListener(String orgId, Class<?> listener) {
+    public void registerUpstreamListener(Class<?> listener, String... orgIds) {
         String upstream = props.getDefaultUpstreamQueue();
-        registerListener(String.format(upstream, orgId), listener);
+        for (String orgId : orgIds) {
+            log.info("Registering upstream listener ({}) for {}", listener.getSimpleName(), orgId);
+            registerListener(String.format(upstream, orgId), listener);
+        }
     }
 
     public void registerListener(String queue, Class<?> listener) {
