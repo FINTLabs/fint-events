@@ -53,7 +53,7 @@ public class FintEventsController {
             if (values.length >= (index + 1)) {
                 return Arrays.asList(values).get(index);
             }
-            return ResponseEntity.ok().build();
+            return "";
         }
     }
 
