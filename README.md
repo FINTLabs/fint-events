@@ -172,9 +172,9 @@ Response:
 
 **GET content of queue**
 
-This will use a `peek()` method on the actual queue, meaning it will not be removed.  
-The endpoint is available on `/fint-events/queues/{queue}`.  
+`GET /fint-events/queues/{queue}`
 
+This will use a `peek()` method on the actual queue, meaning it will not be removed.  
 The response contains size of the queue and the next value. The length of the shown next value in the queue will be max 200 characters.
 ```json
 {
