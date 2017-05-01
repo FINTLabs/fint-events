@@ -86,7 +86,7 @@ class FintEventsIntegrationSpec extends Specification {
         response.statusCode == HttpStatus.OK
         body.keySet()[0] == 'size'
         body.values()[0] == '0'
-        body.keySet()[1] == 'nextValue'
+        body.keySet()[1] == 'value'
         body.values()[1] == ''
     }
 
@@ -102,7 +102,7 @@ class FintEventsIntegrationSpec extends Specification {
         response.statusCode == HttpStatus.OK
         body.keySet()[0] == 'size'
         body.values()[0] == '1'
-        body.keySet()[1] == 'nextValue'
+        body.keySet()[1] == 'value'
         body.values()[1] == 'TestDto(name=testing)'
     }
 
