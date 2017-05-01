@@ -9,6 +9,7 @@ import org.springframework.test.web.servlet.MockMvc
 import java.util.concurrent.BlockingQueue
 
 import static org.hamcrest.CoreMatchers.equalTo
+import static org.hamcrest.Matchers.hasSize
 
 class FintEventsControllerSpec extends MockMvcSpecification {
     private FintEventsController controller
@@ -23,9 +24,29 @@ class FintEventsControllerSpec extends MockMvcSpecification {
         mockMvc = standaloneSetup(controller)
     }
 
-    def "Return size and content of queue"() {
+    def "Return all queues"() {
         when:
-        def response = mockMvc.perform(get('/fint-events/test-queue'))
+        def response = mockMvc.perform(get('/fint-events/queues'))
+
+        then:
+        1 * props.getQueueEndpointEnabled() >> 'true'
+        1 * fintEvents.getQueues() >> ['test-queue']
+        response.andExpect(status().isOk())
+                .andExpect(jsonPath('$', hasSize(1)))
+    }
+
+    def "Get queue names, return 404 when queue endpoint is disabled"() {
+        when:
+        def response = mockMvc.perform(get('/fint-events/queues'))
+
+        then:
+        1 * props.getQueueEndpointEnabled() >> 'false'
+        response.andExpect(status().isNotFound())
+    }
+
+    def "Get queue, return size and content of queue"() {
+        when:
+        def response = mockMvc.perform(get('/fint-events/queues/test-queue'))
 
         then:
         1 * props.getQueueEndpointEnabled() >> 'true'
@@ -38,9 +59,9 @@ class FintEventsControllerSpec extends MockMvcSpecification {
                 .andExpect(jsonPath('$.nextValue').value('TestDto(name=test123)'))
     }
 
-    def "Return 404 when queue endpoint is disabled"() {
+    def "Get queue, return 404 when queue endpoint is disabled"() {
         when:
-        def response = mockMvc.perform(get('/fint-events/test-queue'))
+        def response = mockMvc.perform(get('/fint-events/queues/test-queue'))
 
         then:
         1 * props.getQueueEndpointEnabled() >> 'false'

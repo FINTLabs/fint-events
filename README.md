@@ -150,9 +150,32 @@ Add the system property: `remoteServiceTestsEnabled=true`
 
 ## Fint Events endpoint
 
-Makes it possible to query the content of the queue.  
+Makes it possible to query the content of the queues.  
+
+**GET all queue names**
+
+`GET /fint-events/queues`
+
+Response:
+```json
+[
+  "mock.no.upstream",
+  "mock.no.downstream"
+]
+```
+
+**GET content of queue**
+
 This will use a `peek()` method on the actual queue, meaning it will not be removed.  
-The endpoint is available on `/fint-events/{queue}`.
+The endpoint is available on `/fint-events/queues/{queue}`.  
+
+The response contains size of the queue and the next value. The length of the shown next value in the queue will be max 200 characters.
+```json
+{
+  "size": "3",
+  "nextValue": "Event{corrId='43ab45e1-ed06-404d-a093-3f92cf37fc3d', ...}"
+}
+```
 
 ## Configuration
 

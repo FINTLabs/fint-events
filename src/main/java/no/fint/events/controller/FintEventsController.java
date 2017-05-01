@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.concurrent.BlockingQueue;
 
 @RestController
-@RequestMapping(value = "/fint-events", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+@RequestMapping(value = "/fint-events/queues", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 public class FintEventsController {
 
     @Autowired
@@ -23,15 +23,25 @@ public class FintEventsController {
     @Autowired
     private FintEvents fintEvents;
 
-    @GetMapping("/{queue}")
+    @GetMapping
+    public ResponseEntity getQueues() {
+        if (Boolean.valueOf(props.getQueueEndpointEnabled())) {
+            return ResponseEntity.ok(fintEvents.getQueues());
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @GetMapping("/{queue:.+}")
     public ResponseEntity getQueueContent(@PathVariable String queue) {
         if (Boolean.valueOf(props.getQueueEndpointEnabled())) {
             BlockingQueue<Object> q = fintEvents.getQueue(queue);
             int size = q.size();
             Object nextValue = q.peek();
+            String value = (nextValue == null) ? "" : nextValue.toString();
             return ResponseEntity.ok(ImmutableMap.of(
                     "size", String.valueOf(size),
-                    "nextValue", (nextValue == null) ? "" : nextValue.toString()
+                    "nextValue", value.substring(0, Math.min(value.length(), 200))
             ));
         } else {
             return ResponseEntity.notFound().build();

@@ -18,7 +18,9 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.lang.reflect.Method;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 
 public class FintEvents implements ApplicationContextAware {
@@ -33,6 +35,9 @@ public class FintEvents implements ApplicationContextAware {
 
     @Getter
     private Map<String, Long> listeners = new HashMap<>();
+
+    @Getter
+    private Set<String> queues = new HashSet<>();
 
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
@@ -66,6 +71,7 @@ public class FintEvents implements ApplicationContextAware {
     }
 
     public <V> BlockingQueue<V> getQueue(String queue) {
+        queues.add(queue);
         return client.getBlockingQueue(queue);
     }
 

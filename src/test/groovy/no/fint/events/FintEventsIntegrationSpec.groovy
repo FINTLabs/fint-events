@@ -79,7 +79,7 @@ class FintEventsIntegrationSpec extends Specification {
 
     def "Return empty response when no events are added to the queue"() {
         when:
-        def response = restTemplate.getForEntity("http://localhost:${port}/fint-events/test-queue", Map)
+        def response = restTemplate.getForEntity("http://localhost:${port}/fint-events/queues/test-queue", Map)
         def body = response.getBody()
 
         then:
@@ -95,7 +95,7 @@ class FintEventsIntegrationSpec extends Specification {
         fintEvents.getQueue('test-queue').offer(new TestDto(name: 'testing'))
 
         when:
-        def response = restTemplate.getForEntity("http://localhost:${port}/fint-events/test-queue", Map)
+        def response = restTemplate.getForEntity("http://localhost:${port}/fint-events/queues/test-queue", Map)
         def body = response.getBody()
 
         then:

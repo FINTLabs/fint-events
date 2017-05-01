@@ -50,6 +50,7 @@ class FintEventsSpec extends Specification {
         then:
         1 * client.getBlockingQueue('rogfk.no.downstream') >> Mock(RBlockingQueue)
         downstream != null
+        fintEvents.getQueues()[0] == 'rogfk.no.downstream'
     }
 
     def "Get upstream queue"() {
@@ -59,6 +60,7 @@ class FintEventsSpec extends Specification {
         then:
         1 * client.getBlockingQueue('rogfk.no.upstream') >> Mock(RBlockingQueue)
         upstream != null
+        fintEvents.getQueues()[0] == 'rogfk.no.upstream'
     }
 
     def "Send object to queue"() {
