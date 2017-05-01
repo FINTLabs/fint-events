@@ -44,7 +44,7 @@ class FintEventsControllerSpec extends MockMvcSpecification {
         response.andExpect(status().isNotFound())
     }
 
-    def "Get queue, return size and content of queue"() {
+    def "Get next value in  queue, return size and content of queue"() {
         when:
         def response = mockMvc.perform(get('/fint-events/queues/test-queue'))
 
@@ -56,15 +56,43 @@ class FintEventsControllerSpec extends MockMvcSpecification {
         }
         response.andExpect(status().isOk())
                 .andExpect(jsonPath('$.size').value(equalTo('1')))
-                .andExpect(jsonPath('$.nextValue').value('TestDto(name=test123)'))
+                .andExpect(jsonPath('$.value').value('TestDto(name=test123)'))
     }
 
-    def "Get queue, return 404 when queue endpoint is disabled"() {
+    def "Get next value in queue, return 404 when queue endpoint is disabled"() {
         when:
         def response = mockMvc.perform(get('/fint-events/queues/test-queue'))
 
         then:
         1 * props.getQueueEndpointEnabled() >> 'false'
         response.andExpect(status().isNotFound())
+    }
+
+    def "Get queue content, return content for index"() {
+        when:
+        def response = mockMvc.perform(get('/fint-events/queues/test-queue').param('index', '0'))
+
+        then:
+        1 * props.getQueueEndpointEnabled() >> 'true'
+        1 * fintEvents.getQueue('test-queue') >> Mock(BlockingQueue) {
+            size() >> 1
+            toArray() >> [new TestDto(name: 'test123')]
+        }
+        response.andExpect(status().isOk())
+                .andExpect(jsonPath('$.size').value('1'))
+                .andExpect(jsonPath('$.value').value('TestDto(name=test123)'))
+    }
+
+    def "Get queue content, return empty if index does not exist"() {
+        when:
+        def response = mockMvc.perform(get('/fint-events/queues/test-queue').param('index', '1'))
+
+        then:
+        1 * props.getQueueEndpointEnabled() >> 'true'
+        1 * fintEvents.getQueue('test-queue') >> Mock(BlockingQueue) {
+            size() >> 0
+            toArray() >> []
+        }
+        response.andExpect(status().isOk())
     }
 }
