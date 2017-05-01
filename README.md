@@ -73,7 +73,7 @@ fintEvents.registerDownstreamListener("orgId", MyListener)
 fintEvents.registerUpstreamListener("orgId", MyListener)
 ```
 
-Get registered listeners:
+Get registered listeners (Queue name + time registered):
 ```java
 Map<String, Long> listeners = fintEvents.getListeners();
 ```
