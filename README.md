@@ -192,9 +192,9 @@ Get the value in the queue on the specified index.
 
 Redisson configuration is added in a file `redisson.yml` on classpath (`src/main/resources`).  
 It also supports to separate config-files for the Spring profile used, for example `redisson-test.yml` when using the test profile.  
-* **[Redisson configuration](https://github.com/redisson/redisson/wiki/2.-Configuration)**
-
 If no config-file is found, the default values are used: `Single server, 127.0.0.1:6379`
+
+* **[Redisson configuration](https://github.com/redisson/redisson/wiki/2.-Configuration)**
 
 | Key | Description | Default value |
 |-----|-------------|---------------|
