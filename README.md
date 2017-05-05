@@ -190,10 +190,12 @@ Get the value in the queue on the specified index.
 
 ## Configuration
 
+Redisson configuration is added in a file `redisson.yml` on classpath.  
+It also supports to separate config-files for the Spring profile used, for example `redisson-test.yml` when using the test profile.  
+**[Redisson configuration.](https://github.com/redisson/redisson/wiki/2.-Configuration)**
+
 | Key | Description | Default value |
 |-----|-------------|---------------|
-| fint.events.redis-configuration | The [configuration](https://github.com/redisson/redisson/wiki/2.-Configuration) used when redisson is connecting to redis. For example clustered or single server. | single |
-| fint.events.redis-address | Redis server address, includes port. | localhost:6379 |
 | fint.events.default-downstream-queue | The format of the default downstream queue. | %s.downstream |
 | fint.events.default-upstream-queue | The format of the default upstream queue. | %s.upstream |
 | fint.events.test-mode | When test mode is enable, an embedded redis instance is initialized on startup | false |
