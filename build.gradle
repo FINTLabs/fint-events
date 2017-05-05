@@ -18,9 +18,6 @@ sourceCompatibility = 1.8
 repositories {
     mavenLocal()
     jcenter()
-    maven {
-        url 'http://dl.bintray.com/jarlehansen/maven'
-    }
 }
 
 apply from: 'https://raw.githubusercontent.com/FINTlibs/fint-buildscripts/v1.0.8/dependencies.gradle'
