@@ -5,7 +5,6 @@ import no.fint.events.remote.FintEventsRemote
 import no.fint.events.testmode.EmbeddedRedis
 import no.fint.events.testutils.*
 import org.redisson.Redisson
-import org.redisson.config.Config
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.context.embedded.LocalServerPort
 import org.springframework.boot.test.context.SpringBootTest
@@ -107,12 +106,8 @@ class FintEventsIntegrationSpec extends Specification {
     }
 
     def "Init and shutdown embedded redis"() {
-        given:
-        Config config = new Config()
-        config.useSingleServer().setAddress(props.getRedisAddress())
-
         when:
-        def client = Redisson.create(config)
+        def client = Redisson.create(props.getRedissonConfig())
         def number = client.getAtomicLong("test")
         number.set(123)
         def response = client.getAtomicLong("test").get()
@@ -124,7 +119,7 @@ class FintEventsIntegrationSpec extends Specification {
         response == 123L
     }
 
-    @Requires({ Boolean.valueOf(properties['remoteServiceTestsEnabled'])})
+    @Requires({ Boolean.valueOf(properties['remoteServiceTestsEnabled']) })
     def "Register server and client, and call the healthCheck method"() {
         given:
         def client = fintEventsHealth.registerClient()
@@ -137,7 +132,7 @@ class FintEventsIntegrationSpec extends Specification {
         response.name == 'health check'
     }
 
-    @Requires({ Boolean.valueOf(properties['remoteServiceTestsEnabled'])})
+    @Requires({ Boolean.valueOf(properties['remoteServiceTestsEnabled']) })
     def "Register server and client, and call the request method"() {
         given:
         def client = fintEventsRemote.registerClient()

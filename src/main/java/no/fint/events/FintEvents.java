@@ -4,7 +4,6 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import no.fint.events.annotations.FintEventListener;
 import no.fint.events.config.FintEventsProps;
-import no.fint.events.config.RedisConfiguration;
 import no.fint.events.listener.Listener;
 import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;
@@ -48,24 +47,13 @@ public class FintEvents implements ApplicationContextAware {
 
     @PostConstruct
     public void init() {
-        client = createRedissonClient();
+        Config config = props.getRedissonConfig();
+        client = Redisson.create(config);
     }
 
     @PreDestroy
     public void shutdown() {
         client.shutdown();
-    }
-
-    RedissonClient createRedissonClient() {
-        Config config = new Config();
-        String redisConfiguration = props.getRedisConfiguration();
-        if (RedisConfiguration.isSingle(redisConfiguration)) {
-            config.useSingleServer().setAddress(props.getRedisAddress());
-        } else {
-            throw new IllegalArgumentException(String.format("The redis-configuration %s is not supported", redisConfiguration));
-        }
-
-        return Redisson.create(config);
     }
 
     public RedissonClient getClient() {

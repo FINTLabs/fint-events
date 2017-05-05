@@ -24,25 +24,6 @@ class FintEventsSpec extends Specification {
         fintEvents = new FintEvents(client: client, props: props, taskScheduler: taskScheduler, applicationContext: applicationContext)
     }
 
-    def "Init RedissionClient with unsupported configuration"() {
-        given:
-        def props = new FintEventsProps(redisConfiguration: redisConfig)
-        def events = new FintEvents(props: props)
-
-        when:
-        events.init()
-
-        then:
-        thrown(IllegalArgumentException)
-
-        where:
-        redisConfig    | _
-        'master-slave' | _
-        'sentinel'     | _
-        'clustered'    | _
-        'replicated'   | _
-    }
-
     def "Get downstream queue"() {
         when:
         def downstream = fintEvents.getDownstream('rogfk.no')
