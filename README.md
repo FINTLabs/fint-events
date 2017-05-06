@@ -69,8 +69,8 @@ fintEvents.registerListener("queue-name", MyListener)
 
 Downstream/upstream queue:
 ```java
-fintEvents.registerDownstreamListener("orgId", MyListener)
-fintEvents.registerUpstreamListener("orgId", MyListener)
+fintEvents.registerDownstreamListener(MyListener, "orgId")
+fintEvents.registerUpstreamListener(MyListener, "orgId")
 ```
 
 Get registered listeners (Queue name + time registered):
