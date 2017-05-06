@@ -36,12 +36,17 @@ public class FintEventsProps {
 
     @PostConstruct
     public void init() throws IOException {
-        String[] profiles = environment.getActiveProfiles();
-        InputStream inputStream = getConfigInputStream(profiles);
-        if (inputStream == null) {
+        if (Boolean.valueOf(testMode)) {
+            log.info("Test-mode enabled, loading default redisson config");
             redissonConfig = loadDefaultConfig();
         } else {
-            redissonConfig = Config.fromYAML(inputStream);
+            String[] profiles = environment.getActiveProfiles();
+            InputStream inputStream = getConfigInputStream(profiles);
+            if (inputStream == null) {
+                redissonConfig = loadDefaultConfig();
+            } else {
+                redissonConfig = Config.fromYAML(inputStream);
+            }
         }
     }
 

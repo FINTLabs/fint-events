@@ -29,4 +29,15 @@ class FintEventsPropsSpec extends Specification {
         1 * environment.getActiveProfiles() >> ['test']
         props.getRedissonConfig() != null
     }
+
+    def "Load default redisson config when test-mode is enabled"() {
+        given:
+        props = new FintEventsProps(testMode: 'true')
+
+        when:
+        props.init()
+
+        then:
+        props.getRedissonConfig() != null
+    }
 }
