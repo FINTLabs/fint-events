@@ -21,11 +21,11 @@ public class Listener implements Runnable {
     @Override
     public void run() {
         try {
-            Object response = queue.poll();
+            Object response = queue.take();
             if (response != null) {
                 method.invoke(object, response);
             }
-        } catch (IllegalArgumentException | IllegalAccessException | InvocationTargetException e) {
+        } catch (InterruptedException | IllegalArgumentException | IllegalAccessException | InvocationTargetException e) {
             log.error("Unable to call listener, bean:{} method:{}. Exception: {}", object.getClass().getName(), method.getName(), e.getMessage());
         } catch (RedisException e) {
             if (e instanceof RedissonShutdownException || e.getCause() instanceof RedissonShutdownException) {
