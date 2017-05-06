@@ -9,6 +9,7 @@ import org.redisson.client.RedisException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.CompletionException;
 
 @Slf4j
 @Data
@@ -27,7 +28,7 @@ public class Listener implements Runnable {
             }
         } catch (InterruptedException | IllegalArgumentException | IllegalAccessException | InvocationTargetException e) {
             log.error("Unable to call listener, bean:{} method:{}. Exception: {}", object.getClass().getName(), method.getName(), e.getMessage());
-        } catch (RedisException e) {
+        } catch (RedisException | CompletionException e) {
             if (e instanceof RedissonShutdownException || e.getCause() instanceof RedissonShutdownException) {
                 log.debug("Listener task stopped because redisson is shutting down. {}", e.getMessage());
             } else {
