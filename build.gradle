@@ -19,7 +19,7 @@ repositories {
     mavenLocal()
     jcenter()
     maven {
-        url "http://dl.bintray.com/jarlehansen/maven"
+        url  "http://dl.bintray.com/fint/maven"
     }
 }
 
@@ -31,8 +31,8 @@ dependencies {
 
     compile("org.springframework.boot:spring-boot-starter-web:${springBootVersion}")
 
+    testCompile('no.fint:fint-test-utils:0.0.2')
     testCompile('cglib:cglib-nodep:3.2.5')
-    testCompile('com.github.spock.spring.utils:spock-spring-utils:0.0.2')
     testCompile("org.spockframework:spock-spring:${spockSpringVersion}")
     testCompile("org.springframework.boot:spring-boot-starter-test:${springBootVersion}")
 }

@@ -1,15 +1,12 @@
 package no.fint.events.controller
 
-import com.github.spock.spring.utils.MockMvcSpecification
 import no.fint.events.FintEvents
 import no.fint.events.config.FintEventsProps
 import no.fint.events.testutils.TestDto
+import no.fint.test.utils.MockMvcSpecification
 import org.springframework.test.web.servlet.MockMvc
 
 import java.util.concurrent.BlockingQueue
-
-import static org.hamcrest.CoreMatchers.equalTo
-import static org.hamcrest.Matchers.hasSize
 
 class FintEventsControllerSpec extends MockMvcSpecification {
     private FintEventsController controller
