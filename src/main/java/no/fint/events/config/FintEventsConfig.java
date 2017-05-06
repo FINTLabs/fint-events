@@ -5,16 +5,32 @@ import no.fint.events.FintEventsHealth;
 import no.fint.events.controller.FintEventsController;
 import no.fint.events.remote.FintEventsRemote;
 import no.fint.events.testmode.EmbeddedRedis;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
-import org.springframework.scheduling.TaskScheduler;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.SchedulingConfigurer;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
+import org.springframework.scheduling.config.ScheduledTaskRegistrar;
 
+@EnableScheduling
 @Configuration
 @ComponentScan(basePackageClasses = FintEventsController.class)
-public class FintEventsConfig {
+public class FintEventsConfig implements SchedulingConfigurer {
+
+    @Value("${fint.events.task-scheduler-thread-pool-size:50}")
+    private int taskSchedulerThreadPoolSize;
+
+    @Override
+    public void configureTasks(ScheduledTaskRegistrar registrar) {
+        ThreadPoolTaskScheduler taskScheduler = new ThreadPoolTaskScheduler();
+        taskScheduler.setPoolSize(taskSchedulerThreadPoolSize);
+        taskScheduler.initialize();
+        registrar.setTaskScheduler(taskScheduler);
+        fintEventsScheduling().setRegistrar(registrar);
+    }
 
     @Bean
     public FintEventsProps fintEventsProps() {
@@ -43,8 +59,8 @@ public class FintEventsConfig {
     }
 
     @Bean
-    public TaskScheduler taskScheduler() {
-        return new ThreadPoolTaskScheduler();
+    public FintEventsScheduling fintEventsScheduling() {
+        return new FintEventsScheduling();
     }
 
 }

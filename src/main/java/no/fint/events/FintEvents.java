@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import no.fint.events.annotations.FintEventListener;
 import no.fint.events.config.FintEventsProps;
+import no.fint.events.config.FintEventsScheduling;
 import no.fint.events.listener.Listener;
 import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;
@@ -12,7 +13,6 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.scheduling.TaskScheduler;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -29,10 +29,10 @@ public class FintEvents implements ApplicationContextAware {
     private ApplicationContext applicationContext;
 
     @Autowired
-    private FintEventsProps props;
+    private FintEventsScheduling scheduling;
 
     @Autowired
-    private TaskScheduler taskScheduler;
+    private FintEventsProps props;
 
     @Getter
     private Map<String, Long> listeners = new HashMap<>();
@@ -110,7 +110,7 @@ public class FintEvents implements ApplicationContextAware {
             FintEventListener annotation = method.getAnnotation(FintEventListener.class);
             if (annotation != null) {
                 Listener listenerInstance = new Listener(bean, method, getQueue(queue));
-                taskScheduler.scheduleWithFixedDelay(listenerInstance, 10);
+                scheduling.register(listenerInstance);
                 listeners.put(queue, System.currentTimeMillis());
             }
         }
