@@ -201,5 +201,5 @@ If test-model is enabled, the default config will always be used.
 |-----|-------------|---------------|
 | fint.events.default-downstream-queue | The format of the default downstream queue. | %s.downstream |
 | fint.events.default-upstream-queue | The format of the default upstream queue. | %s.upstream |
-| fint.events.test-mode | When test mode is enable, an embedded redis instance is initialized on startup | false |
+| fint.events.test-mode | When test mode is enable, an embedded redis instance is initialized on startup. It will also use the default redisson config `single server, 127.0.0.1:6379`. | false |
 | fint.events.queue-endpoint-enabled | Enable the rest endpoints `/fint-events/*` that make it possible to query the content of the queues. If the endpoint is disable a 404 response code is returned. | false |
