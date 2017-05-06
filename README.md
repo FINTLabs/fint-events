@@ -5,6 +5,16 @@
 
 Event library built on top of [redisson](https://redisson.org/).
 
+* [Installation](#installation)
+* [Usage](#usage)
+  * [Publish message on queue](#publish-message-on-queue)
+  * [Register listener](#register-listener)
+  * [Health check](#health-check)
+  * [Fint Events endpoints](#fint-events-endpoints)
+  * [Configuration](#configuration)
+
+---
+
 # Installation
 
 ```groovy
