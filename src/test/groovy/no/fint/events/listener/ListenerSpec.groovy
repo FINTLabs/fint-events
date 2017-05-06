@@ -45,7 +45,7 @@ class ListenerSpec extends Specification {
     def "Log debug message if listener receives exception because of redisson shutdown"() {
         given:
         def exceptionQueue = Mock(ArrayBlockingQueue) {
-            poll() >> { throw new RedissonShutdownException('test exception') }
+            take() >> { throw new RedissonShutdownException('test exception') }
         }
         def exceptionListener = new Listener(testListener, method, exceptionQueue)
 
@@ -59,7 +59,7 @@ class ListenerSpec extends Specification {
     def "Log debug message if listener receives RedisException"() {
         given:
         def exceptionQueue = Mock(ArrayBlockingQueue) {
-            poll() >> { throw new RedisException('test exception') }
+            take() >> { throw new RedisException('test exception') }
         }
         def exceptionListener = new Listener(testListener, method, exceptionQueue)
 
