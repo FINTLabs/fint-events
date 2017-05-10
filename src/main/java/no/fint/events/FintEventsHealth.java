@@ -1,6 +1,7 @@
 package no.fint.events;
 
 import lombok.extern.slf4j.Slf4j;
+import no.fint.events.config.FintEventsProps;
 import org.redisson.api.RRemoteService;
 import org.redisson.api.RemoteInvocationOptions;
 import org.springframework.beans.BeansException;
@@ -15,12 +16,16 @@ import java.util.concurrent.TimeUnit;
 public class FintEventsHealth implements ApplicationContextAware {
     @Autowired
     private FintEvents fintEvents;
+
+    @Autowired
+    private FintEventsProps props;
+
     private ApplicationContext applicationContext;
     private RemoteInvocationOptions options;
 
     @PostConstruct
     public void init() {
-        options = RemoteInvocationOptions.defaults().expectAckWithin(10, TimeUnit.SECONDS).expectResultWithin(5, TimeUnit.MINUTES);
+        options = RemoteInvocationOptions.defaults().expectAckWithin(10, TimeUnit.SECONDS).expectResultWithin(props.getHealthCheckTimeout(), TimeUnit.SECONDS);
     }
 
     @Override

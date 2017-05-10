@@ -1,5 +1,6 @@
 package no.fint.events
 
+import no.fint.events.config.FintEventsProps
 import no.fint.events.testutils.TestHealthCheck
 import org.redisson.api.RRemoteService
 import org.redisson.api.RedissonClient
@@ -11,6 +12,7 @@ class FintEventsHealthSpec extends Specification {
     private FintEventsHealth fintEventsHealth
     private RRemoteService remoteService
     private ApplicationContext applicationContext
+    private FintEventsProps props
 
     void setup() {
         remoteService = Mock(RRemoteService)
@@ -20,7 +22,8 @@ class FintEventsHealthSpec extends Specification {
             }
         }
         applicationContext = Mock(ApplicationContext)
-        fintEventsHealth = new FintEventsHealth(fintEvents: fintEvents, applicationContext: applicationContext)
+        props = Mock(FintEventsProps)
+        fintEventsHealth = new FintEventsHealth(fintEvents: fintEvents, applicationContext: applicationContext, props: props)
     }
 
     def "Register server"() {
@@ -42,6 +45,7 @@ class FintEventsHealthSpec extends Specification {
 
         then:
         1 * remoteService.get(HealthCheck, _ as RemoteInvocationOptions) >> Mock(HealthCheck)
+        1 * props.healthCheckTimeout >> 10
         client != null
     }
 }

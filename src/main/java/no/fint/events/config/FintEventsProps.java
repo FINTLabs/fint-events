@@ -32,6 +32,9 @@ public class FintEventsProps {
     @Value("${fint.events.queue-endpoint-enabled:false}")
     private String queueEndpointEnabled;
 
+    @Value("${fint.events.healthcheck.timeout-in-seconds:120}")
+    private int healthCheckTimeout;
+
     private Config redissonConfig;
 
     @PostConstruct
