@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.context.embedded.LocalServerPort
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.HttpStatus
-import org.springframework.test.context.ContextConfiguration
 import org.springframework.web.client.RestTemplate
 import spock.lang.Requires
 import spock.lang.Specification
@@ -17,7 +16,6 @@ import spock.util.concurrent.PollingConditions
 
 import java.util.concurrent.BlockingQueue
 
-@ContextConfiguration
 @SpringBootTest(classes = TestApplication, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class FintEventsIntegrationSpec extends Specification {
 

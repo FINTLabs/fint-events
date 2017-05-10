@@ -60,6 +60,10 @@ public class FintEvents implements ApplicationContextAware {
         return client;
     }
 
+    public <V> BlockingQueue<V> getTempQueue(String queue) {
+        return client.getBlockingQueue(queue);
+    }
+
     public <V> BlockingQueue<V> getQueue(String queue) {
         queues.add(queue);
         return client.getBlockingQueue(queue);

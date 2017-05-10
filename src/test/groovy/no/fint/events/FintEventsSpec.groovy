@@ -10,6 +10,8 @@ import org.redisson.api.RedissonClient
 import org.springframework.context.ApplicationContext
 import spock.lang.Specification
 
+import java.util.concurrent.BlockingQueue
+
 class FintEventsSpec extends Specification {
     private FintEvents fintEvents
     private RedissonClient client
@@ -22,6 +24,16 @@ class FintEventsSpec extends Specification {
         applicationContext = Mock(ApplicationContext)
         def props = new FintEventsProps(defaultDownstreamQueue: '%s.downstream', defaultUpstreamQueue: '%s.upstream')
         fintEvents = new FintEvents(client: client, props: props, scheduling: scheduling, applicationContext: applicationContext)
+    }
+
+    def "Temporary queue will not be stored in FintEvents component"() {
+        when:
+        def queue = fintEvents.getTempQueue('my-queue')
+
+        then:
+        1 * client.getBlockingQueue('my-queue') >> Mock(RBlockingQueue)
+        queue != null
+        fintEvents.getQueues().size() == 0
     }
 
     def "Get downstream queue"() {
