@@ -1,7 +1,6 @@
 package no.fint.events.listener;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.RedissonShutdownException;
 import org.redisson.client.RedisException;
@@ -12,7 +11,6 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CompletionException;
 
 @Slf4j
-@Data
 @AllArgsConstructor
 public class Listener implements Runnable {
     private Object object;
