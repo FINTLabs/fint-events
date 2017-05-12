@@ -1,7 +1,9 @@
 package no.fint.events.config;
 
+import com.google.common.collect.ImmutableMap;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.text.StrSubstitutor;
 import org.redisson.config.Config;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -11,6 +13,7 @@ import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Map;
 
 @Slf4j
 @Component
@@ -22,11 +25,17 @@ public class FintEventsProps {
     private Environment environment;
 
     @Getter
-    @Value("${fint.events.default-downstream-queue:%s.downstream}")
-    private String defaultDownstreamQueue;
+    @Value("${fint.events.env:local}")
+    private String env;
 
     @Getter
-    @Value("${fint.events.default-upstream-queue:%s.upstream}")
+    @Value("${fint.events.component:default}")
+    private String component;
+
+    @Value("${fint.events.default-downstream-queue:downstream_{env}_{component}_{orgId}}")
+    private String defaultDownstreamQueue;
+
+    @Value("${fint.events.default-upstream-queue:upstream_{env}_{component}_{orgId}}")
     private String defaultUpstreamQueue;
 
     @Getter
@@ -86,7 +95,6 @@ public class FintEventsProps {
         }
     }
 
-
     private Config loadDefaultRedissonConfig() {
         log.info("No redisson.yml file found, using default config");
         Config config = new Config();
@@ -94,4 +102,19 @@ public class FintEventsProps {
         return config;
     }
 
+    public String getDownstreamQueueName(String orgId) {
+        return StrSubstitutor.replace(defaultDownstreamQueue, createValueMap(orgId), "{", "}");
+    }
+
+    public String getUpstreamQueueName(String orgId) {
+        return StrSubstitutor.replace(defaultUpstreamQueue, createValueMap(orgId), "{", "}");
+    }
+
+    private Map<String, String> createValueMap(String orgId) {
+        return ImmutableMap.of(
+                "env", env,
+                "component", component,
+                "orgId", orgId
+        );
+    }
 }

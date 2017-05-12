@@ -6,7 +6,6 @@ import no.fint.events.remote.FintEventsRemote
 import no.fint.events.testmode.EmbeddedRedis
 import no.fint.events.testutils.*
 import org.redisson.Redisson
-import org.redisson.api.RedissonClient
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.context.embedded.LocalServerPort
 import org.springframework.boot.test.context.SpringBootTest
@@ -50,6 +49,16 @@ class FintEventsIntegrationSpec extends Specification {
 
     @Autowired
     private TestListener2 testListener2
+
+    def "Get default queue names"() {
+        when:
+        def downstream = props.getDownstreamQueueName('rogfk.no')
+        def upstream = props.getUpstreamQueueName('rogfk.no')
+
+        then:
+        downstream == 'downstream_local_default_rogfk.no'
+        upstream == 'upstream_local_default_rogfk.no'
+    }
 
     def "Get redisson client"() {
         when:

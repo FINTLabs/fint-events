@@ -40,4 +40,26 @@ class FintEventsPropsSpec extends Specification {
         then:
         props.getRedissonConfig() != null
     }
+
+    def "Get downstream queue name"() {
+        given:
+        props = new FintEventsProps(env: 'local', component: 'default', defaultDownstreamQueue: 'downstream_{env}_{component}_{orgId}')
+
+        when:
+        def queueName = props.getDownstreamQueueName('rogfk.no')
+
+        then:
+        queueName == 'downstream_local_default_rogfk.no'
+    }
+
+    def "Get upstream queue name"() {
+        given:
+        props = new FintEventsProps(env: 'local', component: 'default', defaultUpstreamQueue: 'upstream_{env}_{component}_{orgId}')
+
+        when:
+        def queueName = props.getUpstreamQueueName('rogfk.no')
+
+        then:
+        queueName == 'upstream_local_default_rogfk.no'
+    }
 }

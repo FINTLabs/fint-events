@@ -10,8 +10,6 @@ import org.redisson.api.RedissonClient
 import org.springframework.context.ApplicationContext
 import spock.lang.Specification
 
-import java.util.concurrent.BlockingQueue
-
 class FintEventsSpec extends Specification {
     private FintEvents fintEvents
     private RedissonClient client
@@ -22,7 +20,9 @@ class FintEventsSpec extends Specification {
         client = Mock(RedissonClient)
         scheduling = Mock(FintEventsScheduling)
         applicationContext = Mock(ApplicationContext)
-        def props = new FintEventsProps(defaultDownstreamQueue: '%s.downstream', defaultUpstreamQueue: '%s.upstream')
+        def props = new FintEventsProps(env: 'local', component: 'default',
+                defaultDownstreamQueue: 'downstream_{env}_{component}_{orgId}',
+                defaultUpstreamQueue: 'upstream_{env}_{component}_{orgId}')
         fintEvents = new FintEvents(client: client, props: props, scheduling: scheduling, applicationContext: applicationContext)
     }
 
@@ -41,9 +41,9 @@ class FintEventsSpec extends Specification {
         def downstream = fintEvents.getDownstream('rogfk.no')
 
         then:
-        1 * client.getBlockingQueue('rogfk.no.downstream') >> Mock(RBlockingQueue)
+        1 * client.getBlockingQueue(downstreamQueueName('rogfk.no')) >> Mock(RBlockingQueue)
         downstream != null
-        fintEvents.getQueues()[0] == 'rogfk.no.downstream'
+        fintEvents.getQueues()[0] == downstreamQueueName('rogfk.no')
     }
 
     def "Get upstream queue"() {
@@ -51,9 +51,9 @@ class FintEventsSpec extends Specification {
         def upstream = fintEvents.getUpstream('rogfk.no')
 
         then:
-        1 * client.getBlockingQueue('rogfk.no.upstream') >> Mock(RBlockingQueue)
+        1 * client.getBlockingQueue(upstreamQueueName('rogfk.no')) >> Mock(RBlockingQueue)
         upstream != null
-        fintEvents.getQueues()[0] == 'rogfk.no.upstream'
+        fintEvents.getQueues()[0] == upstreamQueueName('rogfk.no')
     }
 
     def "Send object to queue"() {
@@ -78,7 +78,7 @@ class FintEventsSpec extends Specification {
         fintEvents.sendDownstream('rogfk.no', testDto)
 
         then:
-        1 * client.getBlockingQueue('rogfk.no.downstream') >> queue
+        1 * client.getBlockingQueue(downstreamQueueName('rogfk.no')) >> queue
         1 * queue.offer(testDto)
     }
 
@@ -91,7 +91,7 @@ class FintEventsSpec extends Specification {
         fintEvents.sendUpstream('rogfk.no', testDto)
 
         then:
-        1 * client.getBlockingQueue('rogfk.no.upstream') >> queue
+        1 * client.getBlockingQueue(upstreamQueueName('rogfk.no')) >> queue
         1 * queue.offer(testDto)
     }
 
@@ -114,12 +114,12 @@ class FintEventsSpec extends Specification {
 
         then:
         2 * applicationContext.getBean(TestListener) >> new TestListener()
-        1 * client.getBlockingQueue('rogfk.no.downstream')
-        1 * client.getBlockingQueue('hfk.no.downstream')
+        1 * client.getBlockingQueue(downstreamQueueName('rogfk.no'))
+        1 * client.getBlockingQueue(downstreamQueueName('hfk.no'))
         2 * scheduling.register(_ as Listener)
         fintEvents.listeners.size() == 2
-        fintEvents.listeners.keySet().contains('hfk.no.downstream')
-        fintEvents.listeners.keySet().contains('rogfk.no.downstream')
+        fintEvents.listeners.keySet().contains(downstreamQueueName('rogfk.no') as String)
+        fintEvents.listeners.keySet().contains(downstreamQueueName('hfk.no') as String)
         fintEvents.listeners.values()[0] > 0L
         fintEvents.listeners.values()[1] > 0L
     }
@@ -130,12 +130,12 @@ class FintEventsSpec extends Specification {
 
         then:
         2 * applicationContext.getBean(TestListener) >> new TestListener()
-        1 * client.getBlockingQueue('rogfk.no.upstream')
-        1 * client.getBlockingQueue('hfk.no.upstream')
+        1 * client.getBlockingQueue(upstreamQueueName('rogfk.no'))
+        1 * client.getBlockingQueue(upstreamQueueName('hfk.no'))
         2 * scheduling.register(_ as Listener)
         fintEvents.listeners.size() == 2
-        fintEvents.listeners.keySet().contains('hfk.no.upstream')
-        fintEvents.listeners.keySet().contains('rogfk.no.upstream')
+        fintEvents.listeners.keySet().contains(upstreamQueueName('rogfk.no') as String)
+        fintEvents.listeners.keySet().contains(upstreamQueueName('hfk.no') as String)
         fintEvents.listeners.values()[0] > 0L
         fintEvents.listeners.values()[1] > 0L
     }
@@ -146,5 +146,13 @@ class FintEventsSpec extends Specification {
 
         then:
         1 * client.shutdown()
+    }
+
+    def downstreamQueueName(def orgId) {
+        return "downstream_local_default_${orgId}"
+    }
+
+    def upstreamQueueName(def orgId) {
+        return "upstream_local_default_${orgId}"
     }
 }

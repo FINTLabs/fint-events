@@ -74,13 +74,13 @@ public class FintEvents implements ApplicationContextAware {
     }
 
     public <V> BlockingQueue<V> getDownstream(String orgId) {
-        String downstream = props.getDefaultDownstreamQueue();
-        return getQueue(String.format(downstream, orgId));
+        String queueName = props.getDownstreamQueueName(orgId);
+        return getQueue(queueName);
     }
 
     public <V> BlockingQueue<V> getUpstream(String orgId) {
-        String upstream = props.getDefaultUpstreamQueue();
-        return getQueue(String.format(upstream, orgId));
+        String queueName = props.getUpstreamQueueName(orgId);
+        return getQueue(queueName);
     }
 
     public void send(String queue, Object value) {
@@ -96,18 +96,18 @@ public class FintEvents implements ApplicationContextAware {
     }
 
     public void registerDownstreamListener(Class<?> listener, String... orgIds) {
-        String downstream = props.getDefaultDownstreamQueue();
         for (String orgId : orgIds) {
             log.info("Registering downstream listener ({}) for {}", listener.getSimpleName(), orgId);
-            registerListener(String.format(downstream, orgId), listener);
+            String queueName = props.getDownstreamQueueName(orgId);
+            registerListener(queueName, listener);
         }
     }
 
     public void registerUpstreamListener(Class<?> listener, String... orgIds) {
-        String upstream = props.getDefaultUpstreamQueue();
         for (String orgId : orgIds) {
             log.info("Registering upstream listener ({}) for {}", listener.getSimpleName(), orgId);
-            registerListener(String.format(upstream, orgId), listener);
+            String queueName = props.getUpstreamQueueName(orgId);
+            registerListener(queueName, listener);
         }
     }
 

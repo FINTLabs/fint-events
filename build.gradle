@@ -28,6 +28,7 @@ apply from: 'https://raw.githubusercontent.com/FINTlibs/fint-buildscripts/v1.0.9
 dependencies {
     compile('org.redisson:redisson:3.4.2')
     compile('com.github.kstyrc:embedded-redis:0.6')
+    compile('org.apache.commons:commons-lang3:3.5')
     compile("org.projectlombok:lombok:${lombokVersion}")
 
     compile("org.springframework.boot:spring-boot-starter-web:${springBootVersion}")
