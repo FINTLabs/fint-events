@@ -6,8 +6,8 @@ import no.fint.events.controller.FintEventsController;
 import no.fint.events.remote.FintEventsRemote;
 import no.fint.events.testmode.EmbeddedRedis;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -17,7 +17,6 @@ import org.springframework.scheduling.config.ScheduledTaskRegistrar;
 
 @EnableScheduling
 @Configuration
-@ComponentScan(basePackageClasses = FintEventsController.class)
 public class FintEventsConfig implements SchedulingConfigurer {
 
     @Value("${fint.events.task-scheduler-thread-pool-size:50}")
@@ -61,6 +60,12 @@ public class FintEventsConfig implements SchedulingConfigurer {
     @Bean
     public FintEventsScheduling fintEventsScheduling() {
         return new FintEventsScheduling();
+    }
+
+    @Bean
+    @ConditionalOnProperty(value = FintEventsProps.QUEUE_ENDPOINT_ENABLED, havingValue = "true")
+    public FintEventsController fintEventsController() {
+        return new FintEventsController();
     }
 
 }

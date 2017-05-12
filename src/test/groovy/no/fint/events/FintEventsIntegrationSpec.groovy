@@ -1,6 +1,7 @@
 package no.fint.events
 
 import no.fint.events.config.FintEventsProps
+import no.fint.events.controller.FintEventsController
 import no.fint.events.remote.FintEventsRemote
 import no.fint.events.testmode.EmbeddedRedis
 import no.fint.events.testutils.*
@@ -21,6 +22,9 @@ class FintEventsIntegrationSpec extends Specification {
 
     @Autowired
     private FintEvents fintEvents
+
+    @Autowired
+    private FintEventsController fintEventsController
 
     @Autowired
     private FintEventsHealth fintEventsHealth
@@ -115,6 +119,14 @@ class FintEventsIntegrationSpec extends Specification {
         then:
         noExceptionThrown()
         response == 123L
+    }
+
+    def "Initialize FintEventsController when endpoint is enabled"() {
+        when:
+        def controllerEnabled = (fintEventsController != null)
+
+        then:
+        controllerEnabled
     }
 
     @Requires({ Boolean.valueOf(properties['remoteServiceTestsEnabled']) })

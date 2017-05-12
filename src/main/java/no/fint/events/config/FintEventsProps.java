@@ -17,6 +17,8 @@ import java.io.InputStream;
 @Component
 public class FintEventsProps {
 
+    public static final String QUEUE_ENDPOINT_ENABLED = "fint.events.queue-endpoint-enabled";
+
     @Autowired
     private Environment environment;
 
@@ -29,7 +31,7 @@ public class FintEventsProps {
     @Value("${fint.events.test-mode:false}")
     private String testMode;
 
-    @Value("${fint.events.queue-endpoint-enabled:false}")
+    @Value("${" + QUEUE_ENDPOINT_ENABLED + ":false}")
     private String queueEndpointEnabled;
 
     @Value("${fint.events.healthcheck.timeout-in-seconds:120}")
