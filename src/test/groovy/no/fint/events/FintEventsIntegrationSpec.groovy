@@ -6,6 +6,7 @@ import no.fint.events.remote.FintEventsRemote
 import no.fint.events.testmode.EmbeddedRedis
 import no.fint.events.testutils.*
 import org.redisson.Redisson
+import org.redisson.api.RedissonClient
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.context.embedded.LocalServerPort
 import org.springframework.boot.test.context.SpringBootTest
@@ -50,6 +51,14 @@ class FintEventsIntegrationSpec extends Specification {
     @Autowired
     private TestListener2 testListener2
 
+    def "Get redisson client"() {
+        when:
+        def client = fintEvents.getClient()
+
+        then:
+        client != null
+    }
+
     def "Get blocking queue"() {
         when:
         BlockingQueue<TestDto> queue = fintEvents.getQueue('test-queue')
@@ -61,7 +70,7 @@ class FintEventsIntegrationSpec extends Specification {
 
     def "Register listener and read message from queue"() {
         given:
-        def conditions = new PollingConditions(timeout: 1, initialDelay: 0.02, factor: 1.25)
+        def conditions = new PollingConditions(timeout: 5, initialDelay: 0.02, factor: 1.25)
         fintEvents.getQueue('test-listener-queue').offer(new TestDto(name: 'test123'))
         fintEvents.getQueue('test-listener-queue').offer(new TestDto(name: 'test234'))
 
