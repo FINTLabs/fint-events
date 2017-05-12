@@ -24,11 +24,9 @@ public class FintEventsProps {
     @Autowired
     private Environment environment;
 
-    @Getter
     @Value("${fint.events.env:local}")
     private String env;
 
-    @Getter
     @Value("${fint.events.component:default}")
     private String component;
 
@@ -54,6 +52,8 @@ public class FintEventsProps {
 
     @PostConstruct
     public void init() throws IOException {
+        log.info("Started with env:{}, component:{}", env, component);
+
         if (Boolean.valueOf(testMode)) {
             log.info("Test-mode enabled, loading default redisson config");
             redissonConfig = loadDefaultRedissonConfig();
