@@ -206,6 +206,8 @@ If no config-file is found the default values are used: `Single server, 127.0.0.
 If test-model is enabled, the default config will always be used.
 
 * **[Redisson configuration](https://github.com/redisson/redisson/wiki/2.-Configuration)**
+* [Single instance mode](https://github.com/redisson/redisson/wiki/2.-Configuration#26-single-instance-mode)
+* [Cluster mode](https://github.com/redisson/redisson/wiki/2.-Configuration#24-cluster-mode)
 
 | Key | Description | Default value |
 |-----|-------------|---------------|
