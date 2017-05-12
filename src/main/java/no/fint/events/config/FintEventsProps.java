@@ -16,7 +16,7 @@ import java.io.InputStream;
 @Component
 public class FintEventsProps {
 
-    static final String QUEUE_ENDPOINT_ENABLED = "fint.events.queue-endpoint-enabled";
+    public static final String QUEUE_ENDPOINT_ENABLED = "fint.events.queue-endpoint-enabled";
 
     @Autowired
     private Environment environment;
@@ -54,6 +54,8 @@ public class FintEventsProps {
 
         if (Boolean.valueOf(queueEndpointEnabled)) {
             log.info("Queue endpoint enabled, initializing FintEventsController");
+        } else {
+            log.info("Queue endpoint disabled, will not load FintEventsController");
         }
     }
 

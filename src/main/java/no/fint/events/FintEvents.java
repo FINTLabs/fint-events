@@ -13,6 +13,8 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.annotation.DependsOn;
+import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -24,6 +26,8 @@ import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 
 @Slf4j
+@DependsOn("embeddedRedis")
+@Component
 public class FintEvents implements ApplicationContextAware {
     private RedissonClient client;
     private ApplicationContext applicationContext;

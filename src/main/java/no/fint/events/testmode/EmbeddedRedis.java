@@ -3,6 +3,7 @@ package no.fint.events.testmode;
 import lombok.extern.slf4j.Slf4j;
 import no.fint.events.config.FintEventsProps;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import redis.embedded.RedisServer;
 
 import javax.annotation.PostConstruct;
@@ -10,6 +11,7 @@ import javax.annotation.PreDestroy;
 import java.io.IOException;
 
 @Slf4j
+@Component
 public class EmbeddedRedis {
     private RedisServer redisServer = null;
 

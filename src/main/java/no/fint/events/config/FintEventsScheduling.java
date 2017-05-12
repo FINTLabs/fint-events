@@ -3,10 +3,12 @@ package no.fint.events.config;
 import no.fint.events.listener.Listener;
 import org.springframework.scheduling.config.IntervalTask;
 import org.springframework.scheduling.config.ScheduledTaskRegistrar;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Component
 public class FintEventsScheduling {
     private ScheduledTaskRegistrar registrar;
 

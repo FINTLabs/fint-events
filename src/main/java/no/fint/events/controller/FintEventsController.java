@@ -2,7 +2,9 @@ package no.fint.events.controller;
 
 import com.google.common.collect.ImmutableMap;
 import no.fint.events.FintEvents;
+import no.fint.events.config.FintEventsProps;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -11,6 +13,7 @@ import java.util.Arrays;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 
+@ConditionalOnProperty(value = FintEventsProps.QUEUE_ENDPOINT_ENABLED, havingValue = "true")
 @RestController
 @RequestMapping(value = "/fint-events/queues", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 public class FintEventsController {
