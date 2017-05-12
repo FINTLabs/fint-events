@@ -77,25 +77,6 @@ class FintEventsIntegrationSpec extends Specification {
         queue.size() == 0
     }
 
-    def "Register listener and read message from queue"() {
-        given:
-        def conditions = new PollingConditions(timeout: 5, initialDelay: 0.02, factor: 1.25)
-        fintEvents.getQueue('test-listener-queue').offer(new TestDto(name: 'test123'))
-        fintEvents.getQueue('test-listener-queue').offer(new TestDto(name: 'test234'))
-
-        when:
-        fintEvents.registerListener('test-listener-queue', TestListener)
-        fintEvents.registerListener('test-listener-queue', TestListener2)
-
-        then:
-        conditions.eventually {
-            assert testListener.testDto != null
-            assert testListener.testDto.name == 'test123'
-            assert testListener2.testDto != null
-            assert testListener2.testDto.name == 'test234'
-        }
-    }
-
     def "Return empty response when no events are added to the queue"() {
         when:
         def response = restTemplate.getForEntity("http://localhost:${port}/fint-events/queues/test-queue", Map)
@@ -145,6 +126,26 @@ class FintEventsIntegrationSpec extends Specification {
 
         then:
         controllerEnabled
+    }
+
+    @Requires({ Boolean.valueOf(properties['remoteServiceTestsEnabled']) })
+    def "Register listener and read message from queue"() {
+        given:
+        def conditions = new PollingConditions(timeout: 5, initialDelay: 0.02, factor: 1.25)
+        fintEvents.getQueue('test-listener-queue').offer(new TestDto(name: 'test123'))
+        fintEvents.getQueue('test-listener-queue').offer(new TestDto(name: 'test234'))
+
+        when:
+        fintEvents.registerListener('test-listener-queue', TestListener)
+        fintEvents.registerListener('test-listener-queue', TestListener2)
+
+        then:
+        conditions.eventually {
+            assert testListener.testDto != null
+            assert testListener.testDto.name == 'test123'
+            assert testListener2.testDto != null
+            assert testListener2.testDto.name == 'test234'
+        }
     }
 
     @Requires({ Boolean.valueOf(properties['remoteServiceTestsEnabled']) })
