@@ -1,9 +1,7 @@
 package no.fint.events.config;
 
-import com.google.common.collect.ImmutableMap;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.text.StrSubstitutor;
 import org.redisson.config.Config;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,7 +11,6 @@ import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Map;
 
 @Slf4j
 @Component
@@ -24,15 +21,19 @@ public class FintEventsProps {
     @Autowired
     private Environment environment;
 
+    @Getter
     @Value("${fint.events.env:local}")
     private String env;
 
+    @Getter
     @Value("${fint.events.component:default}")
     private String component;
 
+    @Getter
     @Value("${fint.events.default-downstream-queue:downstream_{env}_{component}_{orgId}}")
     private String defaultDownstreamQueue;
 
+    @Getter
     @Value("${fint.events.default-upstream-queue:upstream_{env}_{component}_{orgId}}")
     private String defaultUpstreamQueue;
 
@@ -100,21 +101,5 @@ public class FintEventsProps {
         Config config = new Config();
         config.useSingleServer().setAddress("127.0.0.1:6379");
         return config;
-    }
-
-    public String getDownstreamQueueName(String orgId) {
-        return StrSubstitutor.replace(defaultDownstreamQueue, createValueMap(orgId), "{", "}");
-    }
-
-    public String getUpstreamQueueName(String orgId) {
-        return StrSubstitutor.replace(defaultUpstreamQueue, createValueMap(orgId), "{", "}");
-    }
-
-    private Map<String, String> createValueMap(String orgId) {
-        return ImmutableMap.of(
-                "env", env,
-                "component", component,
-                "orgId", orgId
-        );
     }
 }

@@ -6,6 +6,8 @@ import no.fint.events.annotations.FintEventListener;
 import no.fint.events.config.FintEventsProps;
 import no.fint.events.config.FintEventsScheduling;
 import no.fint.events.listener.Listener;
+import no.fint.events.queue.FintEventsQueue;
+import no.fint.events.queue.QueueName;
 import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;
 import org.redisson.config.Config;
@@ -29,6 +31,8 @@ import java.util.concurrent.BlockingQueue;
 @DependsOn("embeddedRedis")
 @Component
 public class FintEvents implements ApplicationContextAware {
+    public static final String REDISSON_QUEUES_KEY = "fintQueues";
+
     private RedissonClient client;
     private ApplicationContext applicationContext;
 
@@ -38,8 +42,14 @@ public class FintEvents implements ApplicationContextAware {
     @Autowired
     private FintEventsProps props;
 
+    @Autowired
+    private FintEventsQueue fintQueue;
+
     @Getter
     private Map<String, Long> listeners = new HashMap<>();
+
+    @Getter
+    private Set<String> componentQueues = new HashSet<>();
 
     @Getter
     private Set<String> queues = new HashSet<>();
@@ -53,6 +63,7 @@ public class FintEvents implements ApplicationContextAware {
     public void init() {
         Config config = props.getRedissonConfig();
         client = Redisson.create(config);
+        queues = client.getSet(REDISSON_QUEUES_KEY);
     }
 
     @PreDestroy
@@ -69,18 +80,27 @@ public class FintEvents implements ApplicationContextAware {
     }
 
     public <V> BlockingQueue<V> getQueue(String queue) {
+        componentQueues.add(queue);
         queues.add(queue);
         return client.getBlockingQueue(queue);
     }
 
     public <V> BlockingQueue<V> getDownstream(String orgId) {
-        String queueName = props.getDownstreamQueueName(orgId);
-        return getQueue(queueName);
+        return getDownstream(QueueName.with(orgId));
+    }
+
+    public <V> BlockingQueue<V> getDownstream(QueueName queueName) {
+        String downstreamQueueName = fintQueue.getDownstreamQueueName(queueName);
+        return getQueue(downstreamQueueName);
     }
 
     public <V> BlockingQueue<V> getUpstream(String orgId) {
-        String queueName = props.getUpstreamQueueName(orgId);
-        return getQueue(queueName);
+        return getUpstream(QueueName.with(orgId));
+    }
+
+    public <V> BlockingQueue<V> getUpstream(QueueName queueName) {
+        String upstreamQueueName = fintQueue.getUpstreamQueueName(queueName);
+        return getQueue(upstreamQueueName);
     }
 
     public void send(String queue, Object value) {
@@ -88,27 +108,51 @@ public class FintEvents implements ApplicationContextAware {
     }
 
     public void sendDownstream(String orgId, Object value) {
-        getDownstream(orgId).offer(value);
+        sendDownstream(QueueName.with(orgId), value);
+    }
+
+    public void sendDownstream(QueueName queueName, Object value) {
+        getDownstream(queueName).offer(value);
     }
 
     public void sendUpstream(String orgId, Object value) {
-        getUpstream(orgId).offer(value);
+        sendUpstream(QueueName.with(orgId), value);
+    }
+
+    public void sendUpstream(QueueName queueName, Object value) {
+        getUpstream(queueName).offer(value);
     }
 
     public void registerDownstreamListener(Class<?> listener, String... orgIds) {
-        for (String orgId : orgIds) {
-            log.info("Registering downstream listener ({}) for {}", listener.getSimpleName(), orgId);
-            String queueName = props.getDownstreamQueueName(orgId);
-            registerListener(queueName, listener);
+        registerDownstreamListener(listener, toQueueNameArray(orgIds));
+    }
+
+    public void registerDownstreamListener(Class<?> listener, QueueName... queueNames) {
+        for (QueueName queueName : queueNames) {
+            log.info("Registering downstream listener ({}) for {}", listener.getSimpleName(), queueName.getOrgId());
+            String downstreamQueueName = fintQueue.getDownstreamQueueName(queueName);
+            registerListener(downstreamQueueName, listener);
         }
     }
 
     public void registerUpstreamListener(Class<?> listener, String... orgIds) {
-        for (String orgId : orgIds) {
-            log.info("Registering upstream listener ({}) for {}", listener.getSimpleName(), orgId);
-            String queueName = props.getUpstreamQueueName(orgId);
-            registerListener(queueName, listener);
+        registerUpstreamListener(listener, toQueueNameArray(orgIds));
+    }
+
+    public void registerUpstreamListener(Class<?> listener, QueueName... queueNames) {
+        for (QueueName queueName : queueNames) {
+            log.info("Registering upstream listener ({}) for {}", listener.getSimpleName(), queueName.getOrgId());
+            String upstreamQueueName = fintQueue.getUpstreamQueueName(queueName);
+            registerListener(upstreamQueueName, listener);
         }
+    }
+
+    private QueueName[] toQueueNameArray(String... orgIds) {
+        QueueName[] queueNames = new QueueName[orgIds.length];
+        for (int i = 0; i < orgIds.length; i++) {
+            queueNames[i] = QueueName.with(orgIds[i]);
+        }
+        return queueNames;
     }
 
     public void registerListener(String queue, Class<?> listener) {

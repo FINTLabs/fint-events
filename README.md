@@ -79,14 +79,35 @@ fintEvents.registerListener("queue-name", MyListener)
 
 Downstream/upstream queue:
 ```java
-fintEvents.registerDownstreamListener(MyListener, "orgId")
-fintEvents.registerUpstreamListener(MyListener, "orgId")
+fintEvents.registerDownstreamListener(MyListener.class, "orgId")
+fintEvents.registerUpstreamListener(MyListener.class, "orgId")
 ```
 
 Get registered listeners (Queue name + time registered):
 ```java
 Map<String, Long> listeners = fintEvents.getListeners();
 ```
+
+## Queue name configuration
+
+If you need more control to customize the queue name than with the properties (`fint.events.env`/ `fint.events.component`),
+it is possible to use the `QueueName` object.  
+
+```java
+QueueName.with(orgId);
+QueueName.with(component, orgId);
+QueueName.with(env, component, orgId);    
+```
+
+The object can be sent into methods that uses a queue, for example:  
+```java
+fintEvents.getDownstream(queueName);
+fintEvents.sendUpstream(queueName, value);
+fintEvents.registerUpstreamListener(MyListener.class, queueName)
+```
+If the value is set in the QueueName object, it will be used instead of the configured properties.  
+If a value is null in QueueName the configured values are used.
+
 
 ## Health check
 
@@ -172,12 +193,20 @@ If use with [springfox-loader](https://github.com/jarlehansen/springfox-loader),
 
 `GET /fint-events/queues`
 
+* *componentQueues*, the queues registered for the specific instance of the application
+* *queues*, all queues created with fint-events that are sharing the same instances of redis
+
 Response:
 ```json
-[
-  "mock.no.upstream",
-  "mock.no.downstream"
-]
+{
+  "componentQueues": [
+    "mock.no.upstream",
+    "mock.no.downstream"
+  ],
+  "queues": [
+    "mock.no.upstream",
+    "mock.no.downstream"]
+}
 ```
 
 **GET content of queue**

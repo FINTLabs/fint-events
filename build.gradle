@@ -43,6 +43,12 @@ task wrapper(type: Wrapper) {
     gradleVersion = gradleVersion
 }
 
+test {
+    testLogging {
+        events 'passed', 'skipped', 'failed'
+    }
+}
+
 jacocoTestReport {
     reports {
         xml.enabled true

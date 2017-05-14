@@ -2,6 +2,8 @@ package no.fint.events
 
 import no.fint.events.config.FintEventsProps
 import no.fint.events.controller.FintEventsController
+import no.fint.events.queue.FintEventsQueue
+import no.fint.events.queue.QueueName
 import no.fint.events.remote.FintEventsRemote
 import no.fint.events.testmode.EmbeddedRedis
 import no.fint.events.testutils.*
@@ -39,6 +41,9 @@ class FintEventsIntegrationSpec extends Specification {
     private FintEventsProps props
 
     @Autowired
+    private FintEventsQueue fintEventsQueue
+
+    @Autowired
     private RestTemplate restTemplate
 
     @LocalServerPort
@@ -52,8 +57,8 @@ class FintEventsIntegrationSpec extends Specification {
 
     def "Get default queue names"() {
         when:
-        def downstream = props.getDownstreamQueueName('rogfk.no')
-        def upstream = props.getUpstreamQueueName('rogfk.no')
+        def downstream = fintEventsQueue.getDownstreamQueueName(QueueName.with('rogfk.no'))
+        def upstream = fintEventsQueue.getUpstreamQueueName(QueueName.with('rogfk.no'))
 
         then:
         downstream == 'downstream_local_default_rogfk.no'

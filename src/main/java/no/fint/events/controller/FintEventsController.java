@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 
@@ -22,8 +23,11 @@ public class FintEventsController {
     private FintEvents fintEvents;
 
     @GetMapping
-    public Set<String> getQueues() {
-        return fintEvents.getQueues();
+    public Map<String, Set<String>> getQueues() {
+        return ImmutableMap.of(
+                "componentQueues", fintEvents.getComponentQueues(),
+                "queues", fintEvents.getQueues()
+        );
     }
 
     @GetMapping("/{queue:.+}")

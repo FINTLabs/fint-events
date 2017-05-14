@@ -3,6 +3,7 @@ package no.fint.events
 import no.fint.events.config.FintEventsProps
 import no.fint.events.config.FintEventsScheduling
 import no.fint.events.listener.Listener
+import no.fint.events.queue.FintEventsQueue
 import no.fint.events.testutils.TestDto
 import no.fint.events.testutils.TestListener
 import org.redisson.api.RBlockingQueue
@@ -14,6 +15,7 @@ class FintEventsSpec extends Specification {
     private FintEvents fintEvents
     private RedissonClient client
     private FintEventsScheduling scheduling
+    private FintEventsQueue fintQueue
     private ApplicationContext applicationContext
 
     void setup() {
@@ -23,7 +25,14 @@ class FintEventsSpec extends Specification {
         def props = new FintEventsProps(env: 'local', component: 'default',
                 defaultDownstreamQueue: 'downstream_{env}_{component}_{orgId}',
                 defaultUpstreamQueue: 'upstream_{env}_{component}_{orgId}')
-        fintEvents = new FintEvents(client: client, props: props, scheduling: scheduling, applicationContext: applicationContext)
+        fintQueue = new FintEventsQueue(props: props)
+        fintEvents = new FintEvents(
+                client: client,
+                props: props,
+                scheduling: scheduling,
+                fintQueue: fintQueue,
+                applicationContext: applicationContext
+        )
     }
 
     def "Temporary queue will not be stored in FintEvents component"() {
