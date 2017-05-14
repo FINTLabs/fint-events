@@ -9,6 +9,7 @@ Event library built on top of [redisson](https://redisson.org/).
 * [Usage](#usage)
   * [Publish message on queue](#publish-message-on-queue)
   * [Register listener](#register-listener)
+  * [Queue name configuration](#queue-name-configuration)
   * [Health check](#health-check)
   * [Fint Events endpoints](#fint-events-endpoints)
   * [Configuration](#configuration)
@@ -90,7 +91,7 @@ Map<String, Long> listeners = fintEvents.getListeners();
 
 ## Queue name configuration
 
-If you need more control to customize the queue name than with the properties (`fint.events.env`/ `fint.events.component`),
+If you need more control to customize the queue name than with the properties (`fint.events.env`/ `fint.events.component`)
 it is possible to use the `QueueName` object.  
 
 ```java
@@ -99,11 +100,12 @@ QueueName.with(component, orgId);
 QueueName.with(env, component, orgId);    
 ```
 
-The object can be sent into methods that uses a queue, for example:  
+The object can be sent into methods that uses a queue, for example:
+  
 ```java
 fintEvents.getDownstream(queueName);
 fintEvents.sendUpstream(queueName, value);
-fintEvents.registerUpstreamListener(MyListener.class, queueName)
+fintEvents.registerUpstreamListener(MyListener.class, queueName);
 ```
 If the value is set in the QueueName object, it will be used instead of the configured properties.  
 If a value is null in QueueName the configured values are used.

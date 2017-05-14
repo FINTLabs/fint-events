@@ -1,9 +1,9 @@
 package no.fint.events.queue;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 
-@Data
+@Getter
 @AllArgsConstructor
 public class QueueName {
     private String env;
