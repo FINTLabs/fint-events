@@ -23,8 +23,8 @@ class FintEventsSpec extends Specification {
         scheduling = Mock(FintEventsScheduling)
         applicationContext = Mock(ApplicationContext)
         def props = new FintEventsProps(env: 'local', component: 'default',
-                defaultDownstreamQueue: 'downstream_{env}_{component}_{orgId}',
-                defaultUpstreamQueue: 'upstream_{env}_{component}_{orgId}')
+                defaultDownstreamQueue: 'downstream_{component}_{env}_{orgId}',
+                defaultUpstreamQueue: 'upstream_{component}_{env}_{orgId}')
         fintQueue = new FintEventsQueue(props: props)
         fintEvents = new FintEvents(
                 client: client,
@@ -158,10 +158,10 @@ class FintEventsSpec extends Specification {
     }
 
     def downstreamQueueName(def orgId) {
-        return "downstream_local_default_${orgId}"
+        return "downstream_default_local_${orgId}"
     }
 
     def upstreamQueueName(def orgId) {
-        return "upstream_local_default_${orgId}"
+        return "upstream_default_local_${orgId}"
     }
 }

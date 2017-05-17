@@ -61,8 +61,8 @@ class FintEventsIntegrationSpec extends Specification {
         def upstream = fintEventsQueue.getUpstreamQueueName(QueueName.with('rogfk.no'))
 
         then:
-        downstream == 'downstream_local_default_rogfk.no'
-        upstream == 'upstream_local_default_rogfk.no'
+        downstream == 'downstream_default_local_rogfk.no'
+        upstream == 'upstream_default_local_rogfk.no'
     }
 
     def "Get redisson client"() {

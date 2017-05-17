@@ -30,11 +30,11 @@ public class FintEventsProps {
     private String component;
 
     @Getter
-    @Value("${fint.events.default-downstream-queue:downstream_{env}_{component}_{orgId}}")
+    @Value("${fint.events.default-downstream-queue:downstream_{component}_{env}_{orgId}}")
     private String defaultDownstreamQueue;
 
     @Getter
-    @Value("${fint.events.default-upstream-queue:upstream_{env}_{component}_{orgId}}")
+    @Value("${fint.events.default-upstream-queue:upstream_{component}_{env}_{orgId}}")
     private String defaultUpstreamQueue;
 
     @Getter

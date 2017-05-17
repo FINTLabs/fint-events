@@ -9,6 +9,7 @@ import no.fint.events.listener.Listener;
 import no.fint.events.queue.FintEventsQueue;
 import no.fint.events.queue.QueueName;
 import org.redisson.Redisson;
+import org.redisson.api.RBlockingQueue;
 import org.redisson.api.RedissonClient;
 import org.redisson.config.Config;
 import org.springframework.beans.BeansException;
@@ -75,7 +76,7 @@ public class FintEvents implements ApplicationContextAware {
         return client;
     }
 
-    public <V> BlockingQueue<V> getTempQueue(String queue) {
+    public <V> RBlockingQueue<V> getTempQueue(String queue) {
         return client.getBlockingQueue(queue);
     }
 

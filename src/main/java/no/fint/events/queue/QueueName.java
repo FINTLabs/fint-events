@@ -18,7 +18,7 @@ public class QueueName {
         return new QueueName(null, component, orgId);
     }
 
-    public static QueueName with(String env, String component, String orgId) {
-        return new QueueName(env, component, orgId);
+    public static QueueName with(String component, String env, String orgId) {
+        return new QueueName(component, env, orgId);
     }
 }

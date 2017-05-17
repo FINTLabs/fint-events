@@ -17,8 +17,8 @@ class FintEventsQueueSpec extends Specification {
         def queueName = fintEventQueue.getDownstreamQueueName(QueueName.with('local', 'default', 'rogfk.no'))
 
         then:
-        1 * props.getDefaultDownstreamQueue() >> 'downstream_{env}_{component}_{orgId}'
-        queueName == 'downstream_local_default_rogfk.no'
+        1 * props.getDefaultDownstreamQueue() >> 'downstream_{component}_{env}_{orgId}'
+        queueName == 'downstream_default_local_rogfk.no'
     }
 
     def "Get upstream queue name"() {
@@ -26,7 +26,7 @@ class FintEventsQueueSpec extends Specification {
         def queueName = fintEventQueue.getUpstreamQueueName(QueueName.with('local', 'default', 'rogfk.no'))
 
         then:
-        1 * props.getDefaultUpstreamQueue() >> 'upstream_{env}_{component}_{orgId}'
-        queueName == 'upstream_local_default_rogfk.no'
+        1 * props.getDefaultUpstreamQueue() >> 'upstream_{component}_{env}_{orgId}'
+        queueName == 'upstream_default_local_rogfk.no'
     }
 }

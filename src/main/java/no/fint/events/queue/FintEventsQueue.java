@@ -16,19 +16,19 @@ public class FintEventsQueue {
     private FintEventsProps props;
 
     public String getDownstreamQueueName(QueueName queueName) {
-        Map<String, String> valueMap = createValueMap(queueName.getEnv(), queueName.getComponent(), queueName.getOrgId());
+        Map<String, String> valueMap = createValueMap(queueName.getComponent(), queueName.getEnv(), queueName.getOrgId());
         return StrSubstitutor.replace(props.getDefaultDownstreamQueue(), valueMap, "{", "}");
     }
 
     public String getUpstreamQueueName(QueueName queueName) {
-        Map<String, String> valueMap = createValueMap(queueName.getEnv(), queueName.getComponent(), queueName.getOrgId());
+        Map<String, String> valueMap = createValueMap(queueName.getComponent(), queueName.getEnv(), queueName.getOrgId());
         return StrSubstitutor.replace(props.getDefaultUpstreamQueue(), valueMap, "{", "}");
     }
 
-    private Map<String, String> createValueMap(String env, String component, String orgId) {
+    private Map<String, String> createValueMap(String component, String env, String orgId) {
         return ImmutableMap.of(
-                "env", (StringUtils.isEmpty(env)) ? props.getEnv() : env,
                 "component", (StringUtils.isEmpty(component)) ? props.getComponent() : component,
+                "env", (StringUtils.isEmpty(env)) ? props.getEnv() : env,
                 "orgId", orgId
         );
     }
