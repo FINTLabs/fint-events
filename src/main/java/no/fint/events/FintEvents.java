@@ -73,6 +73,12 @@ public class FintEvents implements ApplicationContextAware {
         client.shutdown();
     }
 
+    public void reconnect() {
+        removeAllListeners();
+        shutdown();
+        init();
+    }
+
     public RedissonClient getClient() {
         return client;
     }
@@ -168,5 +174,10 @@ public class FintEvents implements ApplicationContextAware {
                 listeners.put(queue, System.currentTimeMillis());
             }
         }
+    }
+
+    public void removeAllListeners() {
+        listeners.clear();
+        scheduling.removeAllListeners();
     }
 }

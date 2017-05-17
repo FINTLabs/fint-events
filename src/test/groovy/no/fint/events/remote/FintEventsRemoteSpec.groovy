@@ -45,4 +45,27 @@ class FintEventsRemoteSpec extends Specification {
         1 * remoteService.get(RemoteEvent, _ as RemoteInvocationOptions) >> Mock(RemoteEvent)
         client != null
     }
+
+    def "Deregister client"() {
+        given:
+        fintEventsRemote.init()
+        fintEventsRemote.registerClient()
+
+        when:
+        fintEventsRemote.deregisterClient()
+
+        then:
+        1 * remoteService.deregister(RemoteEvent)
+    }
+
+    def "Deregister should not be called when no client is registered"() {
+        given:
+        fintEventsRemote.init()
+
+        when:
+        fintEventsRemote.deregisterClient()
+
+        then:
+        0 * remoteService.deregister(RemoteEvent)
+    }
 }

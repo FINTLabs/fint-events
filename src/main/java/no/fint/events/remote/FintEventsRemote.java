@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @Slf4j
 @Component
@@ -20,6 +21,8 @@ public class FintEventsRemote implements ApplicationContextAware {
     private FintEvents fintEvents;
     private ApplicationContext applicationContext;
     private RemoteInvocationOptions options;
+
+    private AtomicBoolean clientRegistered = new AtomicBoolean(false);
 
     @PostConstruct
     public void init() {
@@ -39,8 +42,17 @@ public class FintEventsRemote implements ApplicationContextAware {
 
     @SuppressWarnings("unchecked")
     public <V> RemoteEvent<V> registerClient() {
+        clientRegistered.set(true);
         RRemoteService remoteService = fintEvents.getClient().getRemoteService();
         return remoteService.get(RemoteEvent.class, options);
+    }
+
+    public void deregisterClient() {
+        if (clientRegistered.get()) {
+            log.info("Removing registered RemoteEvent clients");
+            fintEvents.getClient().getRemoteService().deregister(RemoteEvent.class);
+            clientRegistered.set(false);
+        }
     }
 
 }

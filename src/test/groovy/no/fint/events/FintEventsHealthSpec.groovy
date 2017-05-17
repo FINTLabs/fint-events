@@ -48,4 +48,27 @@ class FintEventsHealthSpec extends Specification {
         1 * props.healthCheckTimeout >> 10
         client != null
     }
+
+    def "Deregister client"() {
+        given:
+        fintEventsHealth.init()
+        fintEventsHealth.registerClient()
+
+        when:
+        fintEventsHealth.deregisterClient()
+
+        then:
+        1 * remoteService.deregister(HealthCheck)
+    }
+
+    def "Deregister should not be called when no client is registered"() {
+        given:
+        fintEventsHealth.init()
+
+        when:
+        fintEventsHealth.deregisterClient()
+
+        then:
+        0 * remoteService.deregister(HealthCheck)
+    }
 }

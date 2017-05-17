@@ -73,6 +73,15 @@ class FintEventsIntegrationSpec extends Specification {
         client != null
     }
 
+    def "Reconnect to redisson"() {
+        when:
+        fintEvents.reconnect()
+        def client = fintEvents.getClient()
+
+        then:
+        client != null
+    }
+
     def "Get blocking queue"() {
         when:
         BlockingQueue<TestDto> queue = fintEvents.getQueue('test-queue')
