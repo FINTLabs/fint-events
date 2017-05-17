@@ -10,7 +10,7 @@ Event library built on top of [redisson](https://redisson.org/).
   * [Publish message on queue](#publish-message-on-queue)
   * [Register listener](#register-listener)
   * [Queue name configuration](#queue-name-configuration)
-  * [Temporary queues](#tempourary-queues)
+  * [Temporary queues](#temporary-queues)
   * [Health check](#health-check)
   * [Fint Events endpoints](#fint-events-endpoints)
   * [Configuration](#configuration)
