@@ -40,7 +40,7 @@ class FintEventsSpec extends Specification {
         def queue = fintEvents.getTempQueue('my-queue')
 
         then:
-        1 * client.getBlockingQueue('my-queue') >> Mock(RBlockingQueue)
+        1 * client.getBlockingQueue('temp-my-queue') >> Mock(RBlockingQueue)
         queue != null
         fintEvents.getQueues().size() == 0
     }

@@ -10,6 +10,7 @@ Event library built on top of [redisson](https://redisson.org/).
   * [Publish message on queue](#publish-message-on-queue)
   * [Register listener](#register-listener)
   * [Queue name configuration](#queue-name-configuration)
+  * [Temporary queues](#tempourary-queues)
   * [Health check](#health-check)
   * [Fint Events endpoints](#fint-events-endpoints)
   * [Configuration](#configuration)
@@ -75,13 +76,13 @@ public class TestListener {
 
 Custom queue name:
 ```java
-fintEvents.registerListener("queue-name", MyListener)
+fintEvents.registerListener("queue-name", MyListener);
 ```
 
 Downstream/upstream queue:
 ```java
-fintEvents.registerDownstreamListener(MyListener.class, "orgId")
-fintEvents.registerUpstreamListener(MyListener.class, "orgId")
+fintEvents.registerDownstreamListener(MyListener.class, "orgId");
+fintEvents.registerUpstreamListener(MyListener.class, "orgId");
 ```
 
 Get registered listeners (Queue name + time registered):
@@ -109,6 +110,17 @@ fintEvents.registerUpstreamListener(MyListener.class, queueName);
 ```
 If the value is set in the QueueName object, it will be used instead of the configured properties.  
 If a value is null in QueueName the configured values are used.
+
+## Temporary queues
+
+A temporary queue is a short-lived queue that will not be registered in the queue names list.  
+It will also have a standard prefix (`temp-`) making it easy to find all temporary queues in redis.  
+
+```java
+fintEvents.getTempQueue("my-queue");
+```
+
+In this example the queue name in redis will be `temp-my-queue`.
 
 
 ## Health check

@@ -32,6 +32,7 @@ import java.util.concurrent.BlockingQueue;
 @DependsOn("embeddedRedis")
 @Component
 public class FintEvents implements ApplicationContextAware {
+    private static final String REDISSON_TEMP_QUEUE_PREFIX = "temp-";
     public static final String REDISSON_QUEUES_KEY = "fintQueues";
 
     private RedissonClient client;
@@ -77,7 +78,7 @@ public class FintEvents implements ApplicationContextAware {
     }
 
     public <V> RBlockingQueue<V> getTempQueue(String queue) {
-        return client.getBlockingQueue(queue);
+        return client.getBlockingQueue(REDISSON_TEMP_QUEUE_PREFIX + queue);
     }
 
     public <V> BlockingQueue<V> getQueue(String queue) {
