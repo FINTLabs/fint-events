@@ -23,7 +23,11 @@ public class EmbeddedRedis {
         if (Boolean.valueOf(props.getTestMode()) && redisServer == null) {
             log.info("Test mode enabled, starting embedded redis");
             redisServer = new RedisServer(6379);
-            redisServer.start();
+            try {
+                redisServer.start();
+            } catch (RuntimeException e) {
+                throw new RuntimeException("Could not start embedded redis, is there already an instance running on prt 6379? " + e.getMessage());
+            }
         }
     }
 
