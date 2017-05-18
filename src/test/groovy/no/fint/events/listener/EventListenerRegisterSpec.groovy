@@ -2,10 +2,7 @@ package no.fint.events.listener
 
 import no.fint.events.FintEvents
 import no.fint.events.config.FintEventsProps
-import no.fint.events.testutils.InvalidTestListener
-import no.fint.events.testutils.TestDto
-import no.fint.events.testutils.TestListener
-import no.fint.events.testutils.TestListener2
+import no.fint.events.testutils.*
 import org.springframework.context.ApplicationContext
 import org.springframework.util.ReflectionUtils
 import spock.lang.Specification
@@ -103,5 +100,17 @@ class EventListenerRegisterSpec extends Specification {
 
         then:
         0 * fintEvents.registerUpstreamListener(InvalidTestListener, 'mock.no')
+    }
+
+    def "Do not register listener when no queue type is configured"() {
+        given:
+        def method = ReflectionUtils.findMethod(TestListener3, 'receive', TestDto)
+        def metadata = new EventListenerMetadata(TestListener3, method)
+
+        when:
+        eventListenerRegister.registerListener(metadata)
+
+        then:
+        0 * fintEvents.registerUpstreamListener(TestListener3, 'mock.no')
     }
 }

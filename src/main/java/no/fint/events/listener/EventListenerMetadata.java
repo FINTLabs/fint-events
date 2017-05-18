@@ -1,11 +1,11 @@
 package no.fint.events.listener;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 
 import java.lang.reflect.Method;
 
-@Data
+@Getter
 @AllArgsConstructor
 class EventListenerMetadata {
     private Class clazz;
