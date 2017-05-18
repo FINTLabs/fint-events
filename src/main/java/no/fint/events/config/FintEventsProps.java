@@ -22,6 +22,10 @@ public class FintEventsProps {
     private Environment environment;
 
     @Getter
+    @Value("${fint.events.orgIds:}")
+    private String[] orgIds;
+
+    @Getter
     @Value("${fint.events.env:local}")
     private String env;
 

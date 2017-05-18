@@ -1,4 +1,5 @@
 fint:
  events:
+  orgIds: mock1.no, mock2.no
   test-mode: true
   queue-endpoint-enabled: true
