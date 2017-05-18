@@ -253,6 +253,7 @@ When there is a need to reconnect the redisson client (when the default reconnec
 ```java
 fintEvents.reconnect();
 ```
+This will shutdown the redisson client and recreate it.  
 
 In these cases it is also important to remember to deregister and register listeners:
 ```java
