@@ -13,6 +13,7 @@ Event library built on top of [redisson](https://redisson.org/).
   * [Temporary queues](#temporary-queues)
   * [Health check](#health-check)
   * [Fint Events endpoints](#fint-events-endpoints)
+  * [Reconnect](#reconnect)
   * [Configuration](#configuration)
 
 ---
@@ -134,6 +135,11 @@ Health<TestDto> healthClient = fintEventsHealth.registerClient();
 Health<TestDto> response = client.healthCheck(new TestDto());
 ```
 
+The health check client can be deregistered, which can be useful if there is a problem with the redis instance:
+```java
+fintEventsHealth.deregisterClient();
+```
+
 **Server:**  
 
 ```java
@@ -240,6 +246,21 @@ Get the value in the queue on the specified index.
 
 `GET /fint-events/queues/{queue}?index=0`
 
+
+## Reconnect
+
+When there is a need to reconnect the redisson client (when the default reconnection strategy from redisson does not work for some reason):
+```java
+fintEvents.reconnect();
+```
+
+In these cases it is also important to remember to deregister and register listeners:
+```java
+fintEvents.reconnect();
+fintEventsHealth.deregisterClient();
+fintEvents.registerUpstreamListener(Consumer.class, Constants.ORGID);
+fintEventsHealth.registerClient();
+```
 
 ## Configuration
 
