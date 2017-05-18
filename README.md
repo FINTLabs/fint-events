@@ -276,7 +276,7 @@ If test-model is enabled, the default config will always be used.
 
 | Key | Description | Default value |
 |-----|-------------|---------------|
-| fint.events.orgIds | The organisations that are included when generating the event listeners. The default listeners are only created if there is one event listener registered, and the listener has specified queue type (`@FintEventListener(type = QueueType.DOWNSTREAM)`). | Empty array |
+| fint.events.orgIds | The organisations that are included when generating the event listeners. The default listeners are only created if there is one event listener registered, and the listener has specified queue type (`@FintEventListener(type = QueueType.DOWNSTREAM)`). Value can be a comma separated list of orgIds. | Empty array |
 | fint.events.env | The environment that the system is running in, for example test / prod. Used to build the downstream/upstream queue name. | local |
 | fint.events.component | The component name. Used to build the downstream/upstream queue name. | default |
 | fint.events.default-downstream-queue | The format of the default downstream queue. {component}=`fint.events.component` {env}=`fint-events.env` | `downstream_{component}_{env}_{orgId}` |
