@@ -255,11 +255,11 @@ fintEvents.reconnect();
 ```
 This will shutdown the redisson client and recreate it.  
 
-In these cases it is also important to remember to deregister and register listeners:
+In these situations it is also important to remember to deregister and register listeners:
 ```java
 fintEvents.reconnect();
 fintEventsHealth.deregisterClient();
-fintEvents.registerUpstreamListener(Consumer.class, Constants.ORGID);
+fintEvents.registerUpstreamListener(MyListener.class, "orgId");
 fintEventsHealth.registerClient();
 ```
 
