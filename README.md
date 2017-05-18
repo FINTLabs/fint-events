@@ -91,6 +91,9 @@ Get registered listeners (Queue name + time registered):
 Map<String, Long> listeners = fintEvents.getListeners();
 ```
 
+If orgId(s) are added to `fint.events.orgIds`, event listeners can be automatically registered.  
+See [configuration](#configuration) for more details.
+
 ## Queue name configuration
 
 If you need more control to customize the queue name than with the properties (`fint.events.env`/ `fint.events.component`)
