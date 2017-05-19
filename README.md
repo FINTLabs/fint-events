@@ -27,7 +27,7 @@ repositories {
     }
 }
 
-compile('no.fint:fint-events:0.1.18')
+compile('no.fint:fint-events:0.1.19')
 ```
 
 # Usage
@@ -249,6 +249,11 @@ Get the value in the queue on the specified index.
 
 `GET /fint-events/queues/{queue}?index=0`
 
+**Get registered listeners**
+
+Returns the name of the listener and the timestamp when it was registered.
+
+`GET /fint-events/listeners`
 
 ## Reconnect
 

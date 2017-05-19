@@ -16,13 +16,13 @@ import java.util.concurrent.BlockingQueue;
 
 @ConditionalOnProperty(value = FintEventsProps.QUEUE_ENDPOINT_ENABLED, havingValue = "true")
 @RestController
-@RequestMapping(value = "/fint-events/queues", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+@RequestMapping(value = "/fint-events", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 public class FintEventsController {
 
     @Autowired
     private FintEvents fintEvents;
 
-    @GetMapping
+    @GetMapping("/queues")
     public Map<String, Set<String>> getQueues() {
         return ImmutableMap.of(
                 "componentQueues", fintEvents.getComponentQueues(),
@@ -30,7 +30,7 @@ public class FintEventsController {
         );
     }
 
-    @GetMapping("/{queue:.+}")
+    @GetMapping("/queues/{queue:.+}")
     public ResponseEntity getQueueContent(@PathVariable String queue, @RequestParam(required = false) Integer index) {
         BlockingQueue<Object> q = fintEvents.getQueue(queue);
         int size = q.size();
@@ -39,6 +39,11 @@ public class FintEventsController {
                 "size", String.valueOf(size),
                 "value", getStringValue(value)
         ));
+    }
+
+    @GetMapping("/listeners")
+    public Map<String, Long> getListeners() {
+        return fintEvents.getListeners();
     }
 
     private Object getValue(BlockingQueue queue, Integer index) {
