@@ -10,6 +10,7 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
@@ -20,6 +21,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Slf4j
+@Order
 @Component
 public class EventListenerRegister implements ApplicationContextAware {
     @Autowired
@@ -92,9 +94,11 @@ public class EventListenerRegister implements ApplicationContextAware {
         } else {
             switch (type) {
                 case QueueType.DOWNSTREAM:
+                    log.info("Registering downstream listener for orgId(s) {}", (Object) props.getOrgIds());
                     fintEvents.registerDownstreamListener(metadata.getClazz(), props.getOrgIds());
                     break;
                 case QueueType.UPSTREAM:
+                    log.info("Registering upstream listener for orgId(s) {}", (Object) props.getOrgIds());
                     fintEvents.registerUpstreamListener(metadata.getClazz(), props.getOrgIds());
                     break;
                 default:
