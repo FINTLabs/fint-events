@@ -134,68 +134,28 @@ In this example the queue name in redis will be `temp-my-queue`.
 @Autowired
 private FintEventsHealth fintEventsHealth;
 
-Health<TestDto> healthClient = fintEventsHealth.registerClient();
-Health<TestDto> response = client.healthCheck(new TestDto());
+Event response = fintEventsHealth.sendHealthCheck("orgId", "id", myEvent);
 ```
 
-The health check client can be deregistered, which can be useful if there is a problem with the redis instance:
-```java
-fintEventsHealth.deregisterClient();
-```
+If the response object is null, the request has timed out before a response was received.  
+The id should be set to a value that is unique for the object sent (in this example it will be corrId for the event).
 
 **Server:**  
 
 ```java
 @Component
-public class TestHealth implements HealthCheck<TestDto> {
-    @Override
-    public TestDto check(TestDto value) {
-        ...
-        return value;
-    }
-}
+public class HealthCheckListener {
 
-```
-
-Register listener in redisson:
-```java
-@Autowired
-private FintEventsHealth fintEventsHealth;
-
-fintEventsHealth.registerServer(TestHealth);
-```
-
-## Remote Service
-
-We recommend publishing messages instead of using the remote service feature. This is a blocking call, where the client will wait for a response or a timeout happens.
-
-
-**Client:**
-```java
-@Autowired
-private FintEventsRemote fintEventsRemote;
-
-RemoteEvent<TestDto> remoteEvent = fintEventsRemote.registerClient();
-```
-
-**Server:**
-```java
-@Component
-public class TestListener {
+    @Autowired
+    private FintEventsHealth fintEventsHealth;
 
     @FintEventListener
-    public void receive(TestDto testDto) {
+    public void receive(Event event) {
         ...
+        fintEventsHealth.respondHealthCheck("id", event);
     }
 }
-```
 
-Register listener in redisson:
-```java
-@Autowired
-private FintEventsRemote fintEventsRemote;
-
-fintEventsRemote.registerServer(TestListener);
 ```
 
 ### Run RemoteService integration tests
