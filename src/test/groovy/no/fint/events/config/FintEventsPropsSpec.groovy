@@ -40,4 +40,15 @@ class FintEventsPropsSpec extends Specification {
         then:
         props.getRedissonConfig() != null
     }
+
+    def "Load configured redisson config file"() {
+        given:
+        props = new FintEventsProps(redissonConfigFile: 'src/test/resources/redisson-test.yml')
+
+        when:
+        props.init()
+
+        then:
+        props.getRedissonConfig() != null
+    }
 }

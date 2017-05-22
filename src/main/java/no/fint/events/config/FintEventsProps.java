@@ -2,13 +2,17 @@ package no.fint.events.config;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FileUtils;
 import org.redisson.config.Config;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import javax.annotation.PostConstruct;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -53,6 +57,10 @@ public class FintEventsProps {
     private int healthCheckTimeout;
 
     @Getter
+    @Value("${fint.events.redisson.config-file:}")
+    private String redissonConfigFile;
+
+    @Getter
     private Config redissonConfig;
 
     @PostConstruct
@@ -63,7 +71,7 @@ public class FintEventsProps {
             log.info("Test-mode enabled, loading default redisson config");
             redissonConfig = loadDefaultRedissonConfig();
         } else {
-            redissonConfig = loadRedissonConfigFile();
+            redissonConfig = loadRedissonConfig();
         }
 
         if (Boolean.valueOf(queueEndpointEnabled)) {
@@ -73,7 +81,23 @@ public class FintEventsProps {
         }
     }
 
-    private InputStream getConfigInputStream(String[] profiles) {
+    private Config loadRedissonConfig() throws IOException {
+        InputStream inputStream;
+        if (StringUtils.isEmpty(redissonConfigFile)) {
+            String[] profiles = environment.getActiveProfiles();
+            inputStream = loadClasspathRedissonFile(profiles);
+        } else {
+            inputStream = loadConfiguredRedissonFile();
+        }
+
+        if (inputStream == null) {
+            return loadDefaultRedissonConfig();
+        } else {
+            return Config.fromYAML(inputStream);
+        }
+    }
+
+    private InputStream loadClasspathRedissonFile(String[] profiles) {
         for (String profile : profiles) {
             String redissonFileName = String.format("/redisson-%s.yml", profile);
             InputStream inputStream = FintEventsProps.class.getResourceAsStream(redissonFileName);
@@ -90,15 +114,20 @@ public class FintEventsProps {
         return inputStream;
     }
 
-    private Config loadRedissonConfigFile() throws IOException {
-        String[] profiles = environment.getActiveProfiles();
-        InputStream inputStream = getConfigInputStream(profiles);
-        if (inputStream == null) {
-            return loadDefaultRedissonConfig();
-        } else {
-            return Config.fromYAML(inputStream);
+    private InputStream loadConfiguredRedissonFile() {
+        if (!StringUtils.isEmpty(redissonConfigFile)) {
+            try {
+                File file = new File(redissonConfigFile);
+                FileInputStream inputStream = FileUtils.openInputStream(file);
+                log.info("Loading Redisson config from configured file {}", redissonConfigFile);
+                return inputStream;
+            } catch (IOException e) {
+                throw new IllegalStateException(String.format("Unable to open configured redisson config file %s, %s", redissonConfigFile, e.getMessage()));
+            }
         }
+        return null;
     }
+
 
     private Config loadDefaultRedissonConfig() {
         log.info("No redisson.yml file found, using default config");
