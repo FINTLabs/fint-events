@@ -42,7 +42,7 @@ public class FintEventsController {
     }
 
     @GetMapping("/listeners")
-    public Map<String, Long> getListeners() {
+    public Map<String, String> getListeners() {
         return fintEvents.getListeners();
     }
 

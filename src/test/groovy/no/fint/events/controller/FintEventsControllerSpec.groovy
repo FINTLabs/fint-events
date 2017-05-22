@@ -75,8 +75,8 @@ class FintEventsControllerSpec extends MockMvcSpecification {
         def response = mockMvc.perform(get('/fint-events/listeners'))
 
         then:
-        1 * fintEvents.getListeners() >> ['test-listener': 123L]
+        1 * fintEvents.getListeners() >> ['test-listener': 'no.fint.TestListener']
         response.andExpect(status().isOk())
-        .andExpect(jsonPath('$.test-listener').value(equalTo(123)))
+        .andExpect(jsonPath('$.test-listener').value(equalTo('no.fint.TestListener')))
     }
 }

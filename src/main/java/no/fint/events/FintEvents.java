@@ -18,6 +18,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -48,7 +49,7 @@ public class FintEvents implements ApplicationContextAware {
     private FintEventsQueue fintQueue;
 
     @Getter
-    private Map<String, Long> listeners = new HashMap<>();
+    private Map<String, String> listeners = new HashMap<>();
 
     @Getter
     private Set<String> componentQueues = new HashSet<>();
@@ -164,14 +165,19 @@ public class FintEvents implements ApplicationContextAware {
     }
 
     public void registerListener(String queue, Class<?> listener) {
-        Object bean = applicationContext.getBean(listener);
-        Method[] methods = bean.getClass().getMethods();
-        for (Method method : methods) {
-            FintEventListener annotation = method.getAnnotation(FintEventListener.class);
-            if (annotation != null) {
-                Listener listenerInstance = new Listener(bean, method, getQueue(queue));
-                scheduling.register(listenerInstance);
-                listeners.put(queue, System.currentTimeMillis());
+        String listenerClass = listeners.get(queue);
+        if (!StringUtils.isEmpty(listenerClass) && listener.getName().equals(listenerClass)) {
+            log.info("Listener for {} is already registered, skipping registration", queue);
+        } else {
+            Object bean = applicationContext.getBean(listener);
+            Method[] methods = bean.getClass().getMethods();
+            for (Method method : methods) {
+                FintEventListener annotation = method.getAnnotation(FintEventListener.class);
+                if (annotation != null) {
+                    Listener listenerInstance = new Listener(bean, method, getQueue(queue));
+                    scheduling.register(listenerInstance);
+                    listeners.put(queue, listener.getName());
+                }
             }
         }
     }
