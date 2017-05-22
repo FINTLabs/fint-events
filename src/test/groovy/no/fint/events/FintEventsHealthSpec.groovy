@@ -49,4 +49,15 @@ class FintEventsHealthSpec extends Specification {
         1 * tempQueue.poll(120, TimeUnit.SECONDS) >> new TestDto(name: 'test123')
         response.name == 'test123'
     }
+
+    def "Respond to health check"() {
+        given:
+        def testDto = new TestDto()
+
+        when:
+        fintEventsHealth.respondHealthCheck('123', testDto)
+
+        then:
+        1 * tempQueue.offer(testDto)
+    }
 }
