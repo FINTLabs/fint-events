@@ -158,9 +158,9 @@ public class HealthCheckListener {
 
 ```
 
-### Run RemoteService integration tests
+### Run Listener integration tests
 
-Add the system property: `remoteServiceTestsEnabled=true`
+Add the system property: `listenerIntegrationTestsEnabled=true`
 
 ## Fint Events endpoints
 

@@ -139,7 +139,7 @@ class FintEventsIntegrationSpec extends Specification {
         controllerEnabled
     }
 
-    @Requires({ Boolean.valueOf(properties['remoteServiceTestsEnabled']) })
+    @Requires({ Boolean.valueOf(properties['listenerIntegrationTestsEnabled']) })
     def "Send and receive health check"() {
         when:
         fintEvents.registerDownstreamListener(HealthCheckListener, 'rogfk.no')
@@ -149,7 +149,7 @@ class FintEventsIntegrationSpec extends Specification {
         response.name == 'test234'
     }
 
-    @Requires({ Boolean.valueOf(properties['remoteServiceTestsEnabled']) })
+    @Requires({ Boolean.valueOf(properties['listenerIntegrationTestsEnabled']) })
     def "Register listener and read message from queue"() {
         given:
         def conditions = new PollingConditions(timeout: 5, initialDelay: 0.02, factor: 1.25)
