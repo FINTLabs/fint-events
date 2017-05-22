@@ -24,7 +24,7 @@ class FintEventsHealthSpec extends Specification {
         fintEventsHealth = new FintEventsHealth(fintEvents: fintEvents, props: props)
     }
 
-    def "Return null poll method throws InterruptedException"() {
+    def "Return null when poll method throws InterruptedException"() {
         given:
         def testDto = new TestDto()
 

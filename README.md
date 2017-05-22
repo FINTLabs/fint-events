@@ -27,7 +27,7 @@ repositories {
     }
 }
 
-compile('no.fint:fint-events:0.1.19')
+compile('no.fint:fint-events:0.1.20')
 ```
 
 # Usage
@@ -188,7 +188,8 @@ Response:
   ],
   "queues": [
     "mock.no.upstream",
-    "mock.no.downstream"]
+    "mock.no.downstream"
+  ]
 }
 ```
 
