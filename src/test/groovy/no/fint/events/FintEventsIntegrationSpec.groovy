@@ -4,7 +4,7 @@ import no.fint.events.config.FintEventsProps
 import no.fint.events.controller.FintEventsController
 import no.fint.events.queue.FintEventsQueue
 import no.fint.events.queue.QueueName
-import no.fint.events.remote.FintEventsRemote
+
 import no.fint.events.testmode.EmbeddedRedis
 import no.fint.events.testutils.*
 import org.redisson.Redisson
@@ -30,9 +30,6 @@ class FintEventsIntegrationSpec extends Specification {
 
     @Autowired
     private FintEventsHealth fintEventsHealth
-
-    @Autowired
-    private FintEventsRemote fintEventsRemote
 
     @Autowired
     public EmbeddedRedis embeddedRedis
@@ -143,6 +140,16 @@ class FintEventsIntegrationSpec extends Specification {
     }
 
     @Requires({ Boolean.valueOf(properties['remoteServiceTestsEnabled']) })
+    def "Send and receive health check"() {
+        when:
+        fintEvents.registerDownstreamListener(HealthCheckListener, 'rogfk.no')
+        def response = fintEventsHealth.sendHealthCheck('rogfk.no', '123', new TestDto(name: 'test123'))
+
+        then:
+        response.name == 'test234'
+    }
+
+    @Requires({ Boolean.valueOf(properties['remoteServiceTestsEnabled']) })
     def "Register listener and read message from queue"() {
         given:
         def conditions = new PollingConditions(timeout: 5, initialDelay: 0.02, factor: 1.25)
@@ -160,31 +167,5 @@ class FintEventsIntegrationSpec extends Specification {
             assert testListener2.testDto != null
             assert testListener2.testDto.name == 'test234'
         }
-    }
-
-    @Requires({ Boolean.valueOf(properties['remoteServiceTestsEnabled']) })
-    def "Register server and client, and call the healthCheck method"() {
-        given:
-        def client = fintEventsHealth.registerClient()
-        fintEventsHealth.registerServer(TestHealthCheck)
-
-        when:
-        def response = client.check(new TestDto(name: 'test'))
-
-        then:
-        response.name == 'health check'
-    }
-
-    @Requires({ Boolean.valueOf(properties['remoteServiceTestsEnabled']) })
-    def "Register server and client, and call the request method"() {
-        given:
-        def client = fintEventsRemote.registerClient()
-        fintEventsRemote.registerServer(TestRemote)
-
-        when:
-        def response = client.request(new TestDto(name: 'test'))
-
-        then:
-        response.name == 'test123'
     }
 }

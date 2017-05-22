@@ -56,7 +56,6 @@ public class FintEventsProps {
     @Value("${fint.events.healthcheck.timeout-in-seconds:120}")
     private int healthCheckTimeout;
 
-    @Getter
     @Value("${fint.events.redisson.config-file:}")
     private String redissonConfigFile;
 

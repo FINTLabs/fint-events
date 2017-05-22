@@ -1,74 +1,52 @@
 package no.fint.events
 
 import no.fint.events.config.FintEventsProps
-import no.fint.events.testutils.TestHealthCheck
-import org.redisson.api.RRemoteService
-import org.redisson.api.RedissonClient
-import org.redisson.api.RemoteInvocationOptions
-import org.springframework.context.ApplicationContext
+import no.fint.events.testutils.TestDto
+import org.redisson.api.RBlockingQueue
 import spock.lang.Specification
+
+import java.util.concurrent.TimeUnit
 
 class FintEventsHealthSpec extends Specification {
     private FintEventsHealth fintEventsHealth
-    private RRemoteService remoteService
-    private ApplicationContext applicationContext
+    private FintEvents fintEvents
     private FintEventsProps props
+    private RBlockingQueue tempQueue
 
     void setup() {
-        remoteService = Mock(RRemoteService)
-        def fintEvents = Mock(FintEvents) {
-            getClient() >> Mock(RedissonClient) {
-                getRemoteService() >> remoteService
-            }
+        tempQueue = Mock(RBlockingQueue)
+        fintEvents = Mock(FintEvents) {
+            getTempQueue(_ as String) >> tempQueue
         }
-        applicationContext = Mock(ApplicationContext)
-        props = Mock(FintEventsProps)
-        fintEventsHealth = new FintEventsHealth(fintEvents: fintEvents, applicationContext: applicationContext, props: props)
+        props = Mock(FintEventsProps) {
+            getHealthCheckTimeout() >> 120
+        }
+        fintEventsHealth = new FintEventsHealth(fintEvents: fintEvents, props: props)
     }
 
-    def "Register server"() {
+    def "Return null poll method throws InterruptedException"() {
         given:
-        TestHealthCheck testHealth = new TestHealthCheck()
+        def testDto = new TestDto()
 
         when:
-        fintEventsHealth.registerServer(TestHealthCheck)
+        def response = fintEventsHealth.sendHealthCheck('rogfk.no', '123', testDto)
 
         then:
-        1 * applicationContext.getBean(TestHealthCheck) >> testHealth
-        1 * remoteService.register(HealthCheck, testHealth)
+        1 * fintEvents.sendDownstream('rogfk.no', testDto)
+        1 * tempQueue.poll(120, TimeUnit.SECONDS) >> { throw new InterruptedException('test exception') }
+        response == null
     }
 
-    def "Register client"() {
-        when:
-        fintEventsHealth.init()
-        def client = fintEventsHealth.registerClient()
-
-        then:
-        1 * remoteService.get(HealthCheck, _ as RemoteInvocationOptions) >> Mock(HealthCheck)
-        1 * props.healthCheckTimeout >> 10
-        client != null
-    }
-
-    def "Deregister client"() {
+    def "Return health check response"() {
         given:
-        fintEventsHealth.init()
-        fintEventsHealth.registerClient()
+        def testDto = new TestDto()
 
         when:
-        fintEventsHealth.deregisterClient()
+        def response = fintEventsHealth.sendHealthCheck('rogfk.no', '123', testDto)
 
         then:
-        1 * remoteService.deregister(HealthCheck)
-    }
-
-    def "Deregister should not be called when no client is registered"() {
-        given:
-        fintEventsHealth.init()
-
-        when:
-        fintEventsHealth.deregisterClient()
-
-        then:
-        0 * remoteService.deregister(HealthCheck)
+        1 * fintEvents.sendDownstream('rogfk.no', testDto)
+        1 * tempQueue.poll(120, TimeUnit.SECONDS) >> new TestDto(name: 'test123')
+        response.name == 'test123'
     }
 }

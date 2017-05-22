@@ -51,4 +51,15 @@ class FintEventsPropsSpec extends Specification {
         then:
         props.getRedissonConfig() != null
     }
+
+    def "Throw IllegalStateException when the configured redisson config file is not found"() {
+        given:
+        props = new FintEventsProps(redissonConfigFile: 'invalid-file-path')
+
+        when:
+        props.init()
+
+        then:
+        thrown(IllegalStateException)
+    }
 }
