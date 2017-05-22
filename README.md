@@ -223,14 +223,6 @@ fintEvents.reconnect();
 ```
 This will shutdown the redisson client and recreate it.  
 
-In these situations it is also important to remember to deregister and register listeners:
-```java
-fintEvents.reconnect();
-fintEventsHealth.deregisterClient();
-fintEvents.registerUpstreamListener(MyListener.class, "orgId");
-fintEventsHealth.registerClient();
-```
-
 ## Configuration
 
 Redisson configuration is added in a file `redisson.yml` on classpath (`src/main/resources`).  
