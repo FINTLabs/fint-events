@@ -246,4 +246,3 @@ If test-model is enabled, the default config will always be used.
 | fint.events.queue-endpoint-enabled | Enable the rest endpoints `/fint-events/*` that make it possible to query the content of the queues. If the endpoint is disable a 404 response code is returned. | false |
 | fint.events.task-scheduler-thread-pool-size | The number of threads in the task scheduler thread pool. This will be used by all event listeners and `@Scheduled` methods. | 50 |
 | fint.events.healthcheck.timeout-in-seconds | The number of seconds the health check client will wait before timing out. | 120 |
-| fint.events.redisson.config-file | Path to redisson config file. If configured this file will be loaded, if not it will look for the redisson config file on classpath | |
