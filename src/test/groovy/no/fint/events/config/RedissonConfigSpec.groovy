@@ -80,4 +80,15 @@ class RedissonConfigSpec extends Specification {
         config != null
     }
 
+    def "Throw IllegalArgumentException when redisson cannot parse json config"() {
+        given:
+        def redissonConfig = new RedissonConfig(redissonJsonConfig: 'invalid-json')
+
+        when:
+        redissonConfig.getDefaultConfig()
+
+        then:
+        thrown(IllegalArgumentException)
+    }
+
 }

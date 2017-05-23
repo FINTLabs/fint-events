@@ -226,15 +226,6 @@ This will shutdown the redisson client and recreate it.
 
 ## Configuration
 
-Redisson configuration is added in a file `redisson.yml` on classpath (`src/main/resources`).  
-It also supports to separate config-files for the Spring profile used, for example `redisson-test.yml` when using the test profile.
-If no config-file is found the default values are used: `Single server, 127.0.0.1:6379`  
-If test-model is enabled, the default config will always be used.
-
-* **[Redisson configuration](https://github.com/redisson/redisson/wiki/2.-Configuration)**
-* [Single instance mode](https://github.com/redisson/redisson/wiki/2.-Configuration#26-single-instance-mode)
-* [Cluster mode](https://github.com/redisson/redisson/wiki/2.-Configuration#24-cluster-mode)
-
 | Key | Description | Default value |
 |-----|-------------|---------------|
 | fint.events.orgIds | The organisations that are included when generating the event listeners. The default listeners are only created if there is one event listener registered, and the listener has specified queue type `@FintEventListener(type = QueueType.DOWNSTREAM)`. Value can be a comma separated list of orgIds. | Empty array |
@@ -246,3 +237,22 @@ If test-model is enabled, the default config will always be used.
 | fint.events.queue-endpoint-enabled | Enable the rest endpoints `/fint-events/*` that make it possible to query the content of the queues. If the endpoint is disable a 404 response code is returned. | false |
 | fint.events.task-scheduler-thread-pool-size | The number of threads in the task scheduler thread pool. This will be used by all event listeners and `@Scheduled` methods. | 50 |
 | fint.events.healthcheck.timeout-in-seconds | The number of seconds the health check client will wait before timing out. | 120 |
+
+### Redisson config
+
+[Redisson configuration docs](https://github.com/redisson/redisson/wiki/2.-Configuration)  
+There are three ways to configure redisson with fint-events:
+* Redisson configuration is added in a file `redisson.yml` on classpath (`src/main/resources`). It also supports to separate config-files for the Spring profile used, for example `redisson-test.yml` when using the test profile.
+* Set system properties, as described in the table below
+* If no config-file is found the default values are used: `Single server, 127.0.0.1:6379`  
+
+If test-model is enabled, the default config will always be used.
+
+
+| Key | Description | Default value |
+|-----|-------------|---------------|
+| fint.events.redisson.addresses | Address(es) to redis. If single server only one address should be configured. | redis://127.0.0.1:6379 |
+| fint.events.redisson.mode | How redisson will connect to redis. Options: `CLUSTER`, `REPLICATED`, `SINGLE`, `SENTINEL` | SINGLE |
+| fint.events.redisson.retry-attempts | Error will be thrown if Redis command can't be sended to Redis server after retryAttempts. | 100 |
+| fint.events.redisson.retry-interval | Time interval after which another one attempt to send Redis command will be executed. | 5000 |
+| fint.events.redisson.reconnection-timeout | Redis server reconnection attempt timeout. | 10000 |

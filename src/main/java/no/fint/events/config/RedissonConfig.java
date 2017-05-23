@@ -32,13 +32,13 @@ public class RedissonConfig {
     @Value("${fint.events.redisson.mode:SINGLE}")
     private String mode;
 
-    @Value("${fint.events.redisson.retry-attempts:50}")
+    @Value("${fint.events.redisson.retry-attempts:100}")
     private int retryAttempts;
 
-    @Value("${fint.events.redisson.retry-interval:3000}")
+    @Value("${fint.events.redisson.retry-interval:5000}")
     private int retryInterval;
 
-    @Value("${fint.events.redisson.reconnection-timeout:6000}")
+    @Value("${fint.events.redisson.reconnection-timeout:10000}")
     private int reconnectionTimeout;
 
     @PostConstruct
