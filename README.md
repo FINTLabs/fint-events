@@ -27,7 +27,7 @@ repositories {
     }
 }
 
-compile('no.fint:fint-events:0.1.20')
+compile('no.fint:fint-events:0.1.21')
 ```
 
 # Usage
