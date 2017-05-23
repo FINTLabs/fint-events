@@ -246,7 +246,7 @@ This will shutdown the redisson client and recreate it.
 
 ### Redisson config
 
-[Redisson configuration docs](https://github.com/redisson/redisson/wiki/2.-Configuration)  
+[Redisson documentation - configuration](https://github.com/redisson/redisson/wiki/2.-Configuration)  
 There are three ways to configure redisson with fint-events:
 * Redisson configuration is added in a file `redisson.yml` on classpath (`src/main/resources`). It also supports to separate config-files for the Spring profile used, for example `redisson-test.yml` when using the test profile.
 * Set system properties, as described in the table below
