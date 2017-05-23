@@ -250,7 +250,7 @@ This will shutdown the redisson client and recreate it.
 There are three ways to configure redisson with fint-events:
 * Redisson configuration is added in a file `redisson.yml` on classpath (`src/main/resources`). It also supports to separate config-files for the Spring profile used, for example `redisson-test.yml` when using the test profile.
 * Set system properties, as described in the table below
-* If no config-file is found the default values are used: `Single server, 127.0.0.1:6379`  
+* If no redisson-file or system properties are configured the default values are used: `Single server, 127.0.0.1:6379`  
 
 If test-model is enabled, the default config will always be used.
 
