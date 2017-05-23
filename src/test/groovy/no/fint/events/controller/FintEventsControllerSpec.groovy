@@ -1,6 +1,7 @@
 package no.fint.events.controller
 
 import no.fint.events.FintEvents
+import no.fint.events.config.RedissonConfig
 import no.fint.events.testutils.TestDto
 import no.fint.test.utils.MockMvcSpecification
 import org.springframework.test.web.servlet.MockMvc
@@ -10,11 +11,13 @@ import java.util.concurrent.BlockingQueue
 class FintEventsControllerSpec extends MockMvcSpecification {
     private FintEventsController controller
     private FintEvents fintEvents
+    private RedissonConfig redissonConfig
     private MockMvc mockMvc
 
     void setup() {
         fintEvents = Mock(FintEvents)
-        controller = new FintEventsController(fintEvents: fintEvents)
+        redissonConfig = Mock(RedissonConfig)
+        controller = new FintEventsController(fintEvents: fintEvents, redissonConfig: redissonConfig)
         mockMvc = standaloneSetup(controller)
     }
 
@@ -77,6 +80,15 @@ class FintEventsControllerSpec extends MockMvcSpecification {
         then:
         1 * fintEvents.getListeners() >> ['test-listener': 'no.fint.TestListener']
         response.andExpect(status().isOk())
-        .andExpect(jsonPath('$.test-listener').value(equalTo('no.fint.TestListener')))
+                .andExpect(jsonPath('$.test-listener').value(equalTo('no.fint.TestListener')))
+    }
+
+    def "Get redisson config"() {
+        when:
+        def response = mockMvc.perform(get('/fint-events/redissonConfig'))
+
+        then:
+        1 * redissonConfig.getRedissonJsonConfig() >> ['{}']
+        response.andExpect(status().isOk())
     }
 }

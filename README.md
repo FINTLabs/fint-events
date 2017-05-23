@@ -216,6 +216,12 @@ Returns the name of the listener and the timestamp when it was registered.
 
 `GET /fint-events/listeners`
 
+**Get redisson config**
+
+Return the redisson configuration values. Does not display redisson.yml if that is used.
+
+`GET /fint-events/redissonConfig`
+
 ## Reconnect
 
 When there is a need to reconnect the redisson client (when the default reconnection strategy from redisson does not work for some reason):

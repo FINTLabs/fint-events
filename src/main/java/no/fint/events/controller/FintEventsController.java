@@ -3,6 +3,7 @@ package no.fint.events.controller;
 import com.google.common.collect.ImmutableMap;
 import no.fint.events.FintEvents;
 import no.fint.events.config.FintEventsProps;
+import no.fint.events.config.RedissonConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.MediaType;
@@ -21,6 +22,9 @@ public class FintEventsController {
 
     @Autowired
     private FintEvents fintEvents;
+
+    @Autowired
+    private RedissonConfig redissonConfig;
 
     @GetMapping("/queues")
     public Map<String, Set<String>> getQueues() {
@@ -62,6 +66,11 @@ public class FintEventsController {
         String value = (nextValue == null) ? "" : nextValue.toString();
         value = value.substring(0, Math.min(value.length(), 300));
         return value;
+    }
+
+    @GetMapping("/redissonConfig")
+    public String getRedissonConfig() {
+        return redissonConfig.getRedissonJsonConfig();
     }
 
 }
