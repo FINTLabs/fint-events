@@ -46,7 +46,7 @@ public class FintEventsController {
     }
 
     @GetMapping("/listeners")
-    public Map<String, String> getListeners() {
+    public Map<String, Class> getListeners() {
         return fintEvents.getListeners();
     }
 

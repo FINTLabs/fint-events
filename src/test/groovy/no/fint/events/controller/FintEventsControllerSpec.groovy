@@ -3,6 +3,7 @@ package no.fint.events.controller
 import no.fint.events.FintEvents
 import no.fint.events.config.RedissonConfig
 import no.fint.events.testutils.TestDto
+import no.fint.events.testutils.TestListener
 import no.fint.test.utils.MockMvcSpecification
 import org.springframework.test.web.servlet.MockMvc
 
@@ -78,9 +79,9 @@ class FintEventsControllerSpec extends MockMvcSpecification {
         def response = mockMvc.perform(get('/fint-events/listeners'))
 
         then:
-        1 * fintEvents.getListeners() >> ['test-listener': 'no.fint.TestListener']
+        1 * fintEvents.getListeners() >> ['test-listener': TestListener]
         response.andExpect(status().isOk())
-                .andExpect(jsonPath('$.test-listener').value(equalTo('no.fint.TestListener')))
+                .andExpect(jsonPath('$.test-listener').value(equalTo(TestListener.name)))
     }
 
     def "Get redisson config"() {

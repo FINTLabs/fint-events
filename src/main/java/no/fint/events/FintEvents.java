@@ -18,7 +18,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -49,7 +48,7 @@ public class FintEvents implements ApplicationContextAware {
     private FintEventsQueue fintQueue;
 
     @Getter
-    private Map<String, String> listeners = new HashMap<>();
+    private Map<String, Class> listeners = new HashMap<>();
 
     @Getter
     private Set<String> componentQueues = new HashSet<>();
@@ -78,6 +77,10 @@ public class FintEvents implements ApplicationContextAware {
         removeAllListeners();
         shutdown();
         init();
+
+        for (String queue : listeners.keySet()) {
+            registerListener(queue, listeners.get(queue));
+        }
     }
 
     public RedissonClient getClient() {
@@ -138,7 +141,6 @@ public class FintEvents implements ApplicationContextAware {
 
     public void registerDownstreamListener(Class<?> listener, QueueName... queueNames) {
         for (QueueName queueName : queueNames) {
-            log.info("Registering downstream listener ({}) for {}", listener.getSimpleName(), queueName.getOrgId());
             String downstreamQueueName = fintQueue.getDownstreamQueueName(queueName);
             registerListener(downstreamQueueName, listener);
         }
@@ -150,7 +152,6 @@ public class FintEvents implements ApplicationContextAware {
 
     public void registerUpstreamListener(Class<?> listener, QueueName... queueNames) {
         for (QueueName queueName : queueNames) {
-            log.info("Registering upstream listener ({}) for {}", listener.getSimpleName(), queueName.getOrgId());
             String upstreamQueueName = fintQueue.getUpstreamQueueName(queueName);
             registerListener(upstreamQueueName, listener);
         }
@@ -165,10 +166,9 @@ public class FintEvents implements ApplicationContextAware {
     }
 
     public void registerListener(String queue, Class<?> listener) {
-        String listenerClass = listeners.get(queue);
-        if (!StringUtils.isEmpty(listenerClass) && listener.getName().equals(listenerClass)) {
-            log.info("Listener for {} is already registered, skipping registration", queue);
-        } else {
+        Class listenerClass = listeners.get(queue);
+        if (listenerClass == null || listener != listenerClass) {
+            log.info("Registering listener ({}) for {}", listener.getSimpleName(), queue);
             Object bean = applicationContext.getBean(listener);
             Method[] methods = bean.getClass().getMethods();
             for (Method method : methods) {
@@ -176,7 +176,7 @@ public class FintEvents implements ApplicationContextAware {
                 if (annotation != null) {
                     Listener listenerInstance = new Listener(bean, method, getQueue(queue));
                     scheduling.register(listenerInstance);
-                    listeners.put(queue, listener.getName());
+                    listeners.put(queue, listener);
                 }
             }
         }

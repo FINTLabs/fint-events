@@ -115,7 +115,7 @@ class FintEventsSpec extends Specification {
         1 * scheduling.register(_ as Listener)
         fintEvents.listeners.size() == 1
         fintEvents.listeners.keySet()[0] == 'test-listener-queue'
-        fintEvents.listeners.values()[0] == TestListener.getName()
+        fintEvents.listeners.values()[0] == TestListener
     }
 
     def "Register downstream listener"() {
@@ -130,8 +130,8 @@ class FintEventsSpec extends Specification {
         fintEvents.listeners.size() == 2
         fintEvents.listeners.keySet().contains(downstreamQueueName('rogfk.no') as String)
         fintEvents.listeners.keySet().contains(downstreamQueueName('hfk.no') as String)
-        fintEvents.listeners.values()[0] == TestListener.getName()
-        fintEvents.listeners.values()[1] == TestListener.getName()
+        fintEvents.listeners.values()[0] == TestListener
+        fintEvents.listeners.values()[1] == TestListener
     }
 
     def "Register upstream listener"() {
@@ -146,8 +146,8 @@ class FintEventsSpec extends Specification {
         fintEvents.listeners.size() == 2
         fintEvents.listeners.keySet().contains(upstreamQueueName('rogfk.no') as String)
         fintEvents.listeners.keySet().contains(upstreamQueueName('hfk.no') as String)
-        fintEvents.listeners.values()[0] == TestListener.getName()
-        fintEvents.listeners.values()[1] == TestListener.getName()
+        fintEvents.listeners.values()[0] == TestListener
+        fintEvents.listeners.values()[1] == TestListener
     }
 
     def "Shutdown redisson client"() {
