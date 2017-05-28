@@ -4,7 +4,6 @@ import no.fint.events.config.FintEventsProps
 import no.fint.events.controller.FintEventsController
 import no.fint.events.queue.FintEventsQueue
 import no.fint.events.queue.QueueName
-
 import no.fint.events.testmode.EmbeddedRedis
 import no.fint.events.testutils.*
 import org.redisson.Redisson
@@ -86,6 +85,28 @@ class FintEventsIntegrationSpec extends Specification {
         then:
         queue != null
         queue.size() == 0
+    }
+
+    def "Return true and delete temporary queues, keep regular queues"() {
+        given:
+        fintEvents.getQueue('my-queue').add('test123')
+        fintEvents.getTempQueue('queue1').add('test234')
+        fintEvents.getTempQueue('queue2').add('test345')
+
+        when:
+        def deleted = fintEvents.deleteTempQueues()
+
+        then:
+        fintEvents.getQueue('my-queue').size() == 1
+        deleted
+    }
+
+    def "Return true when trying to delete temporary queues, but no queues are found"() {
+        when:
+        def deleted = fintEvents.deleteTempQueues()
+
+        then:
+        deleted
     }
 
     def "Return empty response when no events are added to the queue"() {

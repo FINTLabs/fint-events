@@ -126,6 +126,10 @@ fintEvents.getTempQueue("my-queue");
 
 In this example the queue name in redis will be `temp-my-queue`.
 
+All temporary queues can be deleted by calling `deleteTempQueues`:
+```java
+boolean deleted = fintEvents.deleteTempQueues();
+```
 
 ## Health check
 

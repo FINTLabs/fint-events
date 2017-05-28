@@ -1,5 +1,6 @@
 package no.fint.events;
 
+import com.google.common.collect.Iterables;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import no.fint.events.annotations.FintEventListener;
@@ -10,6 +11,7 @@ import no.fint.events.queue.FintEventsQueue;
 import no.fint.events.queue.QueueName;
 import org.redisson.Redisson;
 import org.redisson.api.RBlockingQueue;
+import org.redisson.api.RKeys;
 import org.redisson.api.RedissonClient;
 import org.redisson.config.Config;
 import org.springframework.beans.BeansException;
@@ -32,7 +34,7 @@ import java.util.concurrent.BlockingQueue;
 @DependsOn("embeddedRedis")
 @Component
 public class FintEvents implements ApplicationContextAware {
-    private static final String REDISSON_TEMP_QUEUE_PREFIX = "temp-";
+    public static final String REDISSON_TEMP_QUEUE_PREFIX = "temp-";
     public static final String REDISSON_QUEUES_KEY = "fintQueues";
 
     private RedissonClient client;
@@ -89,6 +91,25 @@ public class FintEvents implements ApplicationContextAware {
 
     public <V> RBlockingQueue<V> getTempQueue(String queue) {
         return client.getBlockingQueue(REDISSON_TEMP_QUEUE_PREFIX + queue);
+    }
+
+    public boolean deleteTempQueues() {
+        RKeys keys = client.getKeys();
+        Iterable<String> tempQueues = client.getKeys().getKeysByPattern(REDISSON_TEMP_QUEUE_PREFIX + "*");
+        String[] tempQueuesArray = Iterables.toArray(tempQueues, String.class);
+        if (tempQueuesArray.length == 0) {
+            log.info("No temporary queues found");
+            return true;
+        }
+
+        long keysDeleted = keys.delete(tempQueuesArray);
+        if (keysDeleted == tempQueuesArray.length) {
+            log.info("Deleted {} temp queues", keysDeleted);
+            return true;
+        } else {
+            log.info("Deleted {} temp queues, the total number of queues are {}", keysDeleted, tempQueuesArray.length);
+            return false;
+        }
     }
 
     public <V> BlockingQueue<V> getQueue(String queue) {
