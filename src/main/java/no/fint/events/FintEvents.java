@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import no.fint.events.annotations.FintEventListener;
 import no.fint.events.config.FintEventsProps;
 import no.fint.events.config.FintEventsScheduling;
+import no.fint.events.event.RedissonReconnectedEvent;
 import no.fint.events.listener.Listener;
 import no.fint.events.queue.FintEventsQueue;
 import no.fint.events.queue.QueueName;
@@ -18,6 +19,7 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Component;
 
@@ -39,6 +41,9 @@ public class FintEvents implements ApplicationContextAware {
 
     private RedissonClient client;
     private ApplicationContext applicationContext;
+
+    @Autowired
+    private ApplicationEventPublisher publisher;
 
     @Autowired
     private FintEventsScheduling scheduling;
@@ -83,6 +88,7 @@ public class FintEvents implements ApplicationContextAware {
         for (String queue : listeners.keySet()) {
             registerListener(queue, listeners.get(queue));
         }
+        publisher.publishEvent(new RedissonReconnectedEvent());
     }
 
     public RedissonClient getClient() {

@@ -233,6 +233,14 @@ When there is a need to reconnect the redisson client (when the default reconnec
 fintEvents.reconnect();
 ```
 This will shutdown the redisson client and recreate it.  
+An event of type `RedissonReconnectedEvent` is published after the reconnection is finished.
+If there are clients that need to re-initialize, it is possible to register a listener:
+```java
+@EventListener(RedissonReconnectedEvent.class)
+public void reconnect() {
+    ...
+}
+```
 
 ## Configuration
 

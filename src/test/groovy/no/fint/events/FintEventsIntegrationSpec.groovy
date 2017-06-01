@@ -40,6 +40,9 @@ class FintEventsIntegrationSpec extends Specification {
     private FintEventsQueue fintEventsQueue
 
     @Autowired
+    private TestReconnectedEventListener testReconnectedEventListener
+
+    @Autowired
     private RestTemplate restTemplate
 
     @LocalServerPort
@@ -76,6 +79,7 @@ class FintEventsIntegrationSpec extends Specification {
 
         then:
         client != null
+        testReconnectedEventListener.reconnected
     }
 
     def "Get blocking queue"() {
