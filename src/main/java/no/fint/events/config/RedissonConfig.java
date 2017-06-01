@@ -20,6 +20,8 @@ import java.util.Map;
 @Slf4j
 @Component
 public class RedissonConfig {
+    public static final String REDISSON_PING_INTERVAL = "fint.events.redisson.ping-interval:5000";
+
     @Autowired
     private Environment environment;
 
