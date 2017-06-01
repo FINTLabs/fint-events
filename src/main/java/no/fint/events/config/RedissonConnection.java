@@ -26,7 +26,7 @@ public class RedissonConnection {
         try {
             return !(fintEvents.getClient().getNodesGroup().pingAll());
         } catch (RedisException e) {
-            log.warn("Exception when executing redis ping, {}", e.getMessage());
+            log.warn("Exception when running redis ping, {}", e.getMessage());
             return true;
         }
     }
