@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import java.util.concurrent.RejectedExecutionException;
+
 @Slf4j
 @Component
 public class RedissonConnection {
@@ -25,7 +27,7 @@ public class RedissonConnection {
     boolean connectionLost() {
         try {
             return !(fintEvents.getClient().getNodesGroup().pingAll());
-        } catch (RedisException e) {
+        } catch (RedisException | RejectedExecutionException e) {
             log.warn("Exception when running redis ping, {}", e.getMessage());
             return true;
         }

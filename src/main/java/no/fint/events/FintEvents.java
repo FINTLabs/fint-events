@@ -14,6 +14,7 @@ import org.redisson.Redisson;
 import org.redisson.api.RBlockingQueue;
 import org.redisson.api.RKeys;
 import org.redisson.api.RedissonClient;
+import org.redisson.client.RedisException;
 import org.redisson.config.Config;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -81,14 +82,18 @@ public class FintEvents implements ApplicationContextAware {
     }
 
     public void reconnect() {
-        removeAllListeners();
-        shutdown();
-        init();
+        try {
+            removeAllListeners();
+            shutdown();
+            init();
 
-        for (String queue : listeners.keySet()) {
-            registerListener(queue, listeners.get(queue));
+            for (String queue : listeners.keySet()) {
+                registerListener(queue, listeners.get(queue));
+            }
+            publisher.publishEvent(new RedissonReconnectedEvent());
+        } catch (RedisException e) {
+            log.warn("Unable to reconnect to redis, {}", e.getMessage());
         }
-        publisher.publishEvent(new RedissonReconnectedEvent());
     }
 
     public RedissonClient getClient() {
