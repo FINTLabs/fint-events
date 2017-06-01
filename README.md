@@ -266,4 +266,4 @@ If test-model is enabled, the default config will always be used.
 | fint.events.redisson.retry-attempts | Error will be thrown if Redis command can't be sended to Redis server after retryAttempts. | 100 |
 | fint.events.redisson.retry-interval | Time interval after which another one attempt to send Redis command will be executed. | 5000 |
 | fint.events.redisson.reconnection-timeout | Redis server reconnection attempt timeout. | 10000 |
-| fint.events.redisson.ping-interval | Runs redis ping in the configured interval. | 10000 |
+| fint.events.redisson.ping-interval | Runs redis ping with the configured interval. If connection is lost a reconnection is started. | 10000 |
