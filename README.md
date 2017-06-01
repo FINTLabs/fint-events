@@ -249,8 +249,8 @@ public void reconnect() {
 | fint.events.orgIds | The organisations that are included when generating the event listeners. The default listeners are only created if there is one event listener registered, and the listener has specified queue type `@FintEventListener(type = QueueType.DOWNSTREAM)`. Value can be a comma separated list of orgIds. | Empty array |
 | fint.events.env | The environment that the system is running in, for example test / prod. Used to build the downstream/upstream queue name. | local |
 | fint.events.component | The component name. Used to build the downstream/upstream queue name. | default |
-| fint.events.default-downstream-queue | The format of the default downstream queue. {component}=`fint.events.component` {env}=`fint-events.env` | `downstream_{component}_{env}_{orgId}` |
-| fint.events.default-upstream-queue | The format of the default upstream queue. {component}=`fint.events.component` {env}=`fint-events.env` | `upstream_{component}_{env}_{orgId}` |
+| fint.events.default-downstream-queue | The format of the default downstream queue. {component}=`fint.events.component` {env}=`fint.events.env` | `downstream_{component}_{env}_{orgId}` |
+| fint.events.default-upstream-queue | The format of the default upstream queue. {component}=`fint.events.component` {env}=`fint.events.env` | `upstream_{component}_{env}_{orgId}` |
 | fint.events.test-mode | When test mode is enable, an embedded redis instance is initialized on startup. It will also use the default redisson config `single server, 127.0.0.1:6379`. | false |
 | fint.events.queue-endpoint-enabled | Enable the rest endpoints `/fint-events/*` that make it possible to query the content of the queues. If the endpoint is disable a 404 response code is returned. | false |
 | fint.events.task-scheduler-thread-pool-size | The number of threads in the task scheduler thread pool. This will be used by all event listeners and `@Scheduled` methods. | 50 |
