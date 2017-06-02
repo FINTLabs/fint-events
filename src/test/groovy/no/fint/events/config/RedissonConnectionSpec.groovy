@@ -43,11 +43,14 @@ class RedissonConnectionSpec extends Specification {
         connectionLost
     }
 
-    def "Set disconnected to true if redis connection is down"() {
+    def "Reconnect when connection to redis is initially lost and then is back up"() {
         when:
+        connection.checkRedisConnection()
         connection.checkRedisConnection()
 
         then:
-        connection.disconnected.get()
+        2 * nodesGroup.pingAll() >>> [false, true]
+        1 * fintEvents.reconnect()
+        !connection.disconnected.get()
     }
 }
