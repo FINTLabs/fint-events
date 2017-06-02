@@ -27,7 +27,7 @@ repositories {
     }
 }
 
-compile('no.fint:fint-events:0.1.28')
+compile('no.fint:fint-events:0.1.29')
 ```
 
 # Usage
@@ -274,6 +274,5 @@ If test-model is enabled, the default config will always be used.
 | fint.events.redisson.retry-attempts | Error will be thrown if Redis command can't be sended to Redis server after retryAttempts. | 100 |
 | fint.events.redisson.retry-interval | Time interval after which another one attempt to send Redis command will be executed. | 5000 |
 | fint.events.redisson.reconnection-timeout | Redis server reconnection attempt timeout. | 10000 |
-| fint.events.redisson.ping-interval | Runs redis ping with the configured interval. If connection is lost a reconnection is started. | 10000 |
-| fint.events.redisson.fint.events.redisson.auto-reconnect | When enabled will try to reconnect if the ping-interval returns that the redis connection is down. | true |
+| fint.events.redisson.timeout | Redis server response timeout. Starts to countdown when Redis command was succesfully sent. | 10000 |
 | fint.events.redisson.use-linux-native-epoll | Activates an unix socket if servers binded to loopback interface. Also used for epoll transport activation. | false |
