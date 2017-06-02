@@ -20,7 +20,7 @@ import java.util.Map;
 @Slf4j
 @Component
 public class RedissonConfig {
-    public static final String REDISSON_PING_INTERVAL = "fint.events.redisson.ping-interval:10000";
+    public static final String REDISSON_PING_INTERVAL = "fint.events.redisson.ping-interval:30000";
 
     @Autowired
     private Environment environment;
@@ -43,6 +43,13 @@ public class RedissonConfig {
     @Value("${fint.events.redisson.reconnection-timeout:10000}")
     private int reconnectionTimeout;
 
+    @Value("${fint.events.redisson.use-linux-native-epoll:false}")
+    private String useLinuxNativeEpoll;
+
+    @Getter
+    @Value("${fint.events.redisson.auto-reconnect:true}")
+    private String autoReconnect;
+
     @PostConstruct
     public void init() throws JsonProcessingException {
         RedissonMode redissonMode = RedissonMode.valueOf(this.mode);
@@ -58,7 +65,7 @@ public class RedissonConfig {
         config.put("reconnectionTimeout", reconnectionTimeout);
 
         ObjectMapper objectMapper = new ObjectMapper();
-        redissonJsonConfig = objectMapper.writeValueAsString(ImmutableMap.of(redissonMode.getModeRoot(), config));
+        redissonJsonConfig = objectMapper.writeValueAsString(ImmutableMap.of(redissonMode.getModeRoot(), config, "useLinuxNativeEpoll", Boolean.valueOf(useLinuxNativeEpoll)));
     }
 
     public Config getConfig() {

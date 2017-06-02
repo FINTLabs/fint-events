@@ -9,6 +9,7 @@ import spock.lang.Specification
 class RedissonConnectionSpec extends Specification {
     private RedissonConnection connection
     private FintEvents fintEvents
+    private RedissonConfig redissonConfig
     private NodesGroup nodesGroup
 
     void setup() {
@@ -18,7 +19,10 @@ class RedissonConnectionSpec extends Specification {
                 getNodesGroup() >> nodesGroup
             }
         }
-        connection = new RedissonConnection(fintEvents: fintEvents)
+        redissonConfig = Mock(RedissonConfig) {
+            getAutoReconnect() >> 'true'
+        }
+        connection = new RedissonConnection(fintEvents: fintEvents, redissonConfig: redissonConfig)
     }
 
     def "Return false when redis nodes answers to ping"() {
@@ -39,11 +43,11 @@ class RedissonConnectionSpec extends Specification {
         connectionLost
     }
 
-    def "Run reconnect if isConnected returns false"() {
+    def "Set disconnected to true if redis connection is down"() {
         when:
         connection.checkRedisConnection()
 
         then:
-        1 * fintEvents.reconnect()
+        connection.disconnected.get()
     }
 }

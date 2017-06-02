@@ -11,7 +11,7 @@ apply plugin: 'jacoco'
 
 jar {
     baseName = 'fint-events'
-    version = '0.1.26-SNAPSHOT'
+    version = '0.1.28'
 }
 
 sourceCompatibility = 1.8
@@ -29,6 +29,7 @@ dependencies {
     compile('org.redisson:redisson:3.4.2')
     compile('com.github.kstyrc:embedded-redis:0.6')
     compile('org.apache.commons:commons-lang3:3.5')
+    compile('io.netty:netty-transport-native-epoll:4.1.11.Final')
     compile("org.projectlombok:lombok:${lombokVersion}")
 
     compile("org.springframework.boot:spring-boot-starter-web:${springBootVersion}")

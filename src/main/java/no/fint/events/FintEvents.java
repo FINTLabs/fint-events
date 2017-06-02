@@ -38,7 +38,6 @@ import java.util.concurrent.BlockingQueue;
 @Component
 public class FintEvents implements ApplicationContextAware {
     public static final String REDISSON_TEMP_QUEUE_PREFIX = "temp-";
-    public static final String REDISSON_QUEUES_KEY = "fintQueues";
 
     private RedissonClient client;
     private ApplicationContext applicationContext;
@@ -59,9 +58,6 @@ public class FintEvents implements ApplicationContextAware {
     private Map<String, Class> listeners = new HashMap<>();
 
     @Getter
-    private Set<String> componentQueues = new HashSet<>();
-
-    @Getter
     private Set<String> queues = new HashSet<>();
 
     @Override
@@ -73,7 +69,6 @@ public class FintEvents implements ApplicationContextAware {
     public void init() {
         Config config = props.getRedissonConfig();
         client = Redisson.create(config);
-        queues = client.getSet(REDISSON_QUEUES_KEY);
     }
 
     @PreDestroy
@@ -124,7 +119,6 @@ public class FintEvents implements ApplicationContextAware {
     }
 
     public <V> BlockingQueue<V> getQueue(String queue) {
-        componentQueues.add(queue);
         queues.add(queue);
         return client.getBlockingQueue(queue);
     }

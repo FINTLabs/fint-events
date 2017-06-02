@@ -27,11 +27,9 @@ class FintEventsControllerSpec extends MockMvcSpecification {
         def response = mockMvc.perform(get('/fint-events/queues'))
 
         then:
-        1 * fintEvents.getComponentQueues() >> ['test-queue']
         1 * fintEvents.getQueues() >> ['test-queue']
         response.andExpect(status().isOk())
-                .andExpect(jsonPath('$.componentQueues', hasSize(1)))
-                .andExpect(jsonPath('$.queues', hasSize(1)))
+                .andExpect(jsonPath('$', hasSize(1)))
     }
 
     def "Get next value in  queue, return size and content of queue"() {

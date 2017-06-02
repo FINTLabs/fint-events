@@ -14,6 +14,7 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
+import java.util.stream.Collectors;
 
 @ConditionalOnProperty(value = FintEventsProps.QUEUE_ENDPOINT_ENABLED, havingValue = "true")
 @RestController
@@ -27,11 +28,8 @@ public class FintEventsController {
     private RedissonConfig redissonConfig;
 
     @GetMapping("/queues")
-    public Map<String, Set<String>> getQueues() {
-        return ImmutableMap.of(
-                "componentQueues", fintEvents.getComponentQueues(),
-                "queues", fintEvents.getQueues()
-        );
+    public Set<String> getQueues() {
+        return fintEvents.getQueues();
     }
 
     @GetMapping("/queues/{queue:.+}")
@@ -46,8 +44,8 @@ public class FintEventsController {
     }
 
     @GetMapping("/listeners")
-    public Map<String, Class> getListeners() {
-        return fintEvents.getListeners();
+    public Map<String, String> getListeners() {
+        return fintEvents.getListeners().entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().getName()));
     }
 
     private Object getValue(BlockingQueue queue, Integer index) {
