@@ -30,6 +30,7 @@ dependencies {
     compile('com.github.kstyrc:embedded-redis:0.6')
     compile('org.apache.commons:commons-lang3:3.5')
     compile('io.netty:netty-transport-native-epoll:4.1.11.Final')
+    compile('io.netty:netty-transport-native-epoll:4.1.11.Final:linux-x86_64')
     compile("org.projectlombok:lombok:${lombokVersion}")
 
     compile("org.springframework.boot:spring-boot-starter-web:${springBootVersion}")
