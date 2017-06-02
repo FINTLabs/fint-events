@@ -47,7 +47,7 @@ public class FintEventsProps {
     private String queueEndpointEnabled;
 
     @Getter
-    @Value("${fint.events.healthcheck.timeout-in-seconds:120}")
+    @Value("${fint.events.healthcheck.timeout-in-seconds:90}")
     private int healthCheckTimeout;
 
     @Getter

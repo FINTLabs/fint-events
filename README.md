@@ -254,7 +254,7 @@ public void reconnect() {
 | fint.events.test-mode | When test mode is enable, an embedded redis instance is initialized on startup. It will also use the default redisson config `single server, 127.0.0.1:6379`. | false |
 | fint.events.queue-endpoint-enabled | Enable the rest endpoints `/fint-events/*` that make it possible to query the content of the queues. If the endpoint is disable a 404 response code is returned. | false |
 | fint.events.task-scheduler-thread-pool-size | The number of threads in the task scheduler thread pool. This will be used by all event listeners and `@Scheduled` methods. | 50 |
-| fint.events.healthcheck.timeout-in-seconds | The number of seconds the health check client will wait before timing out. | 120 |
+| fint.events.healthcheck.timeout-in-seconds | The number of seconds the health check client will wait before timing out. | 90 |
 
 ### Redisson config
 
