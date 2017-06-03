@@ -17,7 +17,8 @@ class RedissonConfigSpec extends Specification {
                 retryInterval: 3000,
                 reconnectionTimeout: 6000,
                 timeout: 6000,
-                environment: environment
+                environment: environment,
+                dnsMonitoring: 'true'
         )
     }
 
@@ -32,12 +33,13 @@ class RedissonConfigSpec extends Specification {
         then:
         1 * environment.getActiveProfiles() >> ['default']
         config != null
-        configValues['singleServerConfig'].size() == 5
+        configValues['singleServerConfig'].size() == 6
         singleServerConfig['address'] == 'redis://127.0.0.1:6379'
         singleServerConfig['retryAttempts'] == 50
         singleServerConfig['retryInterval'] == 3000
         singleServerConfig['reconnectionTimeout'] == 6000
         singleServerConfig['timeout'] == 6000
+        singleServerConfig['dnsMonitoring'] == true
     }
 
     def "Create cluster redisson json"() {
@@ -48,7 +50,8 @@ class RedissonConfigSpec extends Specification {
                 retryAttempts: 50,
                 retryInterval: 3000,
                 reconnectionTimeout: 6000,
-                timeout: 6000
+                timeout: 6000,
+                dnsMonitoring: 'false'
         )
 
         when:
@@ -57,12 +60,13 @@ class RedissonConfigSpec extends Specification {
         def clusterConfig = configValues['clusterServersConfig']
 
         then:
-        configValues['clusterServersConfig'].size() == 5
+        configValues['clusterServersConfig'].size() == 6
         clusterConfig['nodeAddresses'] == ['redis://127.0.0.1:6379', 'redis://127.0.0.2:6379'] as String[]
         clusterConfig['retryAttempts'] == 50
         clusterConfig['retryInterval'] == 3000
         clusterConfig['reconnectionTimeout'] == 6000
         clusterConfig['timeout'] == 6000
+        clusterConfig['dnsMonitoring'] == false
     }
 
     def "Read redisson config file"() {

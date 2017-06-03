@@ -275,4 +275,5 @@ If test-model is enabled, the default config will always be used.
 | fint.events.redisson.retry-interval | Time interval after which another one attempt to send Redis command will be executed. | 5000 |
 | fint.events.redisson.reconnection-timeout | Redis server reconnection attempt timeout. | 10000 |
 | fint.events.redisson.timeout | Redis server response timeout. Starts to countdown when Redis command was succesfully sent. | 10000 |
+| fint.events.redisson.dns-monitoring | If true server address will be monitored for changes in DNS. The monitoring interval is 5 seconds.  | false |
 | fint.events.redisson.use-linux-native-epoll | Activates an unix socket if servers binded to loopback interface. Also used for epoll transport activation. | false |
