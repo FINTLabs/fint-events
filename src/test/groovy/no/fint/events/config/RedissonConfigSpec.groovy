@@ -60,13 +60,12 @@ class RedissonConfigSpec extends Specification {
         def clusterConfig = configValues['clusterServersConfig']
 
         then:
-        configValues['clusterServersConfig'].size() == 6
+        configValues['clusterServersConfig'].size() == 5
         clusterConfig['nodeAddresses'] == ['redis://127.0.0.1:6379', 'redis://127.0.0.2:6379'] as String[]
         clusterConfig['retryAttempts'] == 50
         clusterConfig['retryInterval'] == 3000
         clusterConfig['reconnectionTimeout'] == 6000
         clusterConfig['timeout'] == 6000
-        clusterConfig['dnsMonitoring'] == false
     }
 
     def "Read redisson config file"() {

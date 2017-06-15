@@ -64,7 +64,9 @@ public class RedissonConfig {
         config.put("retryInterval", retryInterval);
         config.put("reconnectionTimeout", reconnectionTimeout);
         config.put("timeout", timeout);
-        config.put("dnsMonitoring", Boolean.valueOf(dnsMonitoring));
+        if (redissonMode == RedissonMode.SINGLE) {
+            config.put("dnsMonitoring", Boolean.valueOf(dnsMonitoring));
+        }
 
         ObjectMapper objectMapper = new ObjectMapper();
         redissonJsonConfig = objectMapper.writeValueAsString(ImmutableMap.of(redissonMode.getModeRoot(), config, "useLinuxNativeEpoll", Boolean.valueOf(useLinuxNativeEpoll)));
