@@ -31,4 +31,16 @@ class FintEventsSchedulingSpec extends Specification {
         then:
         1 * registrar.scheduleFixedDelayTask(_ as IntervalTask)
     }
+
+    def "Do not unregister if listenerId is not found"() {
+        given:
+        def listenerTasks = [:]
+        def scheduling = new FintEventsScheduling(listenerTasks: listenerTasks)
+
+        when:
+        scheduling.unregister('123')
+
+        then:
+        listenerTasks.size() == 0
+    }
 }

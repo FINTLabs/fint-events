@@ -35,8 +35,10 @@ public class FintEventsScheduling {
 
     public void unregister(String listenerId) {
         ScheduledTask scheduledTask = listenerTasks.get(listenerId);
-        scheduledTask.cancel();
-        listenerTasks.remove(listenerId);
+        if (scheduledTask != null) {
+            scheduledTask.cancel();
+            listenerTasks.remove(listenerId);
+        }
     }
 
     public void unregisterAllListeners() {
