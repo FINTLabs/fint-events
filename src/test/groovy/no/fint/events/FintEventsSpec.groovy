@@ -180,6 +180,19 @@ class FintEventsSpec extends Specification {
         fintEvents.listeners[1].object.class == TestListener
     }
 
+    def "Unregister listener"() {
+        given:
+        def listeners = [new Listener(id: '123')]
+        def fintEvents = new FintEvents(scheduling: scheduling, listeners: listeners)
+
+        when:
+        fintEvents.unregisterListener('123')
+
+        then:
+        listeners.size() == 0
+        1 * scheduling.unregister('123')
+    }
+
     def "Shutdown redisson client"() {
         when:
         fintEvents.shutdown()
