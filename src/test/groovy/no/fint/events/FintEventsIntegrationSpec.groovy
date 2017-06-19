@@ -182,15 +182,28 @@ class FintEventsIntegrationSpec extends Specification {
         fintEvents.getQueue('test-listener-queue').offer(new TestDto(name: 'test234'))
 
         when:
-        fintEvents.registerListener('test-listener-queue', TestListener)
-        fintEvents.registerListener('test-listener-queue', TestListener2)
+        def listenerId1 = fintEvents.registerListener('test-listener-queue', TestListener)
+        def listenerId2 = fintEvents.registerListener('test-listener-queue', TestListener2)
 
         then:
         conditions.eventually {
             assert testListener.testDto != null
             assert testListener.testDto.name == 'test123'
+            assert listenerId1.get() != null
             assert testListener2.testDto != null
             assert testListener2.testDto.name == 'test234'
+            assert listenerId2.get() != null
         }
+    }
+
+    @Requires({ Boolean.valueOf(properties['listenerIntegrationTestsEnabled']) })
+    def "Register and unregister listener"() {
+        when:
+        def listenerId = fintEvents.registerListener('test-listener-queue', TestListener)
+        fintEvents.unregisterListener(listenerId.get())
+
+        then:
+        fintEvents.listeners.size() == 0
+        listenerId.get() != null
     }
 }

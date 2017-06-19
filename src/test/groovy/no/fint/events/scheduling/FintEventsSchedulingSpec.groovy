@@ -1,6 +1,5 @@
-package no.fint.events.config
+package no.fint.events.scheduling
 
-import no.fint.events.listener.Listener
 import org.springframework.scheduling.config.IntervalTask
 import org.springframework.scheduling.config.ScheduledTaskRegistrar
 import spock.lang.Specification
@@ -14,7 +13,7 @@ class FintEventsSchedulingSpec extends Specification {
         scheduling.setRegistrar(registrar)
 
         when:
-        scheduling.register(new Listener(null, null, null))
+        scheduling.register(Mock(Listener))
 
         then:
         1 * registrar.scheduleFixedDelayTask(_ as IntervalTask)
@@ -26,7 +25,7 @@ class FintEventsSchedulingSpec extends Specification {
         def scheduling = new FintEventsScheduling()
 
         when:
-        scheduling.register(new Listener(null, null, null))
+        scheduling.register(Mock(Listener))
         scheduling.setRegistrar(registrar)
 
         then:

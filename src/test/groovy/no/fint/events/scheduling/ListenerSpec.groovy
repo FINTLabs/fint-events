@@ -1,5 +1,6 @@
-package no.fint.events.listener
+package no.fint.events.scheduling
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import no.fint.events.testutils.TestDto
 import no.fint.events.testutils.TestListener
 import org.redisson.RedissonShutdownException
@@ -21,7 +22,7 @@ class ListenerSpec extends Specification {
         method = ReflectionUtils.findMethod(TestListener, "receive", TestDto)
         queue = new ArrayBlockingQueue(10)
         testListener = new TestListener()
-        listener = new Listener(testListener, method, queue)
+        listener = new Listener(testListener, method, 'test-queue', queue)
     }
 
     def "Call run on listener"() {
@@ -47,7 +48,7 @@ class ListenerSpec extends Specification {
         def exceptionQueue = Mock(ArrayBlockingQueue) {
             take() >> { throw new RedissonShutdownException('test exception') }
         }
-        def exceptionListener = new Listener(testListener, method, exceptionQueue)
+        def exceptionListener = new Listener(testListener, method, 'test-queue', exceptionQueue)
 
         when:
         exceptionListener.run()
@@ -61,12 +62,21 @@ class ListenerSpec extends Specification {
         def exceptionQueue = Mock(ArrayBlockingQueue) {
             take() >> { throw new RedisException('test exception') }
         }
-        def exceptionListener = new Listener(testListener, method, exceptionQueue)
+        def exceptionListener = new Listener(testListener, method, 'test-queue', exceptionQueue)
 
         when:
         exceptionListener.run()
 
         then:
         testListener.testDto == null
+    }
+
+    def "Serialize Listener object to json"() {
+        when:
+        def listener = new Listener(testListener, method, 'test-queue', Mock(ArrayBlockingQueue))
+        def json = new ObjectMapper().writeValueAsString(listener)
+
+        then:
+        json != null
     }
 }

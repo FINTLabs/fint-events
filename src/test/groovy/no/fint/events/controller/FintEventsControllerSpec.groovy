@@ -2,6 +2,7 @@ package no.fint.events.controller
 
 import no.fint.events.FintEvents
 import no.fint.events.config.RedissonConfig
+import no.fint.events.scheduling.Listener
 import no.fint.events.testutils.TestDto
 import no.fint.events.testutils.TestListener
 import no.fint.test.utils.MockMvcSpecification
@@ -77,9 +78,10 @@ class FintEventsControllerSpec extends MockMvcSpecification {
         def response = mockMvc.perform(get('/fint-events/listeners'))
 
         then:
-        1 * fintEvents.getListeners() >> ['test-listener': TestListener]
+        1 * fintEvents.getListeners() >> [new Listener(object: new TestListener(), queueName: 'test-listener')]
         response.andExpect(status().isOk())
-                .andExpect(jsonPath('$.test-listener').value(equalTo(TestListener.name)))
+                .andExpect(jsonPath('$[0].queueName').value(equalTo('test-listener')))
+                .andExpect(jsonPath('$[0].object').value(equalTo(TestListener.name)))
     }
 
     def "Get redisson config"() {

@@ -1,4 +1,4 @@
-package no.fint.events.listener;
+package no.fint.events.scheduling;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

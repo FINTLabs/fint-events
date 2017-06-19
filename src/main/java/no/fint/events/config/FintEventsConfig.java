@@ -1,6 +1,7 @@
 package no.fint.events.config;
 
 import no.fint.events.FintEvents;
+import no.fint.events.scheduling.FintEventsScheduling;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.ComponentScan;

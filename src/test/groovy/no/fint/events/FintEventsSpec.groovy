@@ -1,9 +1,9 @@
 package no.fint.events
 
 import no.fint.events.config.FintEventsProps
-import no.fint.events.config.FintEventsScheduling
-import no.fint.events.listener.Listener
 import no.fint.events.queue.FintEventsQueue
+import no.fint.events.scheduling.FintEventsScheduling
+import no.fint.events.scheduling.Listener
 import no.fint.events.testutils.TestDto
 import no.fint.events.testutils.TestListener
 import org.redisson.api.RBlockingQueue
@@ -110,12 +110,12 @@ class FintEventsSpec extends Specification {
         fintEvents.registerListener('test-listener-queue', TestListener)
 
         then:
-        1 * applicationContext.getBean(TestListener) >> new TestListener()
-        1 * client.getBlockingQueue('test-listener-queue')
+        2 * applicationContext.getBean(TestListener) >> new TestListener()
+        2 * client.getBlockingQueue('test-listener-queue')
         1 * scheduling.register(_ as Listener)
         fintEvents.listeners.size() == 1
-        fintEvents.listeners.keySet()[0] == 'test-listener-queue'
-        fintEvents.listeners.values()[0] == TestListener
+        fintEvents.listeners[0].queueName == 'test-listener-queue'
+        fintEvents.listeners[0].object.class == TestListener
     }
 
     def "Register downstream listener"() {
@@ -128,10 +128,10 @@ class FintEventsSpec extends Specification {
         1 * client.getBlockingQueue(downstreamQueueName('hfk.no'))
         2 * scheduling.register(_ as Listener)
         fintEvents.listeners.size() == 2
-        fintEvents.listeners.keySet().contains(downstreamQueueName('rogfk.no') as String)
-        fintEvents.listeners.keySet().contains(downstreamQueueName('hfk.no') as String)
-        fintEvents.listeners.values()[0] == TestListener
-        fintEvents.listeners.values()[1] == TestListener
+        fintEvents.listeners[0].object.class == TestListener
+        fintEvents.listeners[0].queueName.contains('rogfk.no')
+        fintEvents.listeners[1].object.class == TestListener
+        fintEvents.listeners[1].queueName.contains('hfk.no')
     }
 
     def "Register upstream listener"() {
@@ -144,10 +144,10 @@ class FintEventsSpec extends Specification {
         1 * client.getBlockingQueue(upstreamQueueName('hfk.no'))
         2 * scheduling.register(_ as Listener)
         fintEvents.listeners.size() == 2
-        fintEvents.listeners.keySet().contains(upstreamQueueName('rogfk.no') as String)
-        fintEvents.listeners.keySet().contains(upstreamQueueName('hfk.no') as String)
-        fintEvents.listeners.values()[0] == TestListener
-        fintEvents.listeners.values()[1] == TestListener
+        fintEvents.listeners[0].queueName.contains('rogfk.no')
+        fintEvents.listeners[1].queueName.contains('hfk.no')
+        fintEvents.listeners[0].object.class == TestListener
+        fintEvents.listeners[1].object.class == TestListener
     }
 
     def "Shutdown redisson client"() {

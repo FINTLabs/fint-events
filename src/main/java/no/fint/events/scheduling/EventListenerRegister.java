@@ -1,4 +1,4 @@
-package no.fint.events.listener;
+package no.fint.events.scheduling;
 
 import lombok.extern.slf4j.Slf4j;
 import no.fint.events.FintEvents;

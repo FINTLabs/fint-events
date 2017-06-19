@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import no.fint.events.FintEvents;
 import no.fint.events.config.FintEventsProps;
 import no.fint.events.config.RedissonConfig;
+import no.fint.events.scheduling.Listener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.MediaType;
@@ -11,10 +12,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
-import java.util.Map;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
-import java.util.stream.Collectors;
 
 @ConditionalOnProperty(value = FintEventsProps.QUEUE_ENDPOINT_ENABLED, havingValue = "true")
 @RestController
@@ -44,8 +44,8 @@ public class FintEventsController {
     }
 
     @GetMapping("/listeners")
-    public Map<String, String> getListeners() {
-        return fintEvents.getListeners().entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().getName()));
+    public List<Listener> getListeners() {
+        return fintEvents.getListeners();
     }
 
     private Object getValue(BlockingQueue queue, Integer index) {

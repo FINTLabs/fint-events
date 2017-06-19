@@ -1,4 +1,4 @@
-package no.fint.events.listener
+package no.fint.events.scheduling
 
 import no.fint.events.FintEvents
 import no.fint.events.config.FintEventsProps

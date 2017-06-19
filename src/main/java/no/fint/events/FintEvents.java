@@ -5,11 +5,11 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import no.fint.events.annotations.FintEventListener;
 import no.fint.events.config.FintEventsProps;
-import no.fint.events.config.FintEventsScheduling;
 import no.fint.events.event.RedissonReconnectedEvent;
-import no.fint.events.listener.Listener;
 import no.fint.events.queue.FintEventsQueue;
 import no.fint.events.queue.QueueName;
+import no.fint.events.scheduling.FintEventsScheduling;
+import no.fint.events.scheduling.Listener;
 import org.redisson.Redisson;
 import org.redisson.api.RBlockingQueue;
 import org.redisson.api.RKeys;
@@ -27,10 +27,7 @@ import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.BlockingQueue;
 
 @Slf4j
@@ -55,7 +52,7 @@ public class FintEvents implements ApplicationContextAware {
     private FintEventsQueue fintQueue;
 
     @Getter
-    private Map<String, Class> listeners = new HashMap<>();
+    private List<Listener> listeners = new ArrayList<>();
 
     @Getter
     private Set<String> queues = new HashSet<>();
@@ -78,12 +75,12 @@ public class FintEvents implements ApplicationContextAware {
 
     public void reconnect() {
         try {
-            removeAllListeners();
+            unregisterAllListeners();
             shutdown();
             init();
 
-            for (String queue : listeners.keySet()) {
-                registerListener(queue, listeners.get(queue));
+            for (Listener listener : listeners) {
+                registerListener(listener.getQueueName(), listener.getObject().getClass());
             }
             publisher.publishEvent(new RedissonReconnectedEvent());
         } catch (RedisException e) {
@@ -161,26 +158,42 @@ public class FintEvents implements ApplicationContextAware {
         getUpstream(queueName).offer(value);
     }
 
-    public void registerDownstreamListener(Class<?> listener, String... orgIds) {
-        registerDownstreamListener(listener, toQueueNameArray(orgIds));
+    public Optional<String> registerDownstreamListener(Class<?> listener, String orgId) {
+        String downstreamQueueName = fintQueue.getDownstreamQueueName(QueueName.with(orgId));
+        return registerListener(downstreamQueueName, listener);
     }
 
-    public void registerDownstreamListener(Class<?> listener, QueueName... queueNames) {
+    public List<String> registerDownstreamListener(Class<?> listener, String... orgIds) {
+        return registerDownstreamListener(listener, toQueueNameArray(orgIds));
+    }
+
+    public List<String> registerDownstreamListener(Class<?> listener, QueueName... queueNames) {
+        List<String> listenerIds = new ArrayList<>();
         for (QueueName queueName : queueNames) {
             String downstreamQueueName = fintQueue.getDownstreamQueueName(queueName);
-            registerListener(downstreamQueueName, listener);
+            Optional<String> listenerId = registerListener(downstreamQueueName, listener);
+            listenerId.ifPresent(listenerIds::add);
         }
+        return listenerIds;
     }
 
-    public void registerUpstreamListener(Class<?> listener, String... orgIds) {
-        registerUpstreamListener(listener, toQueueNameArray(orgIds));
+    public Optional<String> registerUpstreamListener(Class<?> listener, String orgId) {
+        String upstreamQueueName = fintQueue.getUpstreamQueueName(QueueName.with(orgId));
+        return registerListener(upstreamQueueName, listener);
     }
 
-    public void registerUpstreamListener(Class<?> listener, QueueName... queueNames) {
+    public List<String> registerUpstreamListener(Class<?> listener, String... orgIds) {
+        return registerUpstreamListener(listener, toQueueNameArray(orgIds));
+    }
+
+    public List<String> registerUpstreamListener(Class<?> listener, QueueName... queueNames) {
+        List<String> listenerIds = new ArrayList<>();
         for (QueueName queueName : queueNames) {
             String upstreamQueueName = fintQueue.getUpstreamQueueName(queueName);
-            registerListener(upstreamQueueName, listener);
+            Optional<String> listenerId = registerListener(upstreamQueueName, listener);
+            listenerId.ifPresent(listenerIds::add);
         }
+        return listenerIds;
     }
 
     private QueueName[] toQueueNameArray(String... orgIds) {
@@ -191,25 +204,37 @@ public class FintEvents implements ApplicationContextAware {
         return queueNames;
     }
 
-    public void registerListener(String queue, Class<?> listener) {
-        Class listenerClass = listeners.get(queue);
-        if (listenerClass == null || listener != listenerClass) {
-            log.info("Registering listener ({}) for {}", listener.getSimpleName(), queue);
-            Object bean = applicationContext.getBean(listener);
-            Method[] methods = bean.getClass().getMethods();
-            for (Method method : methods) {
-                FintEventListener annotation = method.getAnnotation(FintEventListener.class);
-                if (annotation != null) {
-                    Listener listenerInstance = new Listener(bean, method, getQueue(queue));
+    public Optional<String> registerListener(String queue, Class<?> listener) {
+        Optional<String> listenerId = Optional.empty();
+        Object bean = applicationContext.getBean(listener);
+        Method[] methods = bean.getClass().getMethods();
+        for (Method method : methods) {
+            FintEventListener annotation = method.getAnnotation(FintEventListener.class);
+
+            if (annotation != null) {
+                Listener listenerInstance = new Listener(bean, method, queue, getQueue(queue));
+
+                if (!listeners.contains(listenerInstance)) {
+                    log.info("Registering listener ({}) for {}", listener.getSimpleName(), queue);
+                    listenerId = Optional.of(listenerInstance.getId());
                     scheduling.register(listenerInstance);
-                    listeners.put(queue, listener);
+                    listeners.add(listenerInstance);
                 }
             }
         }
+        return listenerId;
     }
 
-    public void removeAllListeners() {
+    public void unregisterListener(String listenerId) {
+        Optional<Listener> listener = listeners.stream().filter(l -> l.getId().equals(listenerId)).findAny();
+        if (listener.isPresent()) {
+            scheduling.unregister(listenerId);
+            listeners.remove(listener.get());
+        }
+    }
+
+    public void unregisterAllListeners() {
         listeners.clear();
-        scheduling.removeAllListeners();
+        scheduling.unregisterAllListeners();
     }
 }
