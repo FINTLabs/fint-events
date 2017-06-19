@@ -120,13 +120,28 @@ class FintEventsSpec extends Specification {
 
     def "Register downstream listener"() {
         when:
-        fintEvents.registerDownstreamListener(TestListener, 'rogfk.no', 'hfk.no')
+        def listenerId = fintEvents.registerDownstreamListener(TestListener, 'rogfk.no')
+
+        then:
+        1 * applicationContext.getBean(TestListener) >> new TestListener()
+        1 * client.getBlockingQueue(downstreamQueueName('rogfk.no'))
+        1 * scheduling.register(_ as Listener)
+        listenerId.isPresent()
+        fintEvents.listeners.size() == 1
+        fintEvents.listeners[0].object.class == TestListener
+        fintEvents.listeners[0].queueName.contains('rogfk.no')
+    }
+
+    def "Register multiple downstream listener"() {
+        when:
+        def listenerIds = fintEvents.registerDownstreamListener(TestListener, 'rogfk.no', 'hfk.no')
 
         then:
         2 * applicationContext.getBean(TestListener) >> new TestListener()
         1 * client.getBlockingQueue(downstreamQueueName('rogfk.no'))
         1 * client.getBlockingQueue(downstreamQueueName('hfk.no'))
         2 * scheduling.register(_ as Listener)
+        listenerIds.size() == 2
         fintEvents.listeners.size() == 2
         fintEvents.listeners[0].object.class == TestListener
         fintEvents.listeners[0].queueName.contains('rogfk.no')
@@ -134,15 +149,30 @@ class FintEventsSpec extends Specification {
         fintEvents.listeners[1].queueName.contains('hfk.no')
     }
 
-    def "Register upstream listener"() {
+    def "Register upsteam listener"() {
         when:
-        fintEvents.registerUpstreamListener(TestListener, 'rogfk.no', 'hfk.no')
+        def listenerId = fintEvents.registerUpstreamListener(TestListener, 'rogfk.no')
+
+        then:
+        1 * applicationContext.getBean(TestListener) >> new TestListener()
+        1 * client.getBlockingQueue(upstreamQueueName('rogfk.no'))
+        1 * scheduling.register(_ as Listener)
+        listenerId.isPresent()
+        fintEvents.listeners.size() == 1
+        fintEvents.listeners[0].object.class == TestListener
+        fintEvents.listeners[0].queueName.contains('rogfk.no')
+    }
+
+    def "Register multiple upstream listener"() {
+        when:
+        def listenerIds = fintEvents.registerUpstreamListener(TestListener, 'rogfk.no', 'hfk.no')
 
         then:
         2 * applicationContext.getBean(TestListener) >> new TestListener()
         1 * client.getBlockingQueue(upstreamQueueName('rogfk.no'))
         1 * client.getBlockingQueue(upstreamQueueName('hfk.no'))
         2 * scheduling.register(_ as Listener)
+        listenerIds.size() == 2
         fintEvents.listeners.size() == 2
         fintEvents.listeners[0].queueName.contains('rogfk.no')
         fintEvents.listeners[1].queueName.contains('hfk.no')
