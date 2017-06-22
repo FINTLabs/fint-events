@@ -155,6 +155,7 @@ class FintEventsIntegrationSpec extends Specification {
 
     def "Register listener and read message from queue"() {
         given:
+        fintEvents.unregisterAllListeners()
         def conditions = new PollingConditions(timeout: 5, initialDelay: 0.02, factor: 1.25)
         fintEvents.getQueue('test-listener-queue').offer(new TestDto(name: 'test123'))
         fintEvents.getQueue('test-listener-queue').offer(new TestDto(name: 'test234'))
