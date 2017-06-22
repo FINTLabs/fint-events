@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import no.fint.events.config.FintEventsProps;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -30,7 +31,7 @@ public class DockerRedis {
 
     @PostConstruct
     public void startRedisContainer() throws DockerCertificateException, DockerException, InterruptedException {
-        if (Boolean.valueOf(props.getDockerRedis()) && Boolean.valueOf(props.getTestMode()) && docker == null) {
+        if (StringUtils.isEmpty(props.getCi()) && Boolean.valueOf(props.getTestMode()) && docker == null) {
             log.info("Test mode enabled, starting docker redis");
             docker = DefaultDockerClient.fromEnv().build();
             docker.pull(IMAGE_REDIS);

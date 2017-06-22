@@ -44,8 +44,8 @@ public class FintEventsProps {
     private String testMode;
 
     @Getter
-    @Value("${fint.events.test-mode.docker-redis:true}")
-    private String dockerRedis;
+    @Value("${CI:}")
+    private String ci;
 
     @Value("${" + QUEUE_ENDPOINT_ENABLED + ":false}")
     private String queueEndpointEnabled;

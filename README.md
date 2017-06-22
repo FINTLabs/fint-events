@@ -264,10 +264,10 @@ public void reconnect() {
 | fint.events.default-downstream-queue | The format of the default downstream queue. {component}=`fint.events.component` {env}=`fint.events.env` | `downstream_{component}_{env}_{orgId}` |
 | fint.events.default-upstream-queue | The format of the default upstream queue. {component}=`fint.events.component` {env}=`fint.events.env` | `upstream_{component}_{env}_{orgId}` |
 | fint.events.test-mode | When test mode is enable, an embedded redis instance is initialized on startup. It will also use the default redisson config `single server, 127.0.0.1:6379`. | false |
-| fint.events.test-mode.docker-redis | Used to enable/disable the docker redis container. Only in use if test-mode is enabled. | true |
 | fint.events.queue-endpoint-enabled | Enable the rest endpoints `/fint-events/*` that make it possible to query the content of the queues. If the endpoint is disable a 404 response code is returned. | false |
 | fint.events.task-scheduler-thread-pool-size | The number of threads in the task scheduler thread pool. This will be used by all event listeners and `@Scheduled` methods. | 50 |
 | fint.events.healthcheck.timeout-in-seconds | The number of seconds the health check client will wait before timing out. | 90 |
+| CI | Environment variable set by Travis. Used to enable/disable the docker redis container. Only in use if test-mode is enabled, when no value is set docker redis is enabled. | |
 
 ### Redisson config
 
