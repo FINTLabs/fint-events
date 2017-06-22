@@ -157,12 +157,12 @@ class FintEventsIntegrationSpec extends Specification {
         given:
         fintEvents.unregisterAllListeners()
         def conditions = new PollingConditions(timeout: 15, initialDelay: 0.02, factor: 1.25)
-        fintEvents.getQueue('test-listener-queue').offer(new TestDto(name: 'test123'))
-        fintEvents.getQueue('test-listener-queue').offer(new TestDto(name: 'test234'))
 
         when:
-        def listenerId1 = fintEvents.registerListener('test-listener-queue', TestListener)
-        def listenerId2 = fintEvents.registerListener('test-listener-queue', TestListener2)
+        def listenerId1 = fintEvents.registerListener('test-listener-queue-123', TestListener)
+        def listenerId2 = fintEvents.registerListener('test-listener-queue-123', TestListener2)
+        fintEvents.getQueue('test-listener-queue-123').offer(new TestDto(name: 'test123'))
+        fintEvents.getQueue('test-listener-queue-123').offer(new TestDto(name: 'test234'))
 
         then:
         conditions.eventually {
