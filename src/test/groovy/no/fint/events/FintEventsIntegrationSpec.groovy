@@ -200,9 +200,10 @@ class FintEventsIntegrationSpec extends Specification {
     def "Register and unregister listener"() {
         when:
         def listenerId = fintEvents.registerListener('test-listener-queue', TestListener)
-        fintEvents.unregisterListener(listenerId.get())
+        def unregistered = fintEvents.unregisterListener(listenerId.get())
 
         then:
+        unregistered
         fintEvents.listeners.size() == 0
         listenerId.get() != null
     }

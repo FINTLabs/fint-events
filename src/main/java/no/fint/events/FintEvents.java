@@ -29,6 +29,7 @@ import javax.annotation.PreDestroy;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.BlockingQueue;
+import java.util.stream.Collectors;
 
 @Slf4j
 @DependsOn("embeddedRedis")
@@ -225,16 +226,22 @@ public class FintEvents implements ApplicationContextAware {
         return listenerId;
     }
 
-    public void unregisterListener(String listenerId) {
+    public boolean unregisterListener(String listenerId) {
         Optional<Listener> listener = listeners.stream().filter(l -> l.getId().equals(listenerId)).findAny();
         if (listener.isPresent()) {
             scheduling.unregister(listenerId);
             listeners.remove(listener.get());
+            return true;
         }
+        return false;
     }
 
     public void unregisterAllListeners() {
         listeners.clear();
         scheduling.unregisterAllListeners();
+    }
+
+    public List<String> getListenerIds() {
+        return listeners.stream().map(Listener::getId).collect(Collectors.toList());
     }
 }

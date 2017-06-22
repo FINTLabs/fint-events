@@ -186,11 +186,24 @@ class FintEventsSpec extends Specification {
         def fintEvents = new FintEvents(scheduling: scheduling, listeners: listeners)
 
         when:
-        fintEvents.unregisterListener('123')
+        def unregistered = fintEvents.unregisterListener('123')
 
         then:
-        listeners.size() == 0
         1 * scheduling.unregister('123')
+        unregistered
+        listeners.size() == 0
+    }
+
+    def "List registered listener ids"() {
+        given:
+        def fintEvents = new FintEvents(listeners: [new Listener(id: '123')])
+
+        when:
+        def listenerIds = fintEvents.getListenerIds()
+
+        then:
+        listenerIds.size() == 1
+        listenerIds[0] == '123'
     }
 
     def "Shutdown redisson client"() {

@@ -9,6 +9,7 @@ Event library built on top of [redisson](https://redisson.org/).
 * [Usage](#usage)
   * [Publish message on queue](#publish-message-on-queue)
   * [Register listener](#register-listener)
+  * [Unregister listener](#unregister-listener)
   * [Queue name configuration](#queue-name-configuration)
   * [Temporary queues](#temporary-queues)
   * [Health check](#health-check)
@@ -77,22 +78,37 @@ public class TestListener {
 
 Custom queue name:
 ```java
-fintEvents.registerListener("queue-name", MyListener);
+Optional<String> listenerId = fintEvents.registerListener("queue-name", MyListener);
 ```
 
 Downstream/upstream queue:
 ```java
-fintEvents.registerDownstreamListener(MyListener.class, "orgId");
-fintEvents.registerUpstreamListener(MyListener.class, "orgId");
+Optional<String> listenerId = fintEvents.registerDownstreamListener(MyListener.class, "orgId");
+Optional<String> listenerId = fintEvents.registerUpstreamListener(MyListener.class, "orgId");
+```
+The `listenerId` is useful if you need to unregister the listener.
+
+Get registered listeners:
+```java
+List<Listener> listeners = fintEvents.getListeners();
 ```
 
-Get registered listeners (Queue name + time registered):
+Or only get the registered listenerIds:
 ```java
-Map<String, Long> listeners = fintEvents.getListeners();
+List<String> listenerIds = fintEvents.getListenerIds();
 ```
 
 If orgId(s) are added to `fint.events.orgIds`, event listeners can be automatically registered.  
 See [configuration](#configuration) for more details.
+
+
+## Unregister listener
+
+Use the `listenerId` to unregister the listener:
+```java
+boolean unregistered = fintEvents.unregister(myListenerId);
+```
+
 
 ## Queue name configuration
 

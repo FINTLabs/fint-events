@@ -5,3 +5,4 @@ classes
 out
 .DS_Store
 test-redis/node_modules
+*.iml
