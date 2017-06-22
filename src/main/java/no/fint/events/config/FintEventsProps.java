@@ -20,10 +20,6 @@ public class FintEventsProps {
     private RedissonConfig redisson;
 
     @Getter
-    @Value("${CI_NAME:}") // set in travis
-    private String ciName;
-
-    @Getter
     @Value("${fint.events.orgIds:}")
     private String[] orgIds;
 
@@ -46,6 +42,10 @@ public class FintEventsProps {
     @Getter
     @Value("${fint.events.test-mode:false}")
     private String testMode;
+
+    @Getter
+    @Value("${fint.events.test-mode.docker-redis:true}")
+    private String dockerRedis;
 
     @Value("${" + QUEUE_ENDPOINT_ENABLED + ":false}")
     private String queueEndpointEnabled;
