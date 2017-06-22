@@ -54,12 +54,14 @@ public class DockerRedis {
 
     @PreDestroy
     public void stopRedisContainer() throws DockerException, InterruptedException {
-        log.info("Stopping Redis docker container");
-        ContainerInfo containerInfo = docker.inspectContainer(containerId);
-        if (containerInfo != null && containerInfo.state().running()) {
-            docker.stopContainer(containerId, 5);
-            docker.removeContainer(containerId);
-            docker.close();
+        if (docker != null) {
+            log.info("Stopping Redis docker container");
+            ContainerInfo containerInfo = docker.inspectContainer(containerId);
+            if (containerInfo != null && containerInfo.state().running()) {
+                docker.stopContainer(containerId, 5);
+                docker.removeContainer(containerId);
+                docker.close();
+            }
         }
     }
 }
