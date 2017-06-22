@@ -4,15 +4,12 @@ import no.fint.events.config.FintEventsProps
 import no.fint.events.controller.FintEventsController
 import no.fint.events.queue.FintEventsQueue
 import no.fint.events.queue.QueueName
-import no.fint.events.testmode.EmbeddedRedis
 import no.fint.events.testutils.*
-import org.redisson.Redisson
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.context.embedded.LocalServerPort
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.HttpStatus
 import org.springframework.web.client.RestTemplate
-import spock.lang.Requires
 import spock.lang.Specification
 import spock.util.concurrent.PollingConditions
 
@@ -29,9 +26,6 @@ class FintEventsIntegrationSpec extends Specification {
 
     @Autowired
     private FintEventsHealth fintEventsHealth
-
-    @Autowired
-    public EmbeddedRedis embeddedRedis
 
     @Autowired
     private FintEventsProps props
@@ -150,22 +144,6 @@ class FintEventsIntegrationSpec extends Specification {
         controllerEnabled
     }
 
-    def "Init and shutdown embedded redis"() {
-        when:
-        def client = Redisson.create(props.getRedissonConfig())
-        def number = client.getAtomicLong("test")
-        number.set(123)
-        def response = client.getAtomicLong("test").get()
-        client.shutdown()
-        embeddedRedis.shutdown()
-
-        then:
-        embeddedRedis.init()
-        noExceptionThrown()
-        response == 123L
-    }
-
-    @Requires({ Boolean.valueOf(properties['listenerIntegrationTestsEnabled']) })
     def "Send and receive health check"() {
         when:
         fintEvents.registerDownstreamListener(HealthCheckListener, 'rogfk.no')
@@ -175,7 +153,6 @@ class FintEventsIntegrationSpec extends Specification {
         response.name == 'test234'
     }
 
-    @Requires({ Boolean.valueOf(properties['listenerIntegrationTestsEnabled']) })
     def "Register listener and read message from queue"() {
         given:
         def conditions = new PollingConditions(timeout: 5, initialDelay: 0.02, factor: 1.25)
@@ -197,8 +174,10 @@ class FintEventsIntegrationSpec extends Specification {
         }
     }
 
-    @Requires({ Boolean.valueOf(properties['listenerIntegrationTestsEnabled']) })
     def "Register and unregister listener"() {
+        given:
+        fintEvents.unregisterAllListeners()
+
         when:
         def listenerId = fintEvents.registerListener('test-listener-queue', TestListener)
         def unregistered = fintEvents.unregisterListener(listenerId.get())

@@ -32,7 +32,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.stream.Collectors;
 
 @Slf4j
-@DependsOn("embeddedRedis")
+@DependsOn("dockerRedis")
 @Component
 public class FintEvents implements ApplicationContextAware {
     public static final String REDISSON_TEMP_QUEUE_PREFIX = "temp-";

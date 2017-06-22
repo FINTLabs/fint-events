@@ -20,6 +20,10 @@ public class FintEventsProps {
     private RedissonConfig redisson;
 
     @Getter
+    @Value("${CI_NAME:}") // set in travis
+    private String ciName;
+
+    @Getter
     @Value("${fint.events.orgIds:}")
     private String[] orgIds;
 
