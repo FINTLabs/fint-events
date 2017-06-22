@@ -194,6 +194,14 @@ class FintEventsSpec extends Specification {
         listeners.size() == 0
     }
 
+    def "Return false if no listeners are unregistered"() {
+        when:
+        def unregistered = fintEvents.unregisterListener('test123')
+
+        then:
+        !unregistered
+    }
+
     def "List registered listener ids"() {
         given:
         def fintEvents = new FintEvents(listeners: [new Listener(id: '123')])
