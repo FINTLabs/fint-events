@@ -142,6 +142,14 @@ class FintEventsIntegrationSpec extends Specification {
         body.values()[1] == 'TestDto(name=testing)'
     }
 
+    def "Initialize FintEventsController when endpoint is enabled"() {
+        when:
+        def controllerEnabled = (fintEventsController != null)
+
+        then:
+        controllerEnabled
+    }
+
     def "Init and shutdown embedded redis"() {
         when:
         def client = Redisson.create(props.getRedissonConfig())
@@ -152,16 +160,9 @@ class FintEventsIntegrationSpec extends Specification {
         embeddedRedis.shutdown()
 
         then:
+        embeddedRedis.init()
         noExceptionThrown()
         response == 123L
-    }
-
-    def "Initialize FintEventsController when endpoint is enabled"() {
-        when:
-        def controllerEnabled = (fintEventsController != null)
-
-        then:
-        controllerEnabled
     }
 
     @Requires({ Boolean.valueOf(properties['listenerIntegrationTestsEnabled']) })
