@@ -26,8 +26,10 @@ repositories {
 
 apply from: 'https://raw.githubusercontent.com/FINTlibs/fint-buildscripts/v1.0.14/dependencies.gradle'
 dependencies {
+
     compile('org.redisson:redisson:3.4.3')
     compile('com.spotify:docker-client:8.7.3')
+    compile('com.google.code.findbugs:annotations:3.0.1')
     compile('org.apache.commons:commons-text:1.1')
     compile('io.netty:netty-transport-native-epoll:4.1.11.Final')
     compile('io.netty:netty-transport-native-epoll:4.1.11.Final:linux-x86_64')
