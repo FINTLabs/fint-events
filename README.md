@@ -28,7 +28,7 @@ repositories {
     }
 }
 
-compile('no.fint:fint-events:0.1.34')
+compile('no.fint:fint-events:1.0.0')
 ```
 If you are unable to compile because of the `jffi` dependency this can be excluded (might cause test-mode to stop working):
 ```groovy
