@@ -65,13 +65,11 @@ public class Listener implements Runnable {
     }
 
     private String getCauseString(Exception e) {
-        String causeString;
         if (e.getCause() == null) {
-            causeString = "";
+            return "";
         } else {
-            causeString = e.getCause().getMessage();
+            return e.getCause().getMessage();
         }
-        return causeString;
     }
 
     @JsonGetter("object")
