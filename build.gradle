@@ -11,7 +11,7 @@ apply plugin: 'jacoco'
 
 jar {
     baseName = 'fint-events'
-    version = '1.0.0'
+    version = '1.0.1'
 }
 
 sourceCompatibility = 1.8
@@ -26,9 +26,8 @@ repositories {
 
 apply from: 'https://raw.githubusercontent.com/FINTlibs/fint-buildscripts/v1.0.14/dependencies.gradle'
 dependencies {
-
-    compile('org.redisson:redisson:3.5.0')
-    compile('com.spotify:docker-client:8.8.2')
+    compile('org.redisson:redisson:3.5.4')
+    compile('com.spotify:docker-client:8.9.1')
     compile('com.google.code.findbugs:annotations:3.0.1')
     compile('org.apache.commons:commons-text:1.1')
     compile('io.netty:netty-transport-native-epoll:4.1.11.Final')

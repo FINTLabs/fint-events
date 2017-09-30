@@ -54,7 +54,7 @@ public class Listener implements Runnable {
                 method.invoke(object, response);
             }
         } catch (InterruptedException | IllegalArgumentException | IllegalAccessException | InvocationTargetException e) {
-            log.error("Unable to call listener, bean:{} method:{}. Exception: {}", object.getClass().getName(), method.getName(), e.getMessage());
+            log.error("Unable to call listener, bean:{} method:{}. Exception message:{}, cause:{}, type:{}", object.getClass().getName(), method.getName(), e.getMessage(), getCauseString(e), e.getClass().getName());
         } catch (RedisException | CompletionException e) {
             if (e instanceof RedissonShutdownException || e.getCause() instanceof RedissonShutdownException) {
                 log.debug("Listener task stopped because redisson is shutting down. {}", e.getMessage());
@@ -62,6 +62,16 @@ public class Listener implements Runnable {
                 log.error("Exception when trying to read message from redisson queue, {}", e.getMessage());
             }
         }
+    }
+
+    private String getCauseString(Exception e) {
+        String causeString;
+        if (e.getCause() == null) {
+            causeString = "";
+        } else {
+            causeString = e.getCause().getMessage();
+        }
+        return causeString;
     }
 
     @JsonGetter("object")
