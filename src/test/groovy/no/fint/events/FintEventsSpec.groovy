@@ -1,232 +1,65 @@
 package no.fint.events
 
-import no.fint.events.config.FintEventsProps
-import no.fint.events.queue.FintEventsQueue
-import no.fint.events.scheduling.FintEventsScheduling
-import no.fint.events.scheduling.Listener
-import no.fint.events.testutils.TestDto
-import no.fint.events.testutils.TestListener
-import org.redisson.api.RBlockingQueue
-import org.redisson.api.RedissonClient
-import org.springframework.context.ApplicationContext
+import no.fint.event.model.DefaultActions
+import no.fint.event.model.Event
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.context.SpringBootTest
 import spock.lang.Specification
 
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
+
+@SpringBootTest(classes = TestApplication)
 class FintEventsSpec extends Specification {
+
+    @Autowired
     private FintEvents fintEvents
-    private RedissonClient client
-    private FintEventsScheduling scheduling
-    private FintEventsQueue fintQueue
-    private ApplicationContext applicationContext
+
+    private Event event
 
     void setup() {
-        client = Mock(RedissonClient)
-        scheduling = Mock(FintEventsScheduling)
-        applicationContext = Mock(ApplicationContext)
-        def props = new FintEventsProps(env: 'local', component: 'default',
-                defaultDownstreamQueue: 'downstream_{component}_{env}_{orgId}',
-                defaultUpstreamQueue: 'upstream_{component}_{env}_{orgId}')
-        fintQueue = new FintEventsQueue(props: props)
-        fintEvents = new FintEvents(
-                client: client,
-                props: props,
-                scheduling: scheduling,
-                fintQueue: fintQueue,
-                applicationContext: applicationContext
-        )
+        event = new Event('rfk.no', 'test-source', DefaultActions.HEALTH, 'test-client')
+        fintEvents.clearListeners()
     }
 
-    def "Temporary queue will not be stored in FintEvents component"() {
-        when:
-        def queue = fintEvents.getTempQueue('my-queue')
-
-        then:
-        1 * client.getBlockingQueue('temp-my-queue') >> Mock(RBlockingQueue)
-        queue != null
-        fintEvents.getQueues().size() == 0
+    def "initialize fint events"() {
+        expect:
+        fintEvents != null
     }
 
-    def "Get downstream queue"() {
-        when:
-        def downstream = fintEvents.getDownstream('rogfk.no')
-
-        then:
-        1 * client.getBlockingQueue(downstreamQueueName('rogfk.no')) >> Mock(RBlockingQueue)
-        downstream != null
-        fintEvents.getQueues()[0] == downstreamQueueName('rogfk.no')
-    }
-
-    def "Get upstream queue"() {
-        when:
-        def upstream = fintEvents.getUpstream('rogfk.no')
-
-        then:
-        1 * client.getBlockingQueue(upstreamQueueName('rogfk.no')) >> Mock(RBlockingQueue)
-        upstream != null
-        fintEvents.getQueues()[0] == upstreamQueueName('rogfk.no')
-    }
-
-    def "Send object to queue"() {
+    def "Register downstream listener and send event"() {
         given:
-        def queue = Mock(RBlockingQueue)
-        def testDto = new TestDto()
+        def latch = new CountDownLatch(1)
 
         when:
-        fintEvents.send('test-queue', testDto)
+        fintEvents.registerDownstreamListener('rfk.no', { e -> latch.countDown() } as FintEventListener)
+        fintEvents.sendDownstream(event)
 
         then:
-        1 * client.getBlockingQueue('test-queue') >> queue
-        1 * queue.offer(testDto)
+        latch.await(2, TimeUnit.SECONDS)
     }
 
-    def "Send object to downstream queue"() {
+    def "Register upstream listener and send event"() {
         given:
-        def queue = Mock(RBlockingQueue)
-        def testDto = new TestDto()
+        def latch = new CountDownLatch(1)
 
         when:
-        fintEvents.sendDownstream('rogfk.no', testDto)
+        fintEvents.registerUpstreamListener('rfk.no', { e -> latch.countDown() } as FintEventListener)
+        fintEvents.sendUpstream(event)
 
         then:
-        1 * client.getBlockingQueue(downstreamQueueName('rogfk.no')) >> queue
-        1 * queue.offer(testDto)
+        latch.await(2, TimeUnit.SECONDS)
     }
 
-    def "Send object to upstream queue"() {
+    def "Send health check and receive response"() {
         given:
-        def queue = Mock(RBlockingQueue)
-        def testDto = new TestDto()
+        def expectedEvent = new Event(corrId: event.getCorrId(), orgId: 'rfk.no', source: 'adapter', action: DefaultActions.HEALTH, client: 'adapter')
 
         when:
-        fintEvents.sendUpstream('rogfk.no', testDto)
+        fintEvents.registerDownstreamListener('rfk.no', { e -> fintEvents.sendUpstream(expectedEvent) } as FintEventListener)
+        def responseEvent = fintEvents.sendHealthCheck(event)
 
         then:
-        1 * client.getBlockingQueue(upstreamQueueName('rogfk.no')) >> queue
-        1 * queue.offer(testDto)
-    }
-
-    def "Register listener, duplicates will not be registered"() {
-        when:
-        fintEvents.registerListener('test-listener-queue', TestListener)
-        fintEvents.registerListener('test-listener-queue', TestListener)
-
-        then:
-        2 * applicationContext.getBean(TestListener) >> new TestListener()
-        2 * client.getBlockingQueue('test-listener-queue')
-        1 * scheduling.register(_ as Listener)
-        fintEvents.listeners.size() == 1
-        fintEvents.listeners[0].queueName == 'test-listener-queue'
-        fintEvents.listeners[0].object.class == TestListener
-    }
-
-    def "Register downstream listener"() {
-        when:
-        def listenerId = fintEvents.registerDownstreamListener(TestListener, 'rogfk.no')
-
-        then:
-        1 * applicationContext.getBean(TestListener) >> new TestListener()
-        1 * client.getBlockingQueue(downstreamQueueName('rogfk.no'))
-        1 * scheduling.register(_ as Listener)
-        listenerId.isPresent()
-        fintEvents.listeners.size() == 1
-        fintEvents.listeners[0].object.class == TestListener
-        fintEvents.listeners[0].queueName.contains('rogfk.no')
-    }
-
-    def "Register multiple downstream listener"() {
-        when:
-        def listenerIds = fintEvents.registerDownstreamListener(TestListener, 'rogfk.no', 'hfk.no')
-
-        then:
-        2 * applicationContext.getBean(TestListener) >> new TestListener()
-        1 * client.getBlockingQueue(downstreamQueueName('rogfk.no'))
-        1 * client.getBlockingQueue(downstreamQueueName('hfk.no'))
-        2 * scheduling.register(_ as Listener)
-        listenerIds.size() == 2
-        fintEvents.listeners.size() == 2
-        fintEvents.listeners[0].object.class == TestListener
-        fintEvents.listeners[0].queueName.contains('rogfk.no')
-        fintEvents.listeners[1].object.class == TestListener
-        fintEvents.listeners[1].queueName.contains('hfk.no')
-    }
-
-    def "Register upsteam listener"() {
-        when:
-        def listenerId = fintEvents.registerUpstreamListener(TestListener, 'rogfk.no')
-
-        then:
-        1 * applicationContext.getBean(TestListener) >> new TestListener()
-        1 * client.getBlockingQueue(upstreamQueueName('rogfk.no'))
-        1 * scheduling.register(_ as Listener)
-        listenerId.isPresent()
-        fintEvents.listeners.size() == 1
-        fintEvents.listeners[0].object.class == TestListener
-        fintEvents.listeners[0].queueName.contains('rogfk.no')
-    }
-
-    def "Register multiple upstream listener"() {
-        when:
-        def listenerIds = fintEvents.registerUpstreamListener(TestListener, 'rogfk.no', 'hfk.no')
-
-        then:
-        2 * applicationContext.getBean(TestListener) >> new TestListener()
-        1 * client.getBlockingQueue(upstreamQueueName('rogfk.no'))
-        1 * client.getBlockingQueue(upstreamQueueName('hfk.no'))
-        2 * scheduling.register(_ as Listener)
-        listenerIds.size() == 2
-        fintEvents.listeners.size() == 2
-        fintEvents.listeners[0].queueName.contains('rogfk.no')
-        fintEvents.listeners[1].queueName.contains('hfk.no')
-        fintEvents.listeners[0].object.class == TestListener
-        fintEvents.listeners[1].object.class == TestListener
-    }
-
-    def "Unregister listener"() {
-        given:
-        def listeners = [new Listener(id: '123')]
-        def fintEvents = new FintEvents(scheduling: scheduling, listeners: listeners)
-
-        when:
-        def unregistered = fintEvents.unregisterListener('123')
-
-        then:
-        1 * scheduling.unregister('123')
-        unregistered
-        listeners.size() == 0
-    }
-
-    def "Return false if no listeners are unregistered"() {
-        when:
-        def unregistered = fintEvents.unregisterListener('test123')
-
-        then:
-        !unregistered
-    }
-
-    def "List registered listener ids"() {
-        given:
-        def fintEvents = new FintEvents(listeners: [new Listener(id: '123')])
-
-        when:
-        def listenerIds = fintEvents.getListenerIds()
-
-        then:
-        listenerIds.size() == 1
-        listenerIds[0] == '123'
-    }
-
-    def "Shutdown redisson client"() {
-        when:
-        fintEvents.shutdown()
-
-        then:
-        1 * client.shutdown()
-    }
-
-    def downstreamQueueName(def orgId) {
-        return "downstream_default_local_${orgId}"
-    }
-
-    def upstreamQueueName(def orgId) {
-        return "upstream_default_local_${orgId}"
+        responseEvent == expectedEvent
     }
 }

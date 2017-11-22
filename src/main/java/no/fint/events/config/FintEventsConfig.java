@@ -1,34 +1,51 @@
 package no.fint.events.config;
 
+import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.IQueue;
+import no.fint.event.model.Event;
 import no.fint.events.FintEvents;
-import no.fint.events.scheduling.FintEventsScheduling;
+import no.fint.events.internal.EventDispatcher;
+import no.fint.events.internal.FintEventsHealth;
+import no.fint.events.internal.QueueType;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.scheduling.annotation.SchedulingConfigurer;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
-import org.springframework.scheduling.config.ScheduledTaskRegistrar;
 
-@EnableScheduling
+import java.util.concurrent.BlockingQueue;
+
 @Configuration
 @ComponentScan(basePackageClasses = FintEvents.class)
-public class FintEventsConfig implements SchedulingConfigurer {
-
-    @Value("${fint.events.task-scheduler-thread-pool-size:50}")
-    private int taskSchedulerThreadPoolSize;
+public class FintEventsConfig {
 
     @Autowired
-    private FintEventsScheduling fintEventsScheduling;
+    private HazelcastInstance hazelcastInstance;
 
-    @Override
-    public void configureTasks(ScheduledTaskRegistrar registrar) {
-        ThreadPoolTaskScheduler taskScheduler = new ThreadPoolTaskScheduler();
-        taskScheduler.setPoolSize(taskSchedulerThreadPoolSize);
-        taskScheduler.initialize();
-        registrar.setTaskScheduler(taskScheduler);
-        fintEventsScheduling.setRegistrar(registrar);
+    @Autowired
+    private FintEventsHealth fintEventsHealth;
+
+    @Qualifier("no.fint.events.downstream")
+    @Bean
+    public EventDispatcher downstreamEventDispatcher() {
+        return new EventDispatcher(downstreamQueue());
     }
 
+    @Qualifier("no.fint.events.upstream")
+    @Bean
+    public EventDispatcher upstreamEventDispatcher() {
+        return new EventDispatcher(upstreamQueue());
+    }
+
+    @Bean
+    public BlockingQueue<Event> downstreamQueue() {
+        return hazelcastInstance.getQueue(QueueType.DOWNSTREAM.getQueueName());
+    }
+
+    @Bean
+    public BlockingQueue<Event> upstreamQueue() {
+        IQueue<Event> queue = hazelcastInstance.getQueue(QueueType.UPSTREAM.getQueueName());
+        queue.addItemListener(fintEventsHealth, true);
+        return queue;
+    }
 }

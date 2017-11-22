@@ -1,15 +1,17 @@
-package no.fint.events.testutils;
+package no.fint.events;
 
+import com.hazelcast.core.Hazelcast;
+import com.hazelcast.core.HazelcastInstance;
 import no.fint.events.annotations.EnableFintEvents;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
-import org.springframework.web.client.RestTemplate;
 
 @EnableFintEvents
 @SpringBootApplication
 public class TestApplication {
+
     @Bean
-    public RestTemplate restTemplate() {
-        return new RestTemplate();
+    public HazelcastInstance hazelcastInstance() {
+        return Hazelcast.newHazelcastInstance();
     }
 }
