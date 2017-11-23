@@ -22,7 +22,7 @@ class FintEventsSpec extends Specification {
         fintEvents.clearListeners()
     }
 
-    def "initialize fint events"() {
+    def "Initialize fint events"() {
         expect:
         fintEvents != null
     }

@@ -25,6 +25,11 @@ public class FintEventsConfig {
     @Autowired
     private FintEventsHealth fintEventsHealth;
 
+    @Bean
+    public FintEvents fintEvents() {
+        return new FintEvents(downstreamEventDispatcher(), upstreamEventDispatcher(), fintEventsHealth);
+    }
+
     @Qualifier("no.fint.events.downstream")
     @Bean
     public EventDispatcher downstreamEventDispatcher() {

@@ -16,13 +16,28 @@ class EventDispatcherSpec extends Specification {
         eventDispatcher = new EventDispatcher(queue)
     }
 
-    def "incoming event gets dispatched to event listener"() {
+    def "Incoming event gets dispatched to event listener"() {
         given:
         def latch = new CountDownLatch(1)
         eventDispatcher.registerListener('rfk.no', { event -> latch.countDown() } as FintEventListener)
 
         when:
         Executors.newSingleThreadExecutor().execute(eventDispatcher)
+        queue.put(new Event('rfk.no', 'test-source', DefaultActions.HEALTH, 'test-client'))
+
+        then:
+        latch.await(2, TimeUnit.SECONDS)
+    }
+
+    def "Do not start two dispatchers"() {
+        given:
+        def latch = new CountDownLatch(1)
+        eventDispatcher.registerListener('rfk.no', { event -> latch.countDown() } as FintEventListener)
+        def executorService = Executors.newFixedThreadPool(2)
+
+        when:
+        executorService.execute(eventDispatcher)
+        executorService.execute(eventDispatcher)
         queue.put(new Event('rfk.no', 'test-source', DefaultActions.HEALTH, 'test-client'))
 
         then:
