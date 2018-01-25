@@ -26,7 +26,7 @@ dependencies {
     compile("org.springframework.boot:spring-boot-starter:${springBootVersion}")
     compile("org.projectlombok:lombok:${lombokVersion}")
 
-    compile('no.fint:fint-hazelcast:1.0.0')
+    compile('no.fint:fint-hazelcast:1.1.1')
     compile('no.fint:fint-event-model:2.0.1')
 
     testCompile("cglib:cglib-nodep:${cglibVersion}")
