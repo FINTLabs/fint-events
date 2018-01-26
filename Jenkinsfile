@@ -24,7 +24,9 @@ pipeline {
                 BINTRAY = credentials('fint-bintray')
             }
             when {
-                branch 'master'
+                expression {
+                    BRANCH_NAME ==~ /v\d+\.\d+\.\d+.*/
+                }
             }
             steps {
                 unstash 'libs'
