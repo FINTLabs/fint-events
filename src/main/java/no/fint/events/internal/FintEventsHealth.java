@@ -28,7 +28,7 @@ public class FintEventsHealth implements ItemListener<Event> {
         if (event.isHealthCheck()) {
             BlockingQueue<Event> queue = waiters.remove(event.getCorrId());
             if(queue == null) {
-                log.warn("No queue found for event: {}", event);
+                log.debug("No queue found for event: {}", event);
             } else {
                 queue.offer(event);
             }
