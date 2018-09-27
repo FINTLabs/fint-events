@@ -64,4 +64,17 @@ class FintEventsSpec extends Specification {
         then:
         responseEvent == expectedEvent
     }
+
+    def "Register upstream system listener and sent system event"() {
+        given:
+        def latch = new CountDownLatch(1)
+        event.action = DefaultActions.REGISTER_ORG_ID
+
+        when:
+        fintEvents.registerUpstreamSystemListener({ e -> latch.countDown() })
+        fintEvents.sendUpstream(event)
+
+        then:
+        latch.await(2, TimeUnit.SECONDS)
+    }
 }

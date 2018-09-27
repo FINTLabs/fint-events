@@ -15,6 +15,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 @Slf4j
 public class EventDispatcher implements Runnable {
+    public static final String SYSTEM_TOPIC = "<<SYSTEM>>";
     private final BlockingQueue<Event> queue;
     private final Map<String, FintEventListener> listeners = new HashMap<>();
     private final ExecutorService executorService;
@@ -48,9 +49,13 @@ public class EventDispatcher implements Runnable {
             while (!Thread.currentThread().isInterrupted()) {
                 final Event event = queue.take();
                 log.trace("Event received: {}", event);
-                FintEventListener fintEventListener = listeners.get(event.getOrgId());
+                String topic = event.getOrgId();
+                if (event.isRegisterOrgId()) {
+                    topic = SYSTEM_TOPIC;
+                }
+                FintEventListener fintEventListener = listeners.get(topic);
                 if (fintEventListener == null) {
-                    log.error("No listener found for orgId: {} on queue: {}", event.getOrgId(), queue);
+                    log.error("No listener found for topic: {} on queue: {}", topic, queue);
                 } else {
                     executorService.execute(() -> fintEventListener.accept(event));
                 }

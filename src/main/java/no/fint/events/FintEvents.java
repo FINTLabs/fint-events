@@ -26,6 +26,14 @@ public class FintEvents {
         this.executorService = Executors.newCachedThreadPool();
     }
 
+    public void registerUpstreamSystemListener(FintEventListener fintEventListener) {
+        registerUpstreamListener(EventDispatcher.SYSTEM_TOPIC, fintEventListener);
+    }
+
+    public void registerDownstreamSystemListener(FintEventListener fintEventListener) {
+        registerDownstreamListener(EventDispatcher.SYSTEM_TOPIC, fintEventListener);
+    }
+
     public void registerUpstreamListener(String orgId, FintEventListener fintEventListener) {
         upstreamDispatcher.registerListener(orgId, fintEventListener);
         if (!upstreamDispatcher.isRunning()) {
