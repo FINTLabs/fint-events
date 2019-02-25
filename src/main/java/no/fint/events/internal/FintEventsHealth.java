@@ -1,7 +1,7 @@
 package no.fint.events.internal;
 
-import com.hazelcast.core.ItemEvent;
-import com.hazelcast.core.ItemListener;
+import com.hazelcast.core.Message;
+import com.hazelcast.core.MessageListener;
 import lombok.extern.slf4j.Slf4j;
 import no.fint.event.model.Event;
 import org.springframework.stereotype.Component;
@@ -13,7 +13,7 @@ import java.util.concurrent.SynchronousQueue;
 
 @Slf4j
 @Component
-public class FintEventsHealth implements ItemListener<Event> {
+public class FintEventsHealth implements MessageListener<Event> {
     private final Map<String, BlockingQueue<Event>> waiters = new HashMap<>();
 
     public BlockingQueue<Event> register(String id) {
@@ -23,8 +23,8 @@ public class FintEventsHealth implements ItemListener<Event> {
     }
 
     @Override
-    public void itemAdded(ItemEvent<Event> item) {
-        Event event = item.getItem();
+    public void onMessage(Message<Event> message) {
+        Event event = message.getMessageObject();
         if (event.isHealthCheck()) {
             BlockingQueue<Event> queue = waiters.remove(event.getCorrId());
             if(queue == null) {
@@ -34,9 +34,4 @@ public class FintEventsHealth implements ItemListener<Event> {
             }
         }
     }
-
-    @Override
-    public void itemRemoved(ItemEvent<Event> item) {
-    }
-
 }

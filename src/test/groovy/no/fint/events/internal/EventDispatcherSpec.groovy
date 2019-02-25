@@ -1,46 +1,32 @@
 package no.fint.events.internal
 
+import com.hazelcast.core.ITopic
+import com.hazelcast.core.Message
 import no.fint.event.model.DefaultActions
 import no.fint.event.model.Event
 import no.fint.events.FintEventListener
 import spock.lang.Specification
 
-import java.util.concurrent.*
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 
 class EventDispatcherSpec extends Specification {
-    private EventDispatcher eventDispatcher
-    private BlockingQueue<Event> queue
-
-    void setup() {
-        queue = new SynchronousQueue<Event>()
-        eventDispatcher = new EventDispatcher(queue)
-    }
 
     def "Incoming event gets dispatched to event listener"() {
         given:
+        def topic = Mock(ITopic)
+        def message = Mock(Message)
         def latch = new CountDownLatch(1)
-        eventDispatcher.registerListener('rfk.no', { event -> latch.countDown() } as FintEventListener)
 
         when:
-        Executors.newSingleThreadExecutor().execute(eventDispatcher)
-        queue.put(new Event('rfk.no', 'test-source', DefaultActions.HEALTH, 'test-client'))
+        def eventDispatcher = new EventDispatcher(topic)
+        eventDispatcher.registerListener('rfk.no', { event -> latch.countDown() } as FintEventListener)
+        eventDispatcher.onMessage(message)
 
         then:
         latch.await(2, TimeUnit.SECONDS)
+        1 * message.messageObject >> new Event('rfk.no', 'test-source', DefaultActions.HEALTH, 'test-client')
+        1 * topic.addMessageListener(_ as EventDispatcher)
     }
 
-    def "Do not start two dispatchers"() {
-        given:
-        def latch = new CountDownLatch(1)
-        eventDispatcher.registerListener('rfk.no', { event -> latch.countDown() } as FintEventListener)
-        def executorService = Executors.newFixedThreadPool(2)
-
-        when:
-        executorService.execute(eventDispatcher)
-        executorService.execute(eventDispatcher)
-        queue.put(new Event('rfk.no', 'test-source', DefaultActions.HEALTH, 'test-client'))
-
-        then:
-        latch.await(2, TimeUnit.SECONDS)
-    }
 }
