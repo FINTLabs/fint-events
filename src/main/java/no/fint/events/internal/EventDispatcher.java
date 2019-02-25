@@ -1,6 +1,8 @@
 package no.fint.events.internal;
 
-import com.hazelcast.core.HazelcastInstanceNotActiveException;
+import com.hazelcast.core.ITopic;
+import com.hazelcast.core.Message;
+import com.hazelcast.core.MessageListener;
 import lombok.Synchronized;
 import lombok.extern.slf4j.Slf4j;
 import no.fint.event.model.Event;
@@ -8,21 +10,19 @@ import no.fint.events.FintEventListener;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 @Slf4j
-public class EventDispatcher implements Runnable {
+public class EventDispatcher implements MessageListener<Event> {
     public static final String SYSTEM_TOPIC = "<<SYSTEM>>";
-    private final BlockingQueue<Event> queue;
     private final Map<String, FintEventListener> listeners = new HashMap<>();
     private final ExecutorService executorService;
-    private final AtomicBoolean running = new AtomicBoolean();
+    private final ITopic<Event> topic;
 
-    public EventDispatcher(BlockingQueue<Event> queue) {
-        this.queue = queue;
+    public EventDispatcher(ITopic<Event> topic) {
+        this.topic = topic;
+        this.topic.addMessageListener(this);
         this.executorService = Executors.newCachedThreadPool();
     }
 
@@ -31,41 +31,8 @@ public class EventDispatcher implements Runnable {
         listeners.put(orgId, fintEventListener);
     }
 
-    @Override
-    public void run() {
-        try {
-            if (running.compareAndSet(false, true)) {
-                dispatch();
-            } else {
-                log.debug("Already running");
-            }
-        } finally {
-            running.set(false);
-        }
-    }
-
-    private void dispatch() {
-        try {
-            while (!Thread.currentThread().isInterrupted()) {
-                final Event event = queue.take();
-                log.trace("Event received: {}", event);
-                String topic = event.getOrgId();
-                if (event.isRegisterOrgId()) {
-                    topic = SYSTEM_TOPIC;
-                }
-                FintEventListener fintEventListener = listeners.get(topic);
-                if (fintEventListener == null) {
-                    log.error("No listener found for topic: {} on queue: {}", topic, queue);
-                } else {
-                    executorService.execute(() -> fintEventListener.accept(event));
-                }
-            }
-        } catch (HazelcastInstanceNotActiveException | InterruptedException ignore) {
-        }
-    }
-
-    public boolean send(Event event) {
-        return queue.offer(event);
+    public void send(Event event) {
+        topic.publish(event);
     }
 
     @Synchronized
@@ -73,7 +40,19 @@ public class EventDispatcher implements Runnable {
         listeners.clear();
     }
 
-    public boolean isRunning() {
-        return running.get();
+    @Override
+    public void onMessage(Message<Event> message) {
+        final Event event = message.getMessageObject();
+        log.trace("Event received: {}", event);
+        String orgId = event.getOrgId();
+        if (event.isRegisterOrgId()) {
+            orgId = SYSTEM_TOPIC;
+        }
+        FintEventListener fintEventListener = listeners.get(orgId);
+        if (fintEventListener == null) {
+            log.error("No listener found for orgId: {}", orgId);
+        } else {
+            executorService.execute(() -> fintEventListener.accept(event));
+        }
     }
 }

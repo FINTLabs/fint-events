@@ -1,7 +1,7 @@
 package no.fint.events.config;
 
 import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.core.IQueue;
+import com.hazelcast.core.ITopic;
 import no.fint.event.model.Event;
 import no.fint.events.FintEvents;
 import no.fint.events.internal.EventDispatcher;
@@ -32,15 +32,15 @@ public class FintEventsConfig {
 
     @Bean
     public EventDispatcher downstreamEventDispatcher() {
-        IQueue<Event> queue = hazelcastInstance.getQueue(QueueType.DOWNSTREAM.getQueueName());
-        return new EventDispatcher(queue);
+        ITopic<Event> topic = hazelcastInstance.getTopic(QueueType.DOWNSTREAM.getQueueName());
+        return new EventDispatcher(topic);
     }
 
     @Bean
     public EventDispatcher upstreamEventDispatcher() {
-        IQueue<Event> queue = hazelcastInstance.getQueue(QueueType.UPSTREAM.getQueueName());
-        queue.addItemListener(fintEventsHealth, true);
-        return new EventDispatcher(queue);
+        ITopic<Event> topic = hazelcastInstance.getTopic(QueueType.UPSTREAM.getQueueName());
+        topic.addMessageListener(fintEventsHealth);
+        return new EventDispatcher(topic);
     }
 
 }
