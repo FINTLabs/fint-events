@@ -8,6 +8,7 @@ apply plugin: 'groovy'
 apply plugin: 'maven'
 
 sourceCompatibility = 1.8
+group = 'no.fint'
 
 repositories {
     mavenLocal()
@@ -44,3 +45,5 @@ test {
 if (project.hasProperty('bintrayUser') && project.hasProperty('bintrayKey')) {
     apply from: 'https://raw.githubusercontent.com/FINTlibs/fint-buildscripts/v1.1.0/bintray.gradle'
 }
+
+apply from: 'https://raw.githubusercontent.com/FINTlibs/fint-buildscripts/v1.6.0/dependencyReport.gradle'

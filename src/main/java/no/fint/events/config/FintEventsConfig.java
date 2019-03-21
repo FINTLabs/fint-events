@@ -6,6 +6,7 @@ import no.fint.event.model.Event;
 import no.fint.events.FintEvents;
 import no.fint.events.internal.EventDispatcher;
 import no.fint.events.internal.FintEventsHealth;
+import no.fint.events.internal.FintEventsSync;
 import no.fint.events.internal.QueueType;
 import no.fint.hazelcast.FintHazelcastConfig;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,9 +26,12 @@ public class FintEventsConfig {
     @Autowired
     private FintEventsHealth fintEventsHealth;
 
+    @Autowired
+    private FintEventsSync fintEventsSync;
+
     @Bean
     public FintEvents fintEvents() {
-        return new FintEvents(downstreamEventDispatcher(), upstreamEventDispatcher(), fintEventsHealth);
+        return new FintEvents(downstreamEventDispatcher(), upstreamEventDispatcher(), fintEventsHealth, fintEventsSync);
     }
 
     @Bean
@@ -40,6 +44,7 @@ public class FintEventsConfig {
     public EventDispatcher upstreamEventDispatcher() {
         IQueue<Event> queue = hazelcastInstance.getQueue(QueueType.UPSTREAM.getQueueName());
         queue.addItemListener(fintEventsHealth, true);
+        queue.addItemListener(fintEventsSync, true);
         return new EventDispatcher(queue);
     }
 

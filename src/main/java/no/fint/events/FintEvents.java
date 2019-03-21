@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import no.fint.event.model.Event;
 import no.fint.events.internal.EventDispatcher;
 import no.fint.events.internal.FintEventsHealth;
+import no.fint.events.internal.FintEventsSync;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
@@ -16,13 +17,15 @@ public class FintEvents {
     private final EventDispatcher downstreamDispatcher;
     private final EventDispatcher upstreamDispatcher;
     private final FintEventsHealth fintEventsHealth;
+    private final FintEventsSync fintEventsSync;
     private ExecutorService executorService;
 
 
-    public FintEvents(EventDispatcher downstreamDispatcher, EventDispatcher upstreamDispatcher, FintEventsHealth fintEventsHealth) {
+    public FintEvents(EventDispatcher downstreamDispatcher, EventDispatcher upstreamDispatcher, FintEventsHealth fintEventsHealth, FintEventsSync fintEventsSync) {
         this.downstreamDispatcher = downstreamDispatcher;
         this.upstreamDispatcher = upstreamDispatcher;
         this.fintEventsHealth = fintEventsHealth;
+        this.fintEventsSync = fintEventsSync;
         this.executorService = Executors.newCachedThreadPool();
     }
 
@@ -58,6 +61,16 @@ public class FintEvents {
 
     public Event sendHealthCheck(Event event) {
         BlockingQueue<Event> queue = fintEventsHealth.register(event.getCorrId());
+        sendDownstream(event);
+        try {
+            return queue.poll(30, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public Event sendSyncEvent(Event event) {
+        BlockingQueue<Event> queue = fintEventsSync.register(event.getCorrId());
         sendDownstream(event);
         try {
             return queue.poll(30, TimeUnit.SECONDS);

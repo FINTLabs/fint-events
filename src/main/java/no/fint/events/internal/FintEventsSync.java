@@ -13,15 +13,11 @@ import java.util.concurrent.SynchronousQueue;
 
 @Slf4j
 @Component
-public class FintEventsHealth extends FintEventsAbstract {
-
+public class FintEventsSync extends FintEventsAbstract {
 
     @Override
     public void itemAdded(ItemEvent<Event> item) {
-        Event event = item.getItem();
-        if (event.isHealthCheck()) {
-            offer(event);
-        }
+        offer(item.getItem());
     }
 
     @Override
