@@ -52,19 +52,6 @@ class FintEventsSpec extends Specification {
         latch.await(2, TimeUnit.SECONDS)
     }
 
-    @Ignore("Unreliable test")
-    def "Send health check and receive response"() {
-        given:
-        def expectedEvent = new Event(corrId: event.getCorrId(), orgId: 'rfk.no', source: 'adapter', action: DefaultActions.HEALTH, client: 'adapter')
-
-        when:
-        fintEvents.registerDownstreamListener('rfk.no', { e -> fintEvents.sendUpstream(expectedEvent) } as FintEventListener)
-        def responseEvent = fintEvents.sendHealthCheck(event)
-
-        then:
-        responseEvent == expectedEvent
-    }
-
     def "Register upstream system listener and sent system event"() {
         given:
         def latch = new CountDownLatch(1)
