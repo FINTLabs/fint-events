@@ -1,11 +1,11 @@
 plugins {
     id 'com.github.ben-manes.versions' version '0.17.0'
-    id 'com.jfrog.bintray' version '1.8.0'
 }
 
 apply plugin: 'java'
 apply plugin: 'groovy'
 apply plugin: 'maven'
+apply plugin: 'maven-publish'
 
 sourceCompatibility = 1.8
 
@@ -13,7 +13,7 @@ repositories {
     mavenLocal()
     jcenter()
     maven {
-        url "http://dl.bintray.com/fint/maven"
+        url 'https://repo.fintlabs.no/releases'
     }
 }
 
@@ -22,8 +22,8 @@ dependencies {
     compile("org.springframework.boot:spring-boot-starter:${springBootVersion}")
     compile("org.projectlombok:lombok:${lombokVersion}")
 
-    compile('no.fint:fint-hazelcast:1.1.1')
-    compile('no.fint:fint-event-model:2.0.1')
+    compile('no.fint:fint-hazelcast:1.2.0')
+    compile('no.fint:fint-event-model:3.0.1')
 
     testCompile("cglib:cglib-nodep:${cglibVersion}")
     testCompile("org.spockframework:spock-spring:${spockSpringVersion}")
@@ -41,6 +41,4 @@ test {
     }
 }
 
-if (project.hasProperty('bintrayUser') && project.hasProperty('bintrayKey')) {
-    apply from: 'https://raw.githubusercontent.com/FINTlibs/fint-buildscripts/v1.1.0/bintray.gradle'
-}
+apply from: 'https://raw.githubusercontent.com/FINTLabs/fint-buildscripts/master/reposilite.gradle'
