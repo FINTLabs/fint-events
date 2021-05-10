@@ -10,7 +10,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @Slf4j
@@ -21,9 +20,9 @@ public class EventDispatcher implements Runnable {
     private final ExecutorService executorService;
     private final AtomicBoolean running = new AtomicBoolean();
 
-    public EventDispatcher(BlockingQueue<Event> queue) {
+    public EventDispatcher(BlockingQueue<Event> queue, ExecutorService executorService) {
         this.queue = queue;
-        this.executorService = Executors.newCachedThreadPool();
+        this.executorService = executorService;
     }
 
     @Synchronized

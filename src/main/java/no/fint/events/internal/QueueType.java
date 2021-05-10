@@ -1,13 +1,14 @@
 package no.fint.events.internal;
 
-import lombok.Getter;
-
 public enum QueueType {
     UPSTREAM("no.fint.upstream"),
     DOWNSTREAM("no.fint.downstream");
 
-    @Getter
     private String queueName;
+
+    public String getQueueName(String orgId) {
+        return queueName + "." + orgId;
+    }
 
     QueueType(String queueName) {
         this.queueName = queueName;
