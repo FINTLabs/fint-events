@@ -17,7 +17,7 @@ repositories {
     }
 }
 
-apply from: 'https://raw.githubusercontent.com/FINTlibs/fint-buildscripts/v1.1.0/dependencies.gradle'
+apply from: 'https://raw.githubusercontent.com/FINTLabs/fint-buildscripts/v1.8.0/dependencies.gradle'
 dependencies {
     compile("org.springframework.boot:spring-boot-starter:${springBootVersion}")
     compile("org.projectlombok:lombok:${lombokVersion}")
