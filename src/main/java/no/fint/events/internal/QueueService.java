@@ -25,10 +25,10 @@ public class QueueService {
     }
 
     public boolean send(QueueType queueType, Event<?> event) {
-        final String topic = getTopic(event);
-        log.debug("Send {} {}", queueType, topic);
+        final String queueName = queueType.getQueueName(getTopic(event));
+        log.debug("Send to {}", queueName);
         log.trace("Send event {}", event);
-        return getQueue(queueType.getQueueName(topic)).offer(event);
+        return getQueue(queueName).offer(event);
     }
 
     private String getTopic(Event<?> event) {

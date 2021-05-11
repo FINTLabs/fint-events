@@ -47,7 +47,7 @@ public class EventDispatcher implements Runnable {
         try {
             while (!Thread.currentThread().isInterrupted()) {
                 final Event<?> event = queue.take();
-                log.trace("Event received: {}", event);
+                log.trace("Event received on {}: {}", queue, event);
                 String topic = event.getOrgId();
                 if (event.isRegisterOrgId()) {
                     topic = SYSTEM_TOPIC;
