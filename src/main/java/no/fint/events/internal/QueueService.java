@@ -21,7 +21,7 @@ public class QueueService {
         executorService = Executors.newCachedThreadPool();
     }
 
-    public boolean send(QueueType queueType, Event event) {
+    public boolean send(QueueType queueType, Event<?> event) {
         final EventDispatcher dispatcher = getDispatcherFor(queueType, getTopic(event));
         if (!dispatcher.isRunning()) {
             executorService.execute(dispatcher);
@@ -29,7 +29,7 @@ public class QueueService {
         return dispatcher.send(event);
     }
 
-    private String getTopic(Event event) {
+    private String getTopic(Event<?> event) {
         if (event.isRegisterOrgId()) {
             return SYSTEM_TOPIC;
         }

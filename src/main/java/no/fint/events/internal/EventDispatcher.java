@@ -15,12 +15,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @Slf4j
 public class EventDispatcher implements Runnable {
     public static final String SYSTEM_TOPIC = "<<SYSTEM>>";
-    private final BlockingQueue<Event> queue;
+    private final BlockingQueue<Event<?>> queue;
     private final Map<String, FintEventListener> listeners = new HashMap<>();
     private final ExecutorService executorService;
     private final AtomicBoolean running = new AtomicBoolean();
 
-    public EventDispatcher(BlockingQueue<Event> queue, ExecutorService executorService) {
+    public EventDispatcher(BlockingQueue<Event<?>> queue, ExecutorService executorService) {
         this.queue = queue;
         this.executorService = executorService;
     }
@@ -46,7 +46,7 @@ public class EventDispatcher implements Runnable {
     private void dispatch() {
         try {
             while (!Thread.currentThread().isInterrupted()) {
-                final Event event = queue.take();
+                final Event<?> event = queue.take();
                 log.trace("Event received: {}", event);
                 String topic = event.getOrgId();
                 if (event.isRegisterOrgId()) {
@@ -63,7 +63,7 @@ public class EventDispatcher implements Runnable {
         }
     }
 
-    public boolean send(Event event) {
+    public boolean send(Event<?> event) {
         return queue.offer(event);
     }
 

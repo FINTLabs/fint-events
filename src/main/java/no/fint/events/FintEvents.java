@@ -31,11 +31,11 @@ public class FintEvents {
         queueService.register(QueueType.DOWNSTREAM, orgId, fintEventListener);
     }
 
-    public boolean sendUpstream(Event event) {
+    public boolean sendUpstream(Event<?> event) {
         return queueService.send(QueueType.UPSTREAM, event);
     }
 
-    public boolean sendDownstream(Event event) {
+    public boolean sendDownstream(Event<?> event) {
         return queueService.send(QueueType.DOWNSTREAM, event);
     }
 
