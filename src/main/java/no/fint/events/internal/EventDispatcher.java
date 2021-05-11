@@ -63,10 +63,6 @@ public class EventDispatcher implements Runnable {
         }
     }
 
-    public boolean send(Event<?> event) {
-        return queue.offer(event);
-    }
-
     @Synchronized
     public void clearListeners() {
         listeners.clear();

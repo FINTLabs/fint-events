@@ -9,6 +9,8 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
+import java.util.concurrent.Executors;
+
 @Configuration
 @Import(FintHazelcastConfig.class)
 @ComponentScan(basePackageClasses = FintEvents.class)
@@ -21,7 +23,7 @@ public class FintEventsConfig {
 
     @Bean
     public QueueService queueService(HazelcastInstance hazelcastInstance) {
-        return new QueueService(hazelcastInstance);
+        return new QueueService(hazelcastInstance, Executors.newCachedThreadPool());
     }
 
 }
