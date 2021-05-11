@@ -1,6 +1,7 @@
 package no.fint.events.internal;
 
 import com.hazelcast.core.HazelcastInstance;
+import lombok.extern.slf4j.Slf4j;
 import no.fint.event.model.Event;
 import no.fint.events.FintEventListener;
 
@@ -11,6 +12,7 @@ import java.util.concurrent.Executors;
 
 import static no.fint.events.internal.EventDispatcher.SYSTEM_TOPIC;
 
+@Slf4j
 public class QueueService {
     private final HazelcastInstance hazelcastInstance;
     private final ConcurrentMap<String, EventDispatcher> dispatchers = new ConcurrentHashMap<>();
@@ -22,7 +24,10 @@ public class QueueService {
     }
 
     public boolean send(QueueType queueType, Event<?> event) {
-        final EventDispatcher dispatcher = getDispatcherFor(queueType, getTopic(event));
+        final String topic = getTopic(event);
+        log.debug("Send to {} {}", queueType, topic);
+        log.trace("Send event {}", event);
+        final EventDispatcher dispatcher = getDispatcherFor(queueType, topic);
         if (!dispatcher.isRunning()) {
             executorService.execute(dispatcher);
         }
@@ -37,6 +42,7 @@ public class QueueService {
     }
 
     public void register(QueueType queueType, String orgId, FintEventListener listener) {
+        log.debug("Register {} {} {}", queueType, orgId, listener);
         final EventDispatcher dispatcher = getDispatcherFor(queueType, orgId);
         dispatcher.registerListener(orgId, listener);
     }

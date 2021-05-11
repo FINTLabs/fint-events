@@ -25,10 +25,12 @@ public class FintEvents {
 
     public void registerUpstreamListener(String orgId, FintEventListener fintEventListener) {
         queueService.register(QueueType.UPSTREAM, orgId, fintEventListener);
+        log.debug("Registered upstream listener for {}", orgId);
     }
 
     public void registerDownstreamListener(String orgId, FintEventListener fintEventListener) {
         queueService.register(QueueType.DOWNSTREAM, orgId, fintEventListener);
+        log.debug("Registered downstream listener for {}", orgId);
     }
 
     public boolean sendUpstream(Event<?> event) {
