@@ -4,6 +4,7 @@ import com.hazelcast.core.HazelcastInstance;
 import lombok.extern.slf4j.Slf4j;
 import no.fint.event.model.Event;
 import no.fint.events.FintEventListener;
+import org.springframework.util.StringUtils;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
@@ -32,16 +33,17 @@ public class QueueService {
     }
 
     private String getTopic(Event<?> event) {
-        if (event.isRegisterOrgId()) {
+        if (!StringUtils.hasText(event.getOrgId())) {
             return SYSTEM_TOPIC;
         }
         return event.getOrgId();
     }
 
     public void register(QueueType queueType, String orgId, FintEventListener listener) {
-        log.debug("Register {} {} {}", queueType, orgId, listener);
-        final EventDispatcher dispatcher = dispatchers.computeIfAbsent(queueType.getQueueName(orgId), this::createDispatcher);
-        dispatcher.registerListener(orgId, listener);
+        final String queueName = queueType.getQueueName(orgId);
+        log.debug("Register {} {}", queueName, listener);
+        final EventDispatcher dispatcher = dispatchers.computeIfAbsent(queueName, this::createDispatcher);
+        dispatcher.registerListener(listener);
         if (!dispatcher.isRunning()) {
             executorService.execute(dispatcher);
         }

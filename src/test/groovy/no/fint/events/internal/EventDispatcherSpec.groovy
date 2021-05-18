@@ -21,7 +21,7 @@ class EventDispatcherSpec extends Specification {
     def "Incoming event gets dispatched to event listener"() {
         given:
         def latch = new CountDownLatch(1)
-        eventDispatcher.registerListener('rfk.no', { event -> latch.countDown() } as FintEventListener)
+        eventDispatcher.registerListener({ event -> latch.countDown() } as FintEventListener)
 
         when:
         Executors.newSingleThreadExecutor().execute(eventDispatcher)
@@ -34,7 +34,7 @@ class EventDispatcherSpec extends Specification {
     def "Do not start two dispatchers"() {
         given:
         def latch = new CountDownLatch(1)
-        eventDispatcher.registerListener('rfk.no', { event -> latch.countDown() } as FintEventListener)
+        eventDispatcher.registerListener({ event -> latch.countDown() } as FintEventListener)
 
         when:
         executorService.execute(eventDispatcher)
