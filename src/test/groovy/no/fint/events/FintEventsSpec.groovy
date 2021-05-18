@@ -55,7 +55,7 @@ class FintEventsSpec extends Specification {
     def "Register upstream system listener and sent system event"() {
         given:
         def latch = new CountDownLatch(1)
-        event.action = DefaultActions.REGISTER_ORG_ID
+        event.orgId = ''
 
         when:
         fintEvents.registerUpstreamSystemListener({ e -> latch.countDown() })

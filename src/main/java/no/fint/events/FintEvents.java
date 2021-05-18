@@ -3,22 +3,16 @@ package no.fint.events;
 import lombok.extern.slf4j.Slf4j;
 import no.fint.event.model.Event;
 import no.fint.events.internal.EventDispatcher;
-
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import no.fint.events.internal.QueueService;
+import no.fint.events.internal.QueueType;
 
 @Slf4j
 public class FintEvents {
 
-    private final EventDispatcher downstreamDispatcher;
-    private final EventDispatcher upstreamDispatcher;
-    private ExecutorService executorService;
+    private final QueueService queueService;
 
-
-    public FintEvents(EventDispatcher downstreamDispatcher, EventDispatcher upstreamDispatcher) {
-        this.downstreamDispatcher = downstreamDispatcher;
-        this.upstreamDispatcher = upstreamDispatcher;
-        this.executorService = Executors.newCachedThreadPool();
+    public FintEvents(QueueService queueService) {
+        this.queueService = queueService;
     }
 
     public void registerUpstreamSystemListener(FintEventListener fintEventListener) {
@@ -30,30 +24,25 @@ public class FintEvents {
     }
 
     public void registerUpstreamListener(String orgId, FintEventListener fintEventListener) {
-        upstreamDispatcher.registerListener(orgId, fintEventListener);
-        if (!upstreamDispatcher.isRunning()) {
-            executorService.execute(upstreamDispatcher);
-        }
+        queueService.register(QueueType.UPSTREAM, orgId, fintEventListener);
+        log.debug("Registered upstream listener for {}", orgId);
     }
 
     public void registerDownstreamListener(String orgId, FintEventListener fintEventListener) {
-        downstreamDispatcher.registerListener(orgId, fintEventListener);
-        if (!downstreamDispatcher.isRunning()) {
-            executorService.execute(downstreamDispatcher);
-        }
+        queueService.register(QueueType.DOWNSTREAM, orgId, fintEventListener);
+        log.debug("Registered downstream listener for {}", orgId);
     }
 
-    public boolean sendUpstream(Event event) {
-        return upstreamDispatcher.send(event);
+    public boolean sendUpstream(Event<?> event) {
+        return queueService.send(QueueType.UPSTREAM, event);
     }
 
-    public boolean sendDownstream(Event event) {
-        return downstreamDispatcher.send(event);
+    public boolean sendDownstream(Event<?> event) {
+        return queueService.send(QueueType.DOWNSTREAM, event);
     }
 
     public void clearListeners() {
         log.debug("Clearing listeners...");
-        downstreamDispatcher.clearListeners();
-        upstreamDispatcher.clearListeners();
+        queueService.clear();
     }
 }

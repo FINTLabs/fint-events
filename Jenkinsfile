@@ -2,14 +2,13 @@ pipeline {
     agent {
         docker {
             label 'docker'
-            image 'gradle:4.6.0-jdk8-alpine'
+            image 'gradle:4.10.3-jdk8-alpine'
         }
     }
     stages {
         stage('Build') {
             steps {
                 sh 'gradle --no-daemon clean build'
-                archiveArtifacts 'build/libs/*.jar'
             }
         }
         stage('Deploy') {
