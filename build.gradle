@@ -41,4 +41,4 @@ test {
     }
 }
 
-apply from: 'https://github.com/FINTLabs/fint-buildscripts/blob/master/reposilite.fint.ga.gradle'
+apply from: 'https://raw.githubusercontent.com/FINTLabs/fint-buildscripts/master/reposilite.fint.ga.gradle'
