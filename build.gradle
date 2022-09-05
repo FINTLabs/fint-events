@@ -41,4 +41,22 @@ test {
     }
 }
 
-apply from: 'https://raw.githubusercontent.com/FINTLabs/fint-buildscripts/master/reposilite.gradle'
+publishing {
+    repositories {
+        maven {
+            url "https://repo.fintlabs.no/releases"
+            credentials {
+                username = System.getenv("REPOSILITE_USERNAME")
+                password = System.getenv("REPOSILITE_PASSWORD")
+            }
+            authentication {
+                basic(BasicAuthentication)
+            }
+        }
+    }
+    publications {
+        maven(MavenPublication) {
+            from(components.java)
+        }
+    }
+}
