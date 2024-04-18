@@ -1,8 +1,8 @@
-package no.fint.events;
+package no.fintlabs.events;
 
 import lombok.extern.slf4j.Slf4j;
 import no.fint.event.model.Event;
-import no.fint.events.internal.EventDispatcher;
+import no.fintlabs.events.internal.EventDispatcher;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
