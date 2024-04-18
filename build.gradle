@@ -20,7 +20,7 @@ repositories {
 dependencies {
     implementation "org.springframework.boot:spring-boot-starter"
 
-    implementation 'no.fint:fint-hazelcast:1.2.0'
+    implementation 'no.fintlabs:fint-hazelcast:2.0.0-rc-1'
     implementation 'no.fint:fint-event-model:3.0.1'
 
     compileOnly 'org.projectlombok:lombok:1.18.32'
