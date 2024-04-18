@@ -20,16 +20,21 @@ repositories {
 dependencies {
     implementation "org.springframework.boot:spring-boot-starter"
 
+    implementation('com.hazelcast:hazelcast:3.11.2')
     implementation 'no.fintlabs:fint-hazelcast:2.0.0-rc-1'
     implementation 'no.fint:fint-event-model:3.0.1'
 
     compileOnly 'org.projectlombok:lombok:1.18.32'
     annotationProcessor 'org.projectlombok:lombok:1.18.32'
 
-    testImplementation("cglib:cglib-nodep")
-    testImplementation("org.spockframework:spock-spring")
+    testImplementation("cglib:cglib-nodep:3.3.0")
+    testImplementation("org.spockframework:spock-spring:2.4-M4-groovy-4.0")
     testImplementation("org.spockframework:spock-core")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
+}
+
+bootJar {
+    enabled = false
 }
 
 test {
