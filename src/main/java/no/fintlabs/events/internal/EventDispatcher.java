@@ -1,10 +1,10 @@
-package no.fint.events.internal;
+package no.fintlabs.events.internal;
 
 import com.hazelcast.core.HazelcastInstanceNotActiveException;
 import lombok.Synchronized;
 import lombok.extern.slf4j.Slf4j;
 import no.fint.event.model.Event;
-import no.fint.events.FintEventListener;
+import no.fintlabs.events.FintEventListener;
 
 import java.util.HashMap;
 import java.util.Map;

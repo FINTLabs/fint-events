@@ -1,4 +1,4 @@
-package no.fint.events.internal;
+package no.fintlabs.events.internal;
 
 import lombok.Getter;
 

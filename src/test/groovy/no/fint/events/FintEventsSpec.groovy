@@ -2,6 +2,8 @@ package no.fint.events
 
 import no.fint.event.model.DefaultActions
 import no.fint.event.model.Event
+import no.fintlabs.events.FintEventListener
+import no.fintlabs.events.FintEvents
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import spock.lang.Ignore

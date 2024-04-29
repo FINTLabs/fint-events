@@ -1,13 +1,13 @@
-package no.fint.events.config;
+package no.fintlabs.events.config;
 
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IQueue;
+import lombok.RequiredArgsConstructor;
 import no.fint.event.model.Event;
-import no.fint.events.FintEvents;
-import no.fint.events.internal.EventDispatcher;
-import no.fint.events.internal.QueueType;
+import no.fintlabs.events.FintEvents;
+import no.fintlabs.events.internal.EventDispatcher;
+import no.fintlabs.events.internal.QueueType;
 import no.fint.hazelcast.FintHazelcastConfig;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -15,11 +15,11 @@ import org.springframework.context.annotation.Import;
 
 @Configuration
 @Import(FintHazelcastConfig.class)
-@ComponentScan(basePackageClasses = FintEvents.class)
+@ComponentScan("no.fint")
+@RequiredArgsConstructor
 public class FintEventsConfig {
 
-    @Autowired
-    private HazelcastInstance hazelcastInstance;
+    private final HazelcastInstance hazelcastInstance;
 
     @Bean
     public FintEvents fintEvents() {

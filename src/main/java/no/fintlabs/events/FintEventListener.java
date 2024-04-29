@@ -1,4 +1,4 @@
-package no.fint.events;
+package no.fintlabs.events;
 
 import no.fint.event.model.Event;
 
