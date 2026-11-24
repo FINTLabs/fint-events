@@ -22,7 +22,7 @@ dependencies {
 
     implementation('com.hazelcast:hazelcast:3.11.2')
     implementation 'no.fintlabs:fint-hazelcast:2.0.0-rc-1'
-    implementation 'no.fint:fint-event-model:3.0.1'
+    implementation 'no.fint:fint-event-model:4.0.0'
 
     compileOnly 'org.projectlombok:lombok:1.18.32'
     annotationProcessor 'org.projectlombok:lombok:1.18.32'
